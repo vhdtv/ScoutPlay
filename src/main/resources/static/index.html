@@ -1,0 +1,164 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>ScoutPlay</title>
+  <link rel="icon" href="loGOsp.png" type="image/x-icon">
+
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: 'Roboto', sans-serif; /* Nova fonte */
+      color: #fff;
+      overflow-y: auto;
+      background: linear-gradient(to right, #1a2a6c, #2a24d1, #020036); /* Gradiente azul e amarelo */
+    }
+
+    .container {
+      display: flex;
+      flex-direction: column;
+      min-height: 100vh;
+    }
+
+    .image-section {
+      background-image: url('pexels-franco-monsalvo-252430633-14030575.jpg');
+      background-size: cover;
+      background-position: center;
+      height: 66.6vh;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      text-align: center;
+      padding: 20px;
+      position: relative;
+      box-shadow: inset 0 0 50px rgba(0, 0, 0, 0.7); /* Sombra interna */
+    }
+
+    .image-section h1 {
+      font-size: 60px;
+      margin: 0;
+      font-weight: bold;
+      text-shadow: 2px 2px 5px rgba(0, 0, 0, 0.7);
+    }
+
+    .image-section p {
+      font-size: 20px; /* Aumentar o tamanho do texto */
+      margin: 20px 0;
+      text-shadow: 2px 2px 5px rgba(0, 0, 0, 0.7);
+    }
+
+    .btn {
+      padding: 12px 40px;
+      background-color: #007bff; /* Azul claro */
+      color: white;
+      border: none;
+      font-size: 20px;
+      cursor: pointer;
+      border-radius: 5px; /* Botões levemente arredondados */
+      transition: background-color 0.3s, box-shadow 0.3s;
+    }
+
+    .btn:hover {
+      background-color: #0056b3; /* Azul mais escuro */
+      box-shadow: 0 0 10px rgba(0, 0, 0, 0.5);
+    }
+
+    .about {
+      background-color: #343a40; /* Cinza escuro */
+      color: #f8f9fa; /* Texto claro */
+      padding: 30px;
+      text-align: center;
+      border-radius: 5px; /* Cantos arredondados */
+      margin: 20px;
+      box-shadow: 0 2px 10px rgba(0, 0, 0, 0.3); /* Sombra leve */
+    }
+
+    .about h2 {
+      margin-bottom: 20px;
+      font-size: 24px; /* Aumentar o tamanho do título */
+    }
+
+    .top-right-buttons {
+      position: absolute;
+      top: 20px;
+      left: 50%;
+      transform: translateX(-50%);
+    }
+
+    .spacer {
+      height: 20px;
+    }
+
+    #visualatleta {
+      text-align: center;
+      padding: 30px;
+      background-color: #06213b; /* Azul médio */
+      margin-top: 20px;
+      border-radius: 5px; /* Cantos arredondados */
+    }
+
+    #visubotao {
+      display: inline-block;
+      padding: 12px 30px;
+      background-color: black;
+      color: white;
+      border: 2px solid white;
+      border-radius: 10px;
+      cursor: pointer;
+      transition: background-color 0.3s, box-shadow 0.3s;
+      font-style: italic;
+      margin-top: 20px;
+      text-decoration: none;
+    }
+
+    #visubotao:hover {
+      background-color: #333;
+      box-shadow: 0 0 10px rgba(255, 255, 255, 0.5);
+    }
+  </style>
+</head>
+<body>
+
+  <div class="container">
+    <div class="image-section">
+        <div class="top-right-buttons">
+            <a href="login.html?type=atleta" class="btn" style="text-decoration: none;">Sou Atleta</a> 
+            <a href="login.html?type=olheiro" class="btn" style="text-decoration: none;">Sou Olheiro</a> 
+        </div>
+      <div>
+        <h1>Conectando Atletas e Olheiros</h1>
+        <p>Em busca de uma oportunidade no mundo do futebol? Iremos te ajudar!</p>
+      </div>
+    </div>
+
+    <div class="spacer"></div>
+
+    <div class="about">
+      <h2>Sobre Nossa Plataforma</h2>
+      <p>Nossa plataforma conecta jovens jogadores de futebol com olheiros, clubes e agências esportivas, oferecendo uma oportunidade única <br> para aqueles que sonham em seguir carreira no futebol. Para garantir a segurança dos menores de 18 anos, o cadastro é feito por pais ou responsáveis.</p>
+    </div>
+
+    <div class="spacer"></div>
+
+    <div class="about">
+        <h2>Como Funciona?</h2>
+        <p>Poste seus vídeos com seus melhores momentos, e preencha um formulário com suas qualificações como atleta! <br> Olheiros cadastrados estarão de olho nos seus melhores lances!</p>
+    </div>
+
+    <div id="visualatleta">
+        <h2>Ainda não tem seu material de melhores momentos?</h2>
+        <p>Clique no botão abaixo para solicitar sua edição!</p>
+        <a href="https://www.instagram.com/visual_atleta?igsh=MXJzcHlueDFncW5w&utm_source=qr" id="visubotao">
+            <strong>VISUAL ATLETA</strong>
+        </a>
+    </div>
+  </div>
+</body>
+</html>
+

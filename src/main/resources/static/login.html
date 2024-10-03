@@ -1,0 +1,105 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Página de Login</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            background-color: #071333; /* Azul marinho */
+            color: white;
+            font-family: Arial, sans-serif;
+        }
+
+        .login-container {
+            background-color: #0c13d9; /* Azul mais claro */
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.5);
+            text-align: center;
+        }
+
+        .login-container img {
+            width: 150px; /* Ajuste o tamanho da logo conforme necessário */
+            margin-bottom: 20px; /* Espaçamento abaixo da logo */
+        }
+
+        .login-container h2 {
+            margin-bottom: 20px;
+        }
+
+        .login-container input {
+            width: 100%;
+            padding: 10px;
+            margin: 10px 0;
+            border: none;
+            border-radius: 5px;
+        }
+
+        .login-container button {
+            background-color: #5246f9;
+            color: white;
+            border: none;
+            padding: 10px;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: background-color 0.3s;
+        }
+
+        .login-container button:hover {
+            background-color: #333;
+        }
+
+        .register-message {
+            margin-top: 20px;
+        }
+
+        .register-message a {
+            color: #ffcc00; /* Cor do link */
+            text-decoration: none;
+        }
+    </style>
+</head>
+<body>
+    <div class="login-container">
+        <img src="loGOsp.png" alt="Logo da Plataforma">
+        <h2 id="login-title">Login</h2>
+        <form id="loginForm" onsubmit="handleLogin(event)">
+            <input type="text" placeholder="Login" required>
+            <input type="password" placeholder="Senha" required>
+            <button type="submit">Entrar</button>
+        </form>
+        <div class="register-message">
+            <p>Ainda não tem conta? <a href="#" id="register-link">Clique aqui</a></p>
+        </div>
+    </div>
+    <script>
+        const urlParams = new URLSearchParams(window.location.search);
+        const userType = urlParams.get('type');
+
+        // Atualiza o link dependendo do tipo de usuário
+        if (userType === 'atleta') {
+            document.getElementById('login-title').innerText = 'Login - Atleta';
+            document.getElementById('register-link').setAttribute('href', 'formularioAtleta.html');
+        } else if (userType === 'olheiro') {
+            document.getElementById('login-title').innerText = 'Login - Olheiro';
+            document.getElementById('register-link').setAttribute('href', 'formularioOlheiro.html');
+        }
+
+        function handleLogin(event) {
+            event.preventDefault(); // Previne o envio do formulário
+            window.location.href = 'index.html'; // Altere conforme necessário
+        }
+    </script>
+</body>
+</html>
