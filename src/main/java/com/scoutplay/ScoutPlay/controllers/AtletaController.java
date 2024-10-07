@@ -1,12 +1,11 @@
 package com.scoutplay.ScoutPlay.controllers;
 
 import com.scoutplay.ScoutPlay.models.Atleta;
+import com.scoutplay.ScoutPlay.services.AtletaService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
-import java.lang.reflect.Array;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
@@ -18,7 +17,7 @@ public class AtletaController {
     @Autowired
     private AtletaService atletaService;
 
-    //Endpoint para buscar atleta por ID
+    //Endpoint para buscar atleta todos atletas
     @GetMapping
     public List<Atleta> listarTodosAtletas(){
         return atletaService.buscarTodosAtletas();

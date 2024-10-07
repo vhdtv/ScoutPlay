@@ -1,6 +1,7 @@
-package com.scoutplay.ScoutPlay.controllers;
+package com.scoutplay.ScoutPlay.services;
 
 import com.scoutplay.ScoutPlay.models.Atleta;
+import com.scoutplay.ScoutPlay.repositorys.AtletaRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 

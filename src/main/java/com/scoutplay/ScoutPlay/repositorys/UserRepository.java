@@ -1,4 +1,4 @@
-package com.scoutplay.ScoutPlay.Repositorys;
+package com.scoutplay.ScoutPlay.repositorys;
 
 import com.scoutplay.ScoutPlay.models.Usuario;
 import org.springframework.data.jpa.repository.JpaRepository;
