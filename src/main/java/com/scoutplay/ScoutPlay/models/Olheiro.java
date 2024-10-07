@@ -1,9 +1,8 @@
-package com.scoutplay.ScoutPlay.model;
+package com.scoutplay.ScoutPlay.models;
 
 import jakarta.persistence.Entity;
 import lombok.Data;
 
-import java.util.ArrayList;
 import java.util.UUID;
 
 @Entity

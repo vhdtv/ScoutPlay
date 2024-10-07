@@ -1,4 +1,4 @@
-package com.scoutplay.ScoutPlay.model;
+package com.scoutplay.ScoutPlay.models;
 
 import jakarta.persistence.CascadeType;
 import jakarta.persistence.Entity;
