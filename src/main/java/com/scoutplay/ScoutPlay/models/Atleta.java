@@ -1,11 +1,8 @@
-package com.scoutplay.ScoutPlay.model;
+package com.scoutplay.ScoutPlay.models;
 
 import jakarta.persistence.*;
 import lombok.Data;
-import lombok.Getter;
-import lombok.Setter;
 
-import java.lang.reflect.Array;
 import java.util.ArrayList;
 import java.util.UUID;
 
