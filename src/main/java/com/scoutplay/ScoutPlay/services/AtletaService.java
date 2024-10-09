@@ -7,7 +7,7 @@ import org.springframework.stereotype.Service;
 
 import java.util.List;
 import java.util.Optional;
-import java.util.UUID;
+
 
 @Service
 public class AtletaService {
@@ -15,9 +15,12 @@ public class AtletaService {
     @Autowired
     private AtletaRepository atletaRepository;
 
-    //Metódo para salvar um atleta
-    public Atleta salvar(Atleta atleta) {
-        return atletaRepository.save(atleta);
+    //Metódo para criar um novo atleta
+    public Atleta criarAtleta(Atleta novoAtleta) {
+        if(novoAtleta.getId() == null || novoAtleta.getId().isEmpty()){
+            novoAtleta.setId(novoAtleta.gerarIdPersonalizado());
+        }
+        return atletaRepository.save(novoAtleta);
     }
 
     //Metódo para buscar todos atletas
@@ -26,17 +29,17 @@ public class AtletaService {
     }
 
     //Metódo para buscar atleta por ID
-    public Optional<Atleta> buscarAtletaPorId(UUID id) {
+    public Optional<Atleta> buscarAtletaPorId(String id) {
         return atletaRepository.findById(id);
     }
 
     //Metódo para deletar atleta pelo ID
-    public void deletarAtletaPorId(UUID id) {
+    public void deletarAtletaPorId(String id) {
         atletaRepository.deleteById(id);
     }
 
     //Metódo para atualizar informações de um atleta
-    public Atleta atualizarAtleta(UUID id, Atleta atletaAtualizado) {
+    public Atleta atualizarAtleta(String id, Atleta atletaAtualizado) {
         return atletaRepository.findById(id).map(atleta -> {
             atleta.setPosicao(atletaAtualizado.getPosicao());
             atleta.setPeso(atletaAtualizado.getPeso());
@@ -44,6 +47,7 @@ public class AtletaService {
             atleta.setClubesAnteriores(atletaAtualizado.getClubesAnteriores());
             atleta.setFotoPerfil(atletaAtualizado.getFotoPerfil());
             atleta.setPeDominante(atletaAtualizado.getPeDominante());
+            atleta.setTelefone(atletaAtualizado.getTelefone());
             return atletaRepository.save(atleta);
         }).orElseThrow(() -> new RuntimeException("Atleta não encontrado com ID" + id));
         }

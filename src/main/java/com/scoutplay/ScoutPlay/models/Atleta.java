@@ -4,6 +4,7 @@ import jakarta.persistence.*;
 import lombok.Data;
 
 import java.util.ArrayList;
+import java.util.List;
 import java.util.UUID;
 
 @Entity
@@ -19,14 +20,14 @@ public class Atleta extends Usuario {
     private PeDominante peDominante;
 
     @OneToMany(mappedBy = "atleta", cascade = CascadeType.ALL)
-    private ArrayList<VideoAtleta> videos;
+    private List<VideoAtleta> videos;
 
     @ManyToOne
     @JoinColumn(name = "responsavel_id")
     private Responsavel responsavel;
 
     @Override
-    protected String gerarIdPersonalizado(){
+    public String gerarIdPersonalizado(){
         return "ATL-" + UUID.randomUUID().toString();
     }
 

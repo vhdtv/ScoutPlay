@@ -21,7 +21,7 @@ public class OlheiroService {
     public Optional<Olheiro> findById(String id){
         return olheiroRepository.findById(id);
     }
-
+    //ALTERAR PARA CRIAR OLHEITO ASSIM COMO EM ATLETA
     public Olheiro save(Olheiro olheiro){
         return olheiroRepository.save(olheiro);
     }
