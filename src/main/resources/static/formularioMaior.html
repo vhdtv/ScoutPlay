@@ -1,0 +1,101 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    
+    <title>Verificação de Idade</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background: linear-gradient(to right, #1a2a6c, #2a24d1, #020036);
+            padding: 20px;
+            margin: 0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            color: #333; /* Cor padrão do texto */
+        }
+        .form-container {
+            background-color: #fff;
+            padding: 30px;
+            border-radius: 10px;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.2);
+            max-width: 400px;
+            width: 100%;
+            text-align: center; /* Centralizar texto */
+        }
+        .form-container h1 {
+            color: #2a24d1;
+            margin-bottom: 20px;
+        }
+        .form-container label {
+            margin-bottom: 10px;
+            display: block; /* Para que cada label ocupe uma linha */
+            color: #555; /* Cor mais suave para as labels */
+        }
+        .form-container .radio-group {
+            display: flex; /* Usar flexbox para colocar os botões lado a lado */
+            justify-content: center; /* Centralizar os botões */
+            margin-bottom: 20px; /* Espaçamento abaixo do grupo */
+        }
+        .form-container .radio-option {
+            display: flex; /* Exibir as bolinhas e os rótulos em coluna */
+            flex-direction: column; /* Alinhamento vertical */
+            align-items: center; /* Centralizar os itens */
+            margin: 0 20px; /* Margem horizontal entre as opções */
+        }
+        .form-container input[type="radio"] {
+            margin-bottom: 5px; /* Espaçamento entre a bolinha e o rótulo */
+        }
+        .form-container input[type="text"] {
+            padding: 10px;
+            margin-bottom: 20px;
+            border-radius: 5px;
+            border: 1px solid #ccc;
+            width: calc(100% - 22px);
+            font-size: 16px; /* Tamanho da fonte para o input */
+        }
+        .form-container button {
+            width: 100%;
+            padding: 10px;
+            background-color: #007bff;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 16px;
+            transition: background-color 0.3s ease, transform 0.2s; /* Adicionando transformação */
+        }
+        .form-container button:hover {
+            background-color: #0056b3;
+            transform: translateY(-2px); /* Pequena elevação ao passar o mouse */
+        }
+    </style>
+</head>
+<body>
+    <div class="form-container">
+        <h1>Verificação de Idade</h1>
+        <label>Você é maior de idade?</label>
+        <div class="radio-group">
+            <div class="radio-option">
+                <input type="radio" id="maior" name="age" value="maior" required>
+                <label for="maior">Sim</label>
+            </div>
+            <div class="radio-option">
+                <input type="radio" id="menor" name="age" value="menor" required>
+                <label for="menor">Não</label>
+            </div>
+        </div>
+
+        <label for="cpf">CPF:</label>
+        <input type="text" id="cpf" name="cpf" pattern="\d{3}\.\d{3}\.\d{3}-\d{2}" placeholder="xxx.xxx.xxx-xx" required>
+
+        <button type="submit" onclick="redirecionarFormularioAtleta()">Enviar</button>
+        <script src="./scriptFormularioMaior.js"></script>
+
+        
+    </div>
+</body>
+</html>
