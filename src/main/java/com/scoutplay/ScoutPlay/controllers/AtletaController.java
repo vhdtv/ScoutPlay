@@ -32,7 +32,7 @@ public class AtletaController {
 
     }
 
-    //Endpoint para buscar atleta todos atletas
+    //Endpoint para buscar todos atletas
     @GetMapping
     public List<Atleta> listarTodosAtletas(){
         return atletaService.buscarTodosAtletas();
@@ -46,11 +46,11 @@ public class AtletaController {
 
     }
 
-    //Endpoint para atualizar um atleta existente
+    //Endpoint para atualizar informações de um atleta existente
     @PutMapping("/{id}")
-    public ResponseEntity<Atleta> atualizarAtleta(@PathVariable String id, @RequestBody Atleta atletaAtualizado){
+    public ResponseEntity<Atleta> atualizarInformacoesAtleta(@PathVariable String id, @RequestBody Atleta atualizarInformacoesAtleta){
         try{
-            Atleta atleta = atletaService.atualizarAtleta(id, atletaAtualizado);
+            Atleta atleta = atletaService.atualizarAtleta(id, atualizarInformacoesAtleta);
             return ResponseEntity.ok(atleta);
         }catch(RuntimeException e){
             return ResponseEntity.notFound().build();
