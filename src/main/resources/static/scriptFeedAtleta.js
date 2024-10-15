@@ -34,7 +34,7 @@ function carregarPerfilAtleta() {
         foto: localStorage.getItem('athletePhoto') || 'default-profile.png',          // Foto de perfil padrão ou inserida
         peDominante: localStorage.getItem('athleteDominantFoot') || 'Destro',         // Pé dominante
         clubesAnteriores: localStorage.getItem('athleteClubs') || 'Sem clubes',       // Clubes anteriores
-        linkVideo: localStorage.getItem('athleteVideoLink') || 'Nenhum link inserido' // Link do vídeo (DVD)
+        linkVideo: localStorage.getItem('athleteVideoLink') || 'Assistir ao DVD' // Link do vídeo (DVD)
     };
 
     // Preenchendo os dados no HTML
