@@ -14,5 +14,35 @@ if (userType === 'atleta') {
 
 function handleLogin(event) {
     event.preventDefault(); // Previne o envio do formulário
-    window.location.href = 'index.html'; // Altere conforme necessário
+
+    const email = document.querySelector('input[type="text"]').value;
+    const senha = document.querySelector('input[type="password"]').value;
+
+    fetch('/api/login', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/x-www-form-urlencoded',
+        },
+        body: new URLSearchParams({
+            email: email,
+            senha: senha
+        })
+    })
+        .then(response => {
+            if (response.ok) {
+                return response.text();
+            } else {
+                throw new Error('Login falhou');
+            }
+        })
+        .then(data => {
+            if (data === 'Atleta') {
+                window.location.href = 'feedAtleta.html'; // Redireciona para o painel de atleta
+            } else if (data === 'Olheiro') {
+                window.location.href = 'feedOlheiro.html'; // Redireciona para o painel de olheiro
+            }
+        })
+        .catch(error => {
+            alert('Erro de login: ' + error.message);
+        });
 }
