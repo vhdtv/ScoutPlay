@@ -34,6 +34,7 @@
             display: flex;
             flex-direction: column;
             align-items: center;
+            position: relative;
         }
         .profile-pic {
             width: 180px;
@@ -42,6 +43,20 @@
             border-radius: 50%;
             border: 5px solid #2a24d1;
             margin-bottom: 20px;
+        }
+        .edit-button{
+            position: absolute;
+            top:40px;
+            right: 20px;
+            padding:5px 10px;
+            background-color: #1a2a6c;
+            color:white;
+            text-decoration: none;
+            border-radius: 5px;
+            transition: background-color 0.3s;        
+        }
+        .edit-button:hover{
+            background-color: #2a24d1;
         }
         .profile-details{
             display: flex;
@@ -89,6 +104,7 @@
 <body>
 
     <div class="profile-container">
+        <a href="editarPerfilAtleta.html" class="edit-button">Editar perfil</a>
         <img id="profilePic" class="profile-pic" src="" alt="Foto do Atleta">
         <h1 id="athleteName">Nome do Atleta</h1>
 
