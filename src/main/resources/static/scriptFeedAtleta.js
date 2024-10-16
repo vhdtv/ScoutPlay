@@ -31,11 +31,12 @@ function carregarPerfilAtleta() {
         peso: localStorage.getItem('athleteWeight') || 70,                            // Peso em kg
         altura: localStorage.getItem('athleteHeight') || 180,                         // Altura em cm
         posicao: localStorage.getItem('athletePosition') || 'Atacante',               // Posição em campo
-        foto: localStorage.getItem('athletePhoto') || 'default-profile.png',          // Foto de perfil padrão ou inserida
+        foto: localStorage.getItem('athletePhoto') || 'https://via.placeholder.com/180',          // Foto de perfil padrão ou inserida
         peDominante: localStorage.getItem('athleteDominantFoot') || 'Destro',         // Pé dominante
         clubesAnteriores: localStorage.getItem('athleteClubs') || 'Sem clubes',       // Clubes anteriores
         linkVideo: localStorage.getItem('athleteVideoLink') || 'Assistir ao DVD' // Link do vídeo (DVD)
     };
+ 
 
     // Preenchendo os dados no HTML
     document.getElementById('profilePic').src = atleta.foto;                            // Exibe a foto de perfil

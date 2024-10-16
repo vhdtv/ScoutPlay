@@ -28,7 +28,7 @@ const posicao = document.getElementById('position').value;
 const clubes = document.getElementById('clubes').value;
 const peDominante = document.getElementById('pe-dominante').value;
 const video = document.getElementById('video').value;
-const foto = document.getElementById('perfil-foto').files[0];
+let foto = document.getElementById('perfil-foto').files[0];
 
 localStorage.setItem('athleteName', nome);
 localStorage.setItem('athletePhone', telefone);
@@ -46,6 +46,9 @@ if (foto) {
     const reader = new FileReader();
     reader.onload = function (e) {
         localStorage.setItem('athletePhoto', e.target.result);
+    };
+    reader.onerror = function() {
+        alert("Erro ao carregar a imagem");
     };
     reader.readAsDataURL(foto);
 }
