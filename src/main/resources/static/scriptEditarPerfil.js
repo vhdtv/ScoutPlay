@@ -1,8 +1,6 @@
 function carregarDadosAtleta() {
     document.getElementById('name').value = localStorage.getItem('athleteName') || '';
     document.getElementById('telefone').value = localStorage.getItem('athletePhone') || '';
-    document.getElementById('cpf').value = localStorage.getItem('athleteCpf') || '';
-    document.getElementById('data-nascimento').value = localStorage.getItem('athleteDob') || '';
     document.getElementById('cep').value = localStorage.getItem('athleteCep') || '';
     document.getElementById('email').value = localStorage.getItem('athleteEmail') || '';
     document.getElementById('weight').value = localStorage.getItem('athleteWeight') || '';
