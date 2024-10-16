@@ -4,9 +4,15 @@ import com.scoutplay.ScoutPlay.models.Atleta;
 import com.scoutplay.ScoutPlay.repositorys.AtletaRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.web.multipart.MultipartFile;
 
+import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.List;
 import java.util.Optional;
+import java.util.UUID;
 
 
 @Service
@@ -51,4 +57,19 @@ public class AtletaService {
             return atletaRepository.save(atleta);
         }).orElseThrow(() -> new RuntimeException("Atleta não encontrado com ID" + id));
         }
+    // Método para salvar foto de perfil no sistema de arquivos
+    public String salvarFotoPerfil(MultipartFile fotoPerfil) throws IOException {
+        String nomeArquivo = UUID.randomUUID().toString() + "_" + fotoPerfil.getOriginalFilename();
+        Path caminhoArquivo = Paths.get("uploads/fotos_perfil/" + nomeArquivo);
+
+        // Cria os diretórios se não existirem
+        Files.createDirectories(caminhoArquivo.getParent());
+
+        // Salva o arquivo no sistema de arquivos
+        Files.copy(fotoPerfil.getInputStream(), caminhoArquivo);
+
+        return caminhoArquivo.toString(); // Retorna o caminho completo para salvar no banco
     }
+
+
+}

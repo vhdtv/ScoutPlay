@@ -4,8 +4,10 @@ import com.scoutplay.ScoutPlay.models.Atleta;
 import com.scoutplay.ScoutPlay.services.AtletaService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.util.List;
 import java.util.Optional;
@@ -19,17 +21,24 @@ public class AtletaController {
     private AtletaService atletaService;
 
     //Endpoint para criar um novo atleta
-    @PostMapping
-    public ResponseEntity<Atleta> criarAtleta(@RequestBody Atleta novoAtleta) {
-        try{
+    @PostMapping(consumes = {MediaType.MULTIPART_FORM_DATA_VALUE})
+    public ResponseEntity<Atleta> criarAtleta(
+            @RequestPart("atleta") Atleta novoAtleta,
+            @RequestPart("fotoPerfil") MultipartFile fotoPerfil) {
+        try {
+            // Salvar a foto no sistema de arquivos ou em um serviço de armazenamento
+            if (!fotoPerfil.isEmpty()) {
+                String fotoCaminho = atletaService.salvarFotoPerfil(fotoPerfil);
+                novoAtleta.setFotoPerfil(fotoCaminho);
+            }
+
             Atleta atletaCriado = atletaService.criarAtleta(novoAtleta);
             return new ResponseEntity<>(atletaCriado, HttpStatus.CREATED);
-        }catch (IllegalArgumentException e){
+        } catch (IllegalArgumentException e) {
             return new ResponseEntity<>(null, HttpStatus.BAD_REQUEST);
-        }catch (Exception e){
+        } catch (Exception e) {
             return new ResponseEntity<>(null, HttpStatus.INTERNAL_SERVER_ERROR);
         }
-
     }
 
     //Endpoint para buscar todos atletas
