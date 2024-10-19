@@ -39,7 +39,7 @@ function handleSearch(event) {
     .then(data => {
         let resultsHTML = '';
 
-        if (data.length > 0) {
+        if (Array.isArray(data) && data.length > 0) {
             data.forEach(result => {
                 resultsHTML +=`
                 <p>Nome: ${result.name || 'Não especificado'}</p>
@@ -62,7 +62,7 @@ function handleSearch(event) {
     .catch(error =>{
         console.error('Erro ao buscar os resultados:', error);
         document.getElementById('search-results').innerHTML = `
-        <p>OCorreu um erro ao buscar os resultados.</p>
+        <p>Ocorreu um erro ao buscar os resultados.</p>
         `;
     });
 }
