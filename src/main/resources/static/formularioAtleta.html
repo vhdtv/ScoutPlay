@@ -57,6 +57,18 @@
     border-radius: 5px;
     border: 1px solid #2b00ff;
 }
+    .checkbox-container{
+        text-align: center;
+        padding: 1px;
+        
+    }
+
+    .confirmoquesoumaior{
+        margin-top: 1px;
+        font-weight: bold;
+        color: #020036;
+    }
+ 
     </style>
 
 </head>
@@ -103,7 +115,24 @@
         <input type="number" id="height" name="height" required>
 
         <label for="position">Posição:</label>
-        <input type="text" id="position" name="position" required>
+                <select id="position" name="position" required>
+                    <option value=""disabled selected>Selecione a posição:</option>
+                    <option value="atacante">Centroavante</option>
+                    <option value="atacante">Ponta esquerda</option>
+                    <option value="atacante">Ponta direita</option>
+                    <option value="atacante">Segundo atacante</option>
+                    <option value="meio-campo">Meio-campista central</option>
+                    <option value="meio-campo">Meio-campista direito</option>
+                    <option value="meio-campo">Meio-campista esquerda</option>
+                    <option value="meio-campo">Volante direito</option>
+                    <option value="meio-campo">Volante esquerdo</option>
+                    <option value="defensor">Lateral direito</option>
+                    <option value="defensor">Lateral esquerdo</option>
+                    <option value="defensor">Zagueiro central</option>
+                    <option value="defensor">Zagueiro direito</option>
+                    <option value="defensor">Zagueiro esquerdo</option>
+                    <option value="goleiro">Goleiro</option>
+                </select>
 
 
         <label for="clubes">Clubes Anteriores</label>
@@ -124,8 +153,8 @@
         <input type="url" id="video" name="video" placeholder="Coloque o link do seu DVD" required>
 
         <div class="checkbox-container">
-            <input type="checkbox" id="over18" name="over18" required>
-            <label for="over18">Confirmo que sou maior de 18 anos</label>
+            <input class="check" type="checkbox" id="over18" name="over18" required>
+            <label class="confirmoquesoumaior"  for="over18">Confirmo que sou maior de 18 anos</label>
         </div>
 
         <button type="submit">Cadastrar</button>
