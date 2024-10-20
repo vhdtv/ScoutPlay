@@ -2,23 +2,55 @@
 function handleOlheiroForm(event) {
     event.preventDefault(); // Evita o comportamento padrão de recarregar a página
 
-    // Salvar no localStorage que o usuário é um olheiro
-    localStorage.setItem('userType', 'olheiro');
-
-    // Exemplo: Aqui você pode coletar os dados do formulário, se necessário
+    // Coletar os dados do formulário
     const nome = document.getElementById('name').value;
-    const dataNascimento = document.getElementById('dob').value;
+    const telefone = document.getElementById('telefone').value;
+    const cpf = document.getElementById('cpf').value;
+    const dataNascimento = document.getElementById('data-nascimento').value;
+    const cep = document.getElementById('cep').value;
+    const email = document.getElementById('email').value;
+    const senha = document.getElementById('senha').value;
     const clube = document.getElementById('club').value;
     const local = document.getElementById('location').value;
 
-    // (Opcional) Validação dos dados antes de prosseguir
-    if (nome && dataNascimento && clube && local) {
-        // Todos os campos preenchidos corretamente
+    // Validação simples para garantir que todos os campos estejam preenchidos
+    if (nome && telefone && cpf && dataNascimento && cep && email && senha && clube && local) {
+        // Criar um objeto com os dados do formulário
+        const olheiroData = {
+            nome: nome,
+            telefone: telefone,
+            cpf: cpf,
+            dataNascimento: dataNascimento,
+            cep: cep,
+            email: email,
+            senha: senha,
+            clube: clube,
+            local: local
+        };
 
-        // Aqui você pode realizar qualquer outra ação, como enviar dados para o servidor, etc.
-
-        // Redireciona para a página de feed de olheiro
-        location.href = window.location.origin + '/src/main/resources/static/feedOlheiro.html';
+        // Fazer uma requisição POST para enviar os dados ao servidor
+        fetch('/api/olheiros', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify(olheiroData),
+        })
+        .then(response => {
+            if (response.ok) {
+                return response.json();
+            }
+            throw new Error('Erro ao cadastrar o olheiro.');
+        })
+        .then(data => {
+            // Sucesso no cadastro, redirecionar para a página feedOlheiro.html
+            alert('Cadastro realizado com sucesso!');
+            location.href = '/feedOlheiro.html'; // Redirecionar para a página de feed
+        })
+        .catch(error => {
+            console.error('Erro:', error);
+            alert('Erro ao cadastrar olheiro. Tente novamente.');
+        });
     } else {
         alert('Por favor, preencha todos os campos.');
     }
