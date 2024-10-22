@@ -13,6 +13,7 @@ if (userType === 'atleta') {
 }
 
 function handleLogin(event) {
-    event.preventDefault(); // Previne o envio do formulário
-    window.location.href = 'index.html'; // Altere conforme necessário
+    event.preventDefault();
+    // Lógica de login aqui
+    alert('Login realizado com sucesso!');
 }
