@@ -24,7 +24,7 @@ function handleSearch(event) {
 };
 
     fetch('URL_DO_BACKEND/search', {
-        method: 'POST',
+        method: 'GET',
         headers: {
             'Content-Type': 'application/json'
         },
