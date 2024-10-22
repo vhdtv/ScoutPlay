@@ -15,21 +15,24 @@ function handleSearch(event) {
                 birthYear: '1995',
                 weight: '75',
                 height: '180',
-                position: 'Atacante'
+                position: 'Atacante',
+                imageUrl: 'https://via.placeholder.com/180'
             },
             {
                 name: 'Atleta 2',
                 birthYear: '2000',
                 weight: '70',
                 height: '175',
-                position: 'Meio-Campo'
+                position: 'Meio-Campo',
+                imageUrl: 'https://via.placeholder.com/180'
             },
             {
                 name: 'Atleta 3',
                 birthYear: '1998',
                 weight: '80',
                 height: '185',
-                position: 'Defensor'
+                position: 'Defensor',
+                imageUrl: 'https://via.placeholder.com/180'
             }
         ];
         const resultsContainer = document.getElementById('search-results');
@@ -43,6 +46,7 @@ function handleSearch(event) {
             const resultItem = document.createElement('div');
             resultItem.classList.add('result-item');
             resultItem.innerHTML += `
+            <img class ="result-img" src="${result.imageUrl}" alt="Foto do atleta">
             <h4>${result.name || 'Não especificado'}</h4>
             <p>Ano de Nascimento: ${result.birthYear || 'Não especificado'}</p>
             <p>Peso: ${result.weight || 'Não especificado'} kg</p>
@@ -91,6 +95,7 @@ function handleSearch(event) {
     //        data.forEach(result => {
     //            resultsHTML +=`
     //        <div class="result-item">
+    //        <img src="${result.imageUrl}" alt="Foto do atleta">
     //        <h4>${result.name || 'Não especificado'}</h4>
     //        <p>Ano de Nascimento: ${result.birthYear || 'Não especificado'}</p>
     //        <p>Peso: ${result.weight || 'Não especificado'} kg</p>
