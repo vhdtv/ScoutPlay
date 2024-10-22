@@ -6,12 +6,11 @@
     <title>Perfil do Atleta</title>
     <style>
         h1{
-            color: #0a04ae;
+            color: #000;
         }
         p{
             color: #05026e;
-            background-color: #ebeaea;
-            border-radius: 4px;
+            margin: 0;
             
         }
         body {
@@ -19,51 +18,110 @@
             background: linear-gradient(to right, #1a2a6c, #2a24d1, #020036);
             color: white;
             padding: 20px;
-            text-align: center;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
         }
-
         .profile-container {
             background-color: #fff;
             color: #333;
-            padding: 20px;
-            border-radius: 10px;
-            max-width: 600px;
-            margin: 0 auto;
-            box-shadow: 0 0 15px rgba(0, 0, 0, 0.2);
+            padding: 30px;
+            border-radius: 20px;
+            max-width: 800px;
+            width: 100%;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            position: relative;
         }
-
-        .profile-container img {
-            width: 150px;
-            height: 150px;
+        .profile-pic {
+            width: 180px;
+            height: 180px;
             object-fit: cover;
             border-radius: 50%;
+            border: 5px solid #2a24d1;
             margin-bottom: 20px;
         }
-
-        .profile-container h1 {
-            font-size: 24px;
+        .edit-button{
+            position: absolute;
+            top:40px;
+            right: 20px;
+            padding:5px 10px;
+            background-color: #1a2a6c;
+            color:white;
+            text-decoration: none;
+            border-radius: 5px;
+            transition: background-color 0.3s;        
+        }
+        .edit-button:hover{
+            background-color: #2a24d1;
+        }
+        .profile-details{
+            display: flex;
+            justify-content: space-between;
+            width: 100%;
+            margin-top: 20px;
+        }
+        .profile-details div {
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+            margin-bottom: 20px;
+            padding: 20px;
+            border: 1px solid #ccc;
+            border-radius: 10px;
+            background-color: transparent;
+            width: calc(100% - 50px);
+        }
+        .profile-details h2 {
+                        border-bottom: 1px solid #ccc;
+            padding-bottom: 5px;
+            color: #1a2a6c;
+            font-size: 20px;
             margin-bottom: 10px;
+            grid-column: span 2;
+        }
+        .profile-details p{
+            margin: 10px 0;
+            border-bottom: 1px solid #e0e0e0;
+            padding-bottom: 5px;
+        }
+        .profile-details a{
+            display: inline-block;
+            padding: 5px 10px;
+            background-color: #1a2a6c;
+            color: white;
+            border-radius: 5px;
+            transition: background-color 0.3s;
+            font-size: 13px;
+        }
+        .profile-details a:hover {
+            background-color: #2a24d1;
         }
 
-        .profile-container p {
-            font-size: 18px;
-            margin-bottom: 5px;
-        }
     </style>
 </head>
 <body>
 
     <div class="profile-container">
-        <img id="profilePic" alt="Foto do Atleta">
+        <a href="editarPerfilAtleta.html" class="edit-button">Editar perfil</a>
+        <img id="profilePic" class="profile-pic" src="https://via.placeholder.com/180" alt="Foto do Atleta">
         <h1 id="athleteName">Nome do Atleta</h1>
+
+        <div class="profile-details">
+            <div>
+                    <h2>Sobre o atleta</h2>
         <p><strong>Idade:</strong> <span id="athleteAge">--</span> anos</p>
-        <p><strong>Peso:</strong> <span id="athleteWeight">--</span> kg</p>
-        <p><strong>Altura:</strong> <span id="athleteHeight">--</span> cm</p>
+        <p><strong>Peso:</strong> <span id="athleteWeight">--</span> </p>
+        <p><strong>Altura:</strong> <span id="athleteHeight">--</span></p>
         <p><strong>Posição:</strong> <span id="athletePosition">--</span></p>
-        <p>Pé Dominante: <span id="athleteDominantFoot"></span></p>
-        <p>Clubes Anteriores: <span id="athleteClubs"></span></p>
-        <p>Link do Vídeo: <a id="athleteVideoLink" href="#" target="_blank">Seu link</a></p>
-    </div>
+        <p><strong>Pé Dominante:</strong> <span id="athleteDominantFoot"></span></p>
+            </div>
+            <div>
+                    <h2>Carreira e vídeo</h2>         
+        <p><strong>Clubes Anteriores:</strong> <span id="athleteClubs"></span></p>
+        <p><strong>Vídeo: </strong><a id="athleteVideoLink" href="#" target="_blank">Seu link</a></p>
+            </div>
 
     <script src="scriptFeedAtleta.js"></script>
 </body>
