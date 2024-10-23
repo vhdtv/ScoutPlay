@@ -11,6 +11,7 @@ import java.util.UUID;
 @Entity
 @Data
 public class Responsavel extends Usuario{
+    private String cpf;
     @OneToMany(mappedBy = "responsavel", cascade = CascadeType.ALL)
     private List<Atleta> atletas;
 

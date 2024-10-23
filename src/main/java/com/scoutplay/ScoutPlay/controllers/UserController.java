@@ -16,26 +16,12 @@ public class UserController {
     @Autowired
     private UserService userService;
 
-    // Criar um novo usuário
-    @PostMapping
-    public ResponseEntity<Usuario> createUser(@RequestBody Usuario usuario) {
-        Usuario novoUsuario = userService.save(usuario);
-        return ResponseEntity.ok(novoUsuario);
-    }
-
     // Buscar todos os usuários
     @GetMapping
     public List<Usuario> getAllUsers() {
         return userService.findAll();
     }
 
-    // Buscar usuário por ID
-    @GetMapping("/{id}")
-    public ResponseEntity<Usuario> getUserById(@PathVariable String id) {
-        Optional<Usuario> usuario = userService.findById(id);
-        return usuario.map(ResponseEntity::ok)
-                .orElse(ResponseEntity.notFound().build());
-    }
 
     // Atualizar um usuário existente
     @PutMapping("/{id}")

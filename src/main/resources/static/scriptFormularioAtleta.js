@@ -1,60 +1,54 @@
-
-function redirecionarFormularioAtleta() {
-    location.href = window.location.origin + '/src/main/resources/static/formularioAtleta.html';
-}
-// Função para salvar os dados do atleta no localStorage e redirecionar para a página do feed
 function salvarDadosAtleta(event) {
     event.preventDefault(); // Impede o comportamento padrão do formulário
 
-    // Pega os valores do formulário
-    const nome = document.getElementById('name').value;
-    const telefone = document.getElementById('telefone').value;
-    const cpf = document.getElementById('cpf').value;
-    const dataNascimento = document.getElementById('data-nascimento').value;
-    const cep = document.getElementById('cep').value;
-    const email = document.getElementById('email').value;
-    const senha = document.getElementById('senha').value;
-    const peso = document.getElementById('weight').value;
-    const altura = document.getElementById('height').value;
-    const posicao = document.getElementById('position').value;
-    const clubes = document.getElementById('clubes').value;
-    const peDominante = document.getElementById('pe-dominante').value;
-    const video = document.getElementById('video').value;
-    const foto = document.getElementById('perfil-foto').files[0]; // Arquivo de foto
+    // Cria um objeto FormData para enviar os dados
+    const formData = new FormData();
 
-    // Validação simples para confirmar que o checkbox foi marcado
+    // Pega os valores do formulário e adiciona ao FormData
+    formData.append('nome', document.getElementById('name').value);
+    formData.append('telefone', document.getElementById('telefone').value);
+    formData.append('cpf', document.getElementById('cpf').value);
+    formData.append('dataNascimento', document.getElementById('data-nascimento').value);
+    formData.append('cep', document.getElementById('cep').value);
+    formData.append('email', document.getElementById('email').value);
+    formData.append('senha', document.getElementById('senha').value);
+    formData.append('peso', document.getElementById('weight').value);
+    formData.append('altura', document.getElementById('height').value);
+    formData.append('posicao', document.getElementById('position').value);
+    formData.append('clubesAnteriores', document.getElementById('clubes').value);
+    formData.append('peDominante', document.getElementById('pe-dominante').value);
+    formData.append('video', document.getElementById('video').value);
+
+    // Adiciona o arquivo da foto de perfil ao FormData
+    const foto = document.getElementById('perfil-foto').files[0];
+    if (foto) {
+        formData.append('fotoPerfil', foto);
+    }
+
+    // Verifica se o checkbox foi marcado
     const maiorDe18 = document.getElementById('over18').checked;
     if (!maiorDe18) {
         alert("Você precisa confirmar que é maior de 18 anos.");
         return;
     }
 
-    // Salva as informações no localStorage
-    localStorage.setItem('athleteName', nome);
-    localStorage.setItem('athletePhone', telefone);
-    localStorage.setItem('athleteCpf', cpf);
-    localStorage.setItem('athleteDob', dataNascimento);
-    localStorage.setItem('athleteCep', cep);
-    localStorage.setItem('athleteEmail', email);
-    localStorage.setItem('athletePassword', senha);
-    localStorage.setItem('athleteWeight', peso);
-    localStorage.setItem('athleteHeight', altura);
-    localStorage.setItem('athletePosition', posicao);
-    localStorage.setItem('athleteClubs', clubes);
-    localStorage.setItem('athleteDominantFoot', peDominante);
-    localStorage.setItem('athleteVideo', video);
-
-    // Salva a foto no localStorage, convertendo-a para uma string Base64
-    if (foto) {
-        const reader = new FileReader();
-        reader.onload = function (e) {
-            localStorage.setItem('athletePhoto', e.target.result); // Salva a foto como string Base64
-        };
-        reader.readAsDataURL(foto);
-    }
-
-    // Redireciona para a página de feed do atleta
-    location.href = 'feedAtleta.html';
+    // Envia os dados via POST para o servidor
+    fetch('/api/atletas', {
+        method: 'POST',
+        body: formData
+    })
+        .then(response => {
+            if (response.ok) {
+                // Redireciona para a página de feed do atleta
+                location.href = 'feedAtleta.html';
+            } else {
+                alert('Erro ao cadastrar atleta. Tente novamente.');
+            }
+        })
+        .catch(error => {
+            console.error('Erro:', error);
+            alert('Erro ao cadastrar atleta. Tente novamente.');
+        });
 }
 
 // Adiciona o listener de submit ao formulário para salvar os dados e redirecionar

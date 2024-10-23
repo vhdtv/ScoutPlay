@@ -1,3 +1,20 @@
+
+//Função para exibir o menu ao clicar na engrenagem
+document.querySelector('.edit-button').addEventListener('click', function(e) {
+    e.preventDefault();
+    const gearMenu = document.getElementById('gearMenu');
+    gearMenu.style.display = (gearMenu.style.display == 'block') ? 'none' : 'block';
+});
+//Fecha o menu ao clicar fora dele
+document.addEventListener('click', function(event){
+    const gearMenu = document.getElementById('gearMenu');
+    const editButton = document.querySelector('.edit-button');
+    //Verifica se o clique foi fora do menu ou engrenagem
+    if (!gearMenu.contains(event.target) && !editButton.contains(event.target)) {
+        gearMenu.style.display = 'none';
+    }
+});
+
 // Função para calcular a idade a partir da data de nascimento
 function calcularIdade(dataNascimento) {
     // Cria um objeto Date com a data atual (o dia em que o código está sendo executado)
