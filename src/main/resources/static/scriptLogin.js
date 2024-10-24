@@ -13,7 +13,6 @@ if (userType === 'atleta') {
 
 // Manipula o envio do formulário de login
 function handleLogin(event) {
-<<<<<<< HEAD
     event.preventDefault(); // Impede o envio padrão do formulário
 
     // Lógica de login aqui
@@ -25,11 +24,21 @@ function handleLogin(event) {
     } else if (userType === 'olheiro') {
         window.location.href = 'formularioOlheiro.html'; // Redireciona para a página do olheiro
     }
-=======
     event.preventDefault(); // Previne o envio do formulário
 
-    const email = document.querySelector('input[type="text"]').value;
-    const senha = document.querySelector('input[type="password"]').value;
+
+    event.preventDefault(); // Impede o envio padrão do formulário
+
+    // Lógica de login aqui
+    alert('Login realizado com sucesso!');
+
+
+    // Aqui você pode redirecionar o usuário após o login
+    if (userType === 'atleta') {
+        window.location.href = 'formularioMaior.html'; // Redireciona para a página do atleta
+    } else if (userType === 'olheiro') {
+        window.location.href = 'formularioOlheiro.html'; // Redireciona para a página do olheiro
+    }
 
     fetch('/api/login', {
         method: 'POST',
@@ -58,7 +67,6 @@ function handleLogin(event) {
         .catch(error => {
             alert('Erro de login: ' + error.message);
         });
->>>>>>> 2b439817ac9b1113590f372c1019d90395bfabf1
 }
 
 // Adiciona um evento de clique ao link de registro
