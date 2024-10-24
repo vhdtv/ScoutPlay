@@ -3,6 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
     <title>Perfil do Atleta</title>
     <style>
         h1{
@@ -41,22 +42,67 @@
             height: 180px;
             object-fit: cover;
             border-radius: 50%;
-            border: 5px solid #2a24d1;
+            border: 5px solid #1a2a6c;
             margin-bottom: 20px;
         }
-        .edit-button{
+        .edit-button{ /*Engrenagem*/
             position: absolute;
             top:40px;
             right: 20px;
-            padding:5px 10px;
-            background-color: #1a2a6c;
-            color:white;
+            padding:10px;
+            background-color: white;
+            color:#1a2a6c;
             text-decoration: none;
             border-radius: 5px;
-            transition: background-color 0.3s;        
+            border: 1px solid #003366;
+            transition: background-color 0.3s, color 0.3s;
+            font-size: 24px;       
         }
         .edit-button:hover{
-            background-color: #2a24d1;
+            background-color: #f0f0f0;
+            color:#2a24d1
+        }
+        .gear-menu{
+            display: none;
+            position: absolute;
+            top: 90px;
+            right: 20px;
+            background-color: white;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+            padding: 10px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+        }
+        .gear-menu a{
+            display:block;
+            padding: 5px 10px;
+            text-decoration: none;
+            color: #1a2a6c;
+            border-bottom: 1px solid #e0e0e0;
+        }
+        .gear-menu a:hover{
+            background-color: #f0f0f0;
+        }
+        .soccer-ball {
+            position:fixed;
+            bottom: 20px;
+            left:50%;
+            transform: translateX(-50%);
+            font-size:45px;
+            color:#1a2a6c;
+            background-color: #ffffff;
+            padding: 2px;
+            border-radius: 50%;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.5);
+            z-index: 1000;
+            transition: background-color 0.3s, transform 0.3s;
+        }
+        .soccer-ball:hover {
+            background-color: #ffffff;
+            transform: translateX(-50%) scale(1.1);
+        }
+        .soccer-ball i {
+            color: #1a2a6c;
         }
         .profile-details{
             display: flex;
@@ -104,9 +150,20 @@
 <body>
 
     <div class="profile-container">
-        <a href="editarPerfilAtleta.html" class="edit-button">Editar perfil</a>
+        <a href="#" class="edit-button">
+            <i class="fas fa-gear"></i>
+        </a>
         <img id="profilePic" class="profile-pic" src="https://via.placeholder.com/180" alt="Foto do Atleta">
         <h1 id="athleteName">Nome do Atleta</h1>
+
+        <div class="gear-menu" id="gearMenu">
+            <a href="editarPerfilAtleta.html">Editar perfil</a>
+            <a href="login.html">Sair</a>
+        </div>
+    
+        <a href="feedAtleta.html" class="soccer-ball">
+            <i class="fa-regular fa-futbol"></i>
+        </a>
 
         <div class="profile-details">
             <div>
