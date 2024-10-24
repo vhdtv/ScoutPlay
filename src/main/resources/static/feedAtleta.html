@@ -42,7 +42,7 @@
             height: 180px;
             object-fit: cover;
             border-radius: 50%;
-            border: 5px solid #2a24d1;
+            border: 5px solid #1a2a6c;
             margin-bottom: 20px;
         }
         .edit-button{ /*Engrenagem*/
@@ -82,6 +82,27 @@
         }
         .gear-menu a:hover{
             background-color: #f0f0f0;
+        }
+        .soccer-ball {
+            position:fixed;
+            bottom: 20px;
+            left:50%;
+            transform: translateX(-50%);
+            font-size:45px;
+            color:#1a2a6c;
+            background-color: #ffffff;
+            padding: 2px;
+            border-radius: 50%;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.5);
+            z-index: 1000;
+            transition: background-color 0.3s, transform 0.3s;
+        }
+        .soccer-ball:hover {
+            background-color: #ffffff;
+            transform: translateX(-50%) scale(1.1);
+        }
+        .soccer-ball i {
+            color: #1a2a6c;
         }
         .profile-details{
             display: flex;
@@ -139,6 +160,10 @@
             <a href="editarPerfilAtleta.html">Editar perfil</a>
             <a href="login.html">Sair</a>
         </div>
+    
+        <a href="feedAtleta.html" class="soccer-ball">
+            <i class="fa-regular fa-futbol"></i>
+        </a>
 
         <div class="profile-details">
             <div>
