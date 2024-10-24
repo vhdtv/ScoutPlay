@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Página de Login</title>
+    <title>Esqueceu a Senha</title>
     <style>
         * {
             margin: 0;
@@ -21,7 +21,7 @@
             font-family: Arial, sans-serif;
         }
 
-        .login-container {
+        .forgot-password-container {
             background-color: #0c13d9; /* Azul mais claro */
             padding: 20px;
             border-radius: 10px;
@@ -29,16 +29,16 @@
             text-align: center;
         }
 
-        .login-container img {
+        .forgot-password-container img {
             width: 150px; /* Ajuste o tamanho da logo conforme necessário */
             margin-bottom: 20px; /* Espaçamento abaixo da logo */
         }
 
-        .login-container h2 {
+        .forgot-password-container h2 {
             margin-bottom: 20px;
         }
 
-        .login-container input {
+        .forgot-password-container input {
             width: 100%;
             padding: 10px;
             margin: 10px 0;
@@ -46,7 +46,7 @@
             border-radius: 5px;
         }
 
-        .login-container button {
+        .forgot-password-container button {
             background-color: #5246f9;
             color: white;
             border: none;
@@ -56,52 +56,37 @@
             transition: background-color 0.3s;
         }
 
-        .login-container button:hover {
+        .forgot-password-container button:hover {
             background-color: #333;
         }
 
-        .register-message {
+        .back-to-login {
             margin-top: 20px;
         }
 
-        .register-message a {
+        .back-to-login a {
             color: #ffcc00; /* Cor do link */
             text-decoration: none;
         }
 
-        .forgot-password {
-            margin-top: 10px;
-        }
-
-        .forgot-password a {
-            color: #ffcc00; /* Cor do link */
-            text-decoration: none;
-        }
-
-        .forgot-password a:hover {
+        .back-to-login a:hover {
             text-decoration: underline;
-        }
-        button{
-            margin-top: 7px;
         }
     </style>
 </head>
 <body>
-    <div class="login-container">
+    <div class="forgot-password-container">
         <img src="loGOsp.png" alt="Logo da Plataforma">
-        <h2 id="login-title">Login</h2>
-        <form id="loginForm" onsubmit="handleLogin(event)">
-            <input type="text" placeholder="Login" required>
-            <input type="password" placeholder="Senha" required>
-            <div class="forgot-password">
-                <a href="esqueceuSenha.html">Esqueceu a senha?</a>
-            </div>
-            <button type="submit">Entrar</button>
+        <h2>Recuperar Senha</h2>
+        <p>Insira seu e-mail para redefinir sua senha:</p>
+        <form id="forgotPasswordForm" onsubmit="handleForgotPassword(event)">
+            <input type="email" placeholder="Seu e-mail" required>
+            <button type="submit">Enviar</button>
         </form>
-       
-        <div class="register-message">
-            <p>Ainda não tem conta? <a href="#" id="register-link">Clique aqui</a></p>
+        <div class="back-to-login">
+            <p><a href="login.html">Voltar ao login</a></p>
         </div>
-    <script src="scriptLogin.js"></script>
+    </div>
+    <script src="scriptEsqueceuSenha.js"></script>
 </body>
 </html>
