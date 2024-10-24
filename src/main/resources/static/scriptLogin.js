@@ -13,6 +13,7 @@ if (userType === 'atleta') {
 
 // Manipula o envio do formulário de login
 function handleLogin(event) {
+
     event.preventDefault(); // Impede o envio padrão do formulário
 
     // Lógica de login aqui
@@ -24,6 +25,8 @@ function handleLogin(event) {
     } else if (userType === 'olheiro') {
         window.location.href = 'formularioOlheiro.html'; // Redireciona para a página do olheiro
     }
+
+    
 }
 
 // Adiciona um evento de clique ao link de registro

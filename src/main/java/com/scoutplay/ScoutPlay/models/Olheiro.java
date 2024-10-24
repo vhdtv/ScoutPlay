@@ -10,7 +10,7 @@ import java.util.UUID;
 public class Olheiro extends Usuario {
 
     @Override
-    protected String gerarIdPersonalizado(){
+    public String gerarIdPersonalizado(){
         return "OLH-" + UUID.randomUUID().toString();
     }
 }

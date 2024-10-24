@@ -4,8 +4,10 @@ import com.scoutplay.ScoutPlay.models.Atleta;
 import com.scoutplay.ScoutPlay.services.AtletaService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.util.List;
 import java.util.Optional;
@@ -19,20 +21,27 @@ public class AtletaController {
     private AtletaService atletaService;
 
     //Endpoint para criar um novo atleta
-    @PostMapping
-    public ResponseEntity<Atleta> criarAtleta(@RequestBody Atleta novoAtleta) {
-        try{
+    @PostMapping(consumes = {MediaType.MULTIPART_FORM_DATA_VALUE})
+    public ResponseEntity<Atleta> criarAtleta(
+            @RequestPart("atleta") Atleta novoAtleta,
+            @RequestPart("fotoPerfil") MultipartFile fotoPerfil) {
+        try {
+            // Salvar a foto no sistema de arquivos ou em um serviço de armazenamento
+            if (!fotoPerfil.isEmpty()) {
+                String fotoCaminho = atletaService.salvarFotoPerfil(fotoPerfil);
+                novoAtleta.setFotoPerfil(fotoCaminho);
+            }
+
             Atleta atletaCriado = atletaService.criarAtleta(novoAtleta);
             return new ResponseEntity<>(atletaCriado, HttpStatus.CREATED);
-        }catch (IllegalArgumentException e){
+        } catch (IllegalArgumentException e) {
             return new ResponseEntity<>(null, HttpStatus.BAD_REQUEST);
-        }catch (Exception e){
+        } catch (Exception e) {
             return new ResponseEntity<>(null, HttpStatus.INTERNAL_SERVER_ERROR);
         }
-
     }
 
-    //Endpoint para buscar atleta todos atletas
+    //Endpoint para buscar todos atletas
     @GetMapping
     public List<Atleta> listarTodosAtletas(){
         return atletaService.buscarTodosAtletas();
@@ -46,11 +55,11 @@ public class AtletaController {
 
     }
 
-    //Endpoint para atualizar um atleta existente
+    //Endpoint para atualizar informações de um atleta existente
     @PutMapping("/{id}")
-    public ResponseEntity<Atleta> atualizarAtleta(@PathVariable String id, @RequestBody Atleta atletaAtualizado){
+    public ResponseEntity<Atleta> atualizarInformacoesAtleta(@PathVariable String id, @RequestBody Atleta atualizarInformacoesAtleta){
         try{
-            Atleta atleta = atletaService.atualizarAtleta(id, atletaAtualizado);
+            Atleta atleta = atletaService.atualizarAtleta(id, atualizarInformacoesAtleta);
             return ResponseEntity.ok(atleta);
         }catch(RuntimeException e){
             return ResponseEntity.notFound().build();
