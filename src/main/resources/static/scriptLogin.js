@@ -20,25 +20,11 @@ function handleLogin(event) {
 
     // Aqui você pode redirecionar o usuário após o login
     if (userType === 'atleta') {
-        window.location.href = 'formularioMaior.html'; // Redireciona para a página do atleta
+        window.location.href = 'feedAtleta.html'; // Redireciona para a página do atleta
     } else if (userType === 'olheiro') {
-        window.location.href = 'formularioOlheiro.html'; // Redireciona para a página do olheiro
+        window.location.href = 'feedOlheiro.html'; // Redireciona para a página do olheiro
     }
     event.preventDefault(); // Previne o envio do formulário
-
-
-    event.preventDefault(); // Impede o envio padrão do formulário
-
-    // Lógica de login aqui
-    alert('Login realizado com sucesso!');
-
-
-    // Aqui você pode redirecionar o usuário após o login
-    if (userType === 'atleta') {
-        window.location.href = 'formularioMaior.html'; // Redireciona para a página do atleta
-    } else if (userType === 'olheiro') {
-        window.location.href = 'formularioOlheiro.html'; // Redireciona para a página do olheiro
-    }
 
     fetch('/api/login', {
         method: 'POST',
