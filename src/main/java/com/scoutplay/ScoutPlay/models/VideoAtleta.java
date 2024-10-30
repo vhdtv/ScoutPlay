@@ -10,6 +10,7 @@ import java.util.UUID;
 public class VideoAtleta {
 
     @Id
+    @GeneratedValue
     private UUID idVideo;
     private String urlVideo;
 
