@@ -1,5 +1,6 @@
 package com.scoutplay.ScoutPlay.controllers;
 
+import com.scoutplay.ScoutPlay.models.Atleta;
 import com.scoutplay.ScoutPlay.models.Usuario;
 import com.scoutplay.ScoutPlay.services.LoginService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -24,9 +25,13 @@ public class LoginController {
         Optional<Usuario> usuario = loginService.autenticar(email, senha);
         if(usuario.isPresent()){
             if(usuario.get() instanceof com.scoutplay.ScoutPlay.models.Atleta){
+                Atleta atleta = (Atleta) usuario.get();
                 return ResponseEntity.ok("Atleta");
+                //Preciso retornar um JSON para front consumir em feedAtleta
+
             } else if (usuario.get() instanceof com.scoutplay.ScoutPlay.models.Olheiro) {
                 return ResponseEntity.ok("Olheiro");
+                //Preciso retornar um JSON para front consumir em feedOlheiro
             }
         }
         return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Usuário ou senha inválidos");

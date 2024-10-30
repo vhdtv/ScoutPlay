@@ -26,6 +26,7 @@ public class AtletaService {
         if(novoAtleta.getId() == null || novoAtleta.getId().isEmpty()){
             novoAtleta.setId(novoAtleta.gerarIdPersonalizado());
         }
+        //Adicionar tratamento de excessão para CPF repetido
         return atletaRepository.save(novoAtleta);
     }
 

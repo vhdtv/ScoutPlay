@@ -16,11 +16,12 @@ public class Atleta extends Usuario {
     private String clubesAnteriores;
     private String fotoPerfil;
 
+
     @Enumerated(EnumType.STRING)
     private PeDominante peDominante;
 
     @OneToMany(mappedBy = "atleta", cascade = CascadeType.ALL)
-    private List<VideoAtleta> videos;
+    private List<VideoAtleta> videos = new ArrayList<>();
 
     @ManyToOne
     @JoinColumn(name = "responsavel_id")
@@ -36,3 +37,5 @@ public class Atleta extends Usuario {
 enum PeDominante {
     DESTRO, CANHOTO, AMBIDESTRO
 }
+
+

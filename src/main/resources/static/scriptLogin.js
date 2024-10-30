@@ -10,7 +10,7 @@ if (userType === 'atleta') {
     document.getElementById('login-title').innerText = 'Login - Olheiro';
     document.getElementById('register-link').setAttribute('href', 'formularioOlheiro.html'); // Página do olheiro
 }
-
+//Salvar as informações em algum local persistente ex: LocalStorage
 // Manipula o envio do formulário de login
 function handleLogin(event) {
     event.preventDefault(); // Impede o envio padrão do formulário

@@ -35,9 +35,13 @@ public class AtletaController {
             Atleta atletaCriado = atletaService.criarAtleta(novoAtleta);
             return new ResponseEntity<>(atletaCriado, HttpStatus.CREATED);
         } catch (IllegalArgumentException e) {
+            System.out.println(e.getMessage());
             return new ResponseEntity<>(null, HttpStatus.BAD_REQUEST);
         } catch (Exception e) {
+            System.out.println(e.getMessage());
+
             return new ResponseEntity<>(null, HttpStatus.INTERNAL_SERVER_ERROR);
+
         }
     }
 

@@ -42,17 +42,10 @@ function calcularIdade(dataNascimento) {
 // Função para carregar e exibir as informações do atleta
 function carregarPerfilAtleta() {
     // Simulando a recuperação de dados de localStorage ou de uma fonte externa
-    const atleta = {
-        nome: localStorage.getItem('athleteName') || 'João da Silva',                // Nome do atleta
-        dataNascimento: localStorage.getItem('athleteDob') || '2005-04-15',           // Data de nascimento
-        peso: localStorage.getItem('athleteWeight') || 70,                            // Peso em kg
-        altura: localStorage.getItem('athleteHeight') || 180,                         // Altura em cm
-        posicao: localStorage.getItem('athletePosition') || 'Atacante',               // Posição em campo
-        foto: localStorage.getItem('athletePhoto') || 'https://via.placeholder.com/180',          // Foto de perfil padrão ou inserida
-        peDominante: localStorage.getItem('athleteDominantFoot') || 'Destro',         // Pé dominante
-        clubesAnteriores: localStorage.getItem('athleteClubs') || 'Sem clubes',       // Clubes anteriores
-        linkVideo: localStorage.getItem('athleteVideoLink') || 'Assistir ao DVD' // Link do vídeo (DVD)
-    };
+    fetch ('/api/atletas/ATL-b64f8f4f-c26f-41a3-99be-e44b96f41bb8').then(body => body.json ()).then(atleta=> {
+    console.table(atleta)
+
+
  
 
     // Preenchendo os dados no HTML
@@ -66,6 +59,7 @@ function carregarPerfilAtleta() {
     document.getElementById('athleteClubs').textContent = atleta.clubesAnteriores;      // Exibe os clubes anteriores
     document.getElementById('athleteVideoLink').textContent = atleta.linkVideo;         // Exibe o link do vídeo
     document.getElementById('athleteVideoLink').href = atleta.linkVideo;                // Adiciona o link clicável ao vídeo
+    })
 }
 
 // Carregar o perfil do atleta quando a página for carregada
