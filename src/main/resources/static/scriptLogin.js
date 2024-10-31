@@ -14,26 +14,14 @@ if (userType === 'atleta') {
 // Manipula o envio do formulário de login
 function handleLogin(event) {
     event.preventDefault(); // Impede o envio padrão do formulário
-
-    // Lógica de login aqui
-    alert('Login realizado com sucesso!');
-
-    // Aqui você pode redirecionar o usuário após o login
-    if (userType === 'atleta') {
-        window.location.href = 'feedAtleta.html'; // Redireciona para a página do atleta
-    } else if (userType === 'olheiro') {
-        window.location.href = 'feedOlheiro.html'; // Redireciona para a página do olheiro
-    }
-    event.preventDefault(); // Previne o envio do formulário
-
     fetch('/api/login', {
         method: 'POST',
         headers: {
             'Content-Type': 'application/x-www-form-urlencoded',
         },
         body: new URLSearchParams({
-            email: email,
-            senha: senha
+            email: event.target.elements[0].value,
+            senha: event.target.elements[1].value
         })
     })
         .then(response => {
@@ -44,9 +32,11 @@ function handleLogin(event) {
             }
         })
         .then(data => {
-            if (data === 'Atleta') {
+        localStorage.setItem("userId", data)
+            alert('Login realizado com sucesso!');
+            if ( data.substring(0,3) === 'ATL') {
                 window.location.href = 'feedAtleta.html'; // Redireciona para o painel de atleta
-            } else if (data === 'Olheiro') {
+            } else{
                 window.location.href = 'feedOlheiro.html'; // Redireciona para o painel de olheiro
             }
         })

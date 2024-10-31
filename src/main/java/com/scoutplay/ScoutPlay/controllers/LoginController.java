@@ -1,6 +1,7 @@
 package com.scoutplay.ScoutPlay.controllers;
 
 import com.scoutplay.ScoutPlay.models.Atleta;
+import com.scoutplay.ScoutPlay.models.Olheiro;
 import com.scoutplay.ScoutPlay.models.Usuario;
 import com.scoutplay.ScoutPlay.services.LoginService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -26,11 +27,12 @@ public class LoginController {
         if(usuario.isPresent()){
             if(usuario.get() instanceof com.scoutplay.ScoutPlay.models.Atleta){
                 Atleta atleta = (Atleta) usuario.get();
-                return ResponseEntity.ok("Atleta");
+                return ResponseEntity.ok(atleta.getId());
                 //Preciso retornar um JSON para front consumir em feedAtleta
 
             } else if (usuario.get() instanceof com.scoutplay.ScoutPlay.models.Olheiro) {
-                return ResponseEntity.ok("Olheiro");
+                Olheiro olheiro = (Olheiro) usuario.get();
+                return ResponseEntity.ok(olheiro.getId());
                 //Preciso retornar um JSON para front consumir em feedOlheiro
             }
         }

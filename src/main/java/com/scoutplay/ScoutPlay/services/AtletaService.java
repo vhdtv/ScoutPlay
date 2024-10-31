@@ -21,12 +21,16 @@ public class AtletaService {
     @Autowired
     private AtletaRepository atletaRepository;
 
-    //Metódo para criar um novo atleta
     public Atleta criarAtleta(Atleta novoAtleta) {
-        if(novoAtleta.getId() == null || novoAtleta.getId().isEmpty()){
+        if (novoAtleta.getId() == null || novoAtleta.getId().isEmpty()) {
             novoAtleta.setId(novoAtleta.gerarIdPersonalizado());
         }
-        //Adicionar tratamento de excessão para CPF repetido
+
+        // Verificação de duplicidade de CPF
+        if (atletaRepository.existsByCpf(novoAtleta.getCpf())) {
+            throw new IllegalArgumentException("Um atleta com este CPF já existe.");
+        }
+
         return atletaRepository.save(novoAtleta);
     }
 

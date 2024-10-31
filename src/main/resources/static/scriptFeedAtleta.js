@@ -42,8 +42,11 @@ function calcularIdade(dataNascimento) {
 // Função para carregar e exibir as informações do atleta
 function carregarPerfilAtleta() {
     // Simulando a recuperação de dados de localStorage ou de uma fonte externa
-    fetch ('/api/atletas/ATL-b64f8f4f-c26f-41a3-99be-e44b96f41bb8').then(body => body.json ()).then(atleta=> {
-    console.table(atleta)
+    const id = localStorage.getItem("userId")
+    fetch (`/api/atletas/${id}`)
+        .then(body => body.json())
+        .then(atleta=> {
+            console.table(atleta)
 
 
  
