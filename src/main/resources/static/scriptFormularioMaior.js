@@ -1,3 +1,13 @@
+function toggleCpfField(show) {
+    const cpfField = document.getElementById('cpfField');
+    if (show) {
+        cpfField.style.display = 'block';
+    } else {
+        cpfField.style.display = 'none';
+        document.getElementById('cpf').value = ''; // Limpa o campo CPF caso seja ocultado
+    }
+}
+
 function redirecionarFormularioAtleta() {
     const ageSelection = document.querySelector('input[name="age"]:checked').value;
     const cpfInput = document.getElementById('cpf').value;
@@ -38,5 +48,4 @@ function salvarResponsavel(cpf) {
             console.error('Erro ao salvar o responsável:', error);
             alert('Erro ao salvar o responsável: ' + error.message);
         });
-
 }
