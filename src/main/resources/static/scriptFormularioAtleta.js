@@ -35,7 +35,7 @@ async function handleAtletaForm(event) {
         // Verifica se a resposta foi bem-sucedida e exibe alertas
         if (response.ok) {
             alert("Cadastro de atleta realizado com sucesso!");
-            location.href = '/feedAtleta.html';
+            location.href = '/login.html';
         } else {
             const errorText = await response.text();
             console.error("Erro na resposta:", errorText);

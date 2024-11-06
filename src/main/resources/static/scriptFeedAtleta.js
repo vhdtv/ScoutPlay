@@ -52,7 +52,7 @@ function carregarPerfilAtleta() {
  
 
     // Preenchendo os dados no HTML
-    document.getElementById('profilePic').src = atleta.foto;                            // Exibe a foto de perfil
+    document.getElementById('profilePic').src = `/api/atletas/fotos/${atleta.fotoPerfil.split('\\').pop()}`;   // Exibe a foto de perfil
     document.getElementById('athleteName').textContent = atleta.nome;                   // Exibe o nome do atleta
     document.getElementById('athleteAge').textContent = calcularIdade(atleta.dataNascimento);  // Calcula e exibe a idade
     document.getElementById('athleteWeight').textContent = atleta.peso + " kg";         // Exibe o peso
