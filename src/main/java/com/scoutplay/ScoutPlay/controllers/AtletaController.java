@@ -3,12 +3,17 @@ package com.scoutplay.ScoutPlay.controllers;
 import com.scoutplay.ScoutPlay.models.Atleta;
 import com.scoutplay.ScoutPlay.services.AtletaService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.core.io.Resource;
+import org.springframework.core.io.UrlResource;
+import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
@@ -76,6 +81,25 @@ public class AtletaController {
         atletaService.deletarAtletaPorId(id);
         return ResponseEntity.noContent().build();
     }
+
+    @GetMapping("/fotos/{filename}")
+    public ResponseEntity<Resource> obterFotoPerfil(@PathVariable String filename) {
+        try {
+            Path caminhoImagem = Paths.get("uploads/fotos_perfil").resolve(filename);
+            Resource imagem = new UrlResource(caminhoImagem.toUri());
+
+            if (imagem.exists() || imagem.isReadable()) {
+                return ResponseEntity.ok()
+                        .header(HttpHeaders.CONTENT_DISPOSITION, "inline; filename=\"" + imagem.getFilename() + "\"")
+                        .body(imagem);
+            } else {
+                return ResponseEntity.notFound().build();
+            }
+        } catch (Exception e) {
+            return ResponseEntity.internalServerError().build();
+        }
+    }
+
 
 
 
