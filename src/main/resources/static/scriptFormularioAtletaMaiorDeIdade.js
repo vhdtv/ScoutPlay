@@ -49,7 +49,7 @@ async function handleAtletaForm(event) {
         });
         if (response.ok) {
             alert("Cadastro de atleta realizado com sucesso!");
-            location.href = '/login.html';
+            location.href = 'http://localhost:8080';
         } else {
             const errorText = await response.text();
             console.error("Erro na resposta:", errorText);
