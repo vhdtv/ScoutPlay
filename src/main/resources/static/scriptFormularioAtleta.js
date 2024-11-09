@@ -1,3 +1,18 @@
+// Função para adicionar mais campos de link de vídeo dinamicamente
+function addVideoLink() {
+    const container = document.getElementById("videoLinksContainer");
+    if (container) {  // Verifique se o container existe
+        const input = document.createElement("input");
+        input.type = "url";
+        input.name = "videos[]";
+        input.placeholder = "Coloque o link do seu DVD";
+        container.appendChild(input);
+    } else {
+        console.error("O elemento videoLinksContainer não foi encontrado.");
+    }
+}
+
+// Função para lidar com o envio do formulário do atleta
 async function handleAtletaForm(event) {
     event.preventDefault();
 
@@ -15,24 +30,23 @@ async function handleAtletaForm(event) {
         posicao: document.getElementById('position').value,
         clubesAnteriores: document.getElementById('clubes').value,
         peDominante: document.getElementById('pe-dominante').value,
-        video: document.getElementById('video').value,
+        videos: Array.from(document.querySelectorAll("input[name='videos[]']")).map(url => url.value).filter(url => url !== "")
     };
 
-    // Criação do FormData e adição do JSON como 'atleta'
     const formData = new FormData();
     formData.append('atleta', new Blob([JSON.stringify(atleta)], { type: "application/json" }));
 
-    // Adiciona a foto de perfil ao FormData
-    const fotoPerfil = document.getElementById('perfil-foto').files[0]; // Corrigido o ID aqui
-    formData.append('fotoPerfil', fotoPerfil);
+    const fotoPerfil = document.getElementById('perfil-foto').files[0];
+    if (fotoPerfil) {
+        formData.append('fotoPerfil', fotoPerfil);
+    }
 
+    // Envia o formulário
     try {
         const response = await fetch("http://localhost:8080/api/atletas", {
             method: "POST",
             body: formData
         });
-
-        // Verifica se a resposta foi bem-sucedida e exibe alertas
         if (response.ok) {
             alert("Cadastro de atleta realizado com sucesso!");
             location.href = '/login.html';

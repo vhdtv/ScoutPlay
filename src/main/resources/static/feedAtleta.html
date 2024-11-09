@@ -6,14 +6,14 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
     <title>Perfil do Atleta</title>
     <style>
-        h1{
-            color: #000;
-        }
-        p{
-            color: #05026e;
+        /* Reset de margens e bordas */
+        * {
             margin: 0;
-            
+            padding: 0;
+            box-sizing: border-box;
         }
+
+        /* Estilos básicos do corpo */
         body {
             font-family: Arial, sans-serif;
             background: linear-gradient(to right, #1a2a6c, #2a24d1, #020036);
@@ -24,6 +24,8 @@
             align-items: center;
             min-height: 100vh;
         }
+
+        /* Contêiner principal do perfil */
         .profile-container {
             background-color: #fff;
             color: #333;
@@ -37,6 +39,8 @@
             align-items: center;
             position: relative;
         }
+
+        /* Foto de perfil */
         .profile-pic {
             width: 180px;
             height: 180px;
@@ -45,24 +49,24 @@
             border: 5px solid #1a2a6c;
             margin-bottom: 20px;
         }
-        .edit-button{ /*Engrenagem*/
+
+        /* Botão de edição */
+        .edit-button {
             position: absolute;
-            top:40px;
+            top: 40px;
             right: 20px;
-            padding:10px;
+            padding: 10px;
             background-color: white;
-            color:#1a2a6c;
+            color: #1a2a6c;
             text-decoration: none;
             border-radius: 5px;
             border: 1px solid #003366;
             transition: background-color 0.3s, color 0.3s;
-            font-size: 24px;       
+            font-size: 24px;
         }
-        .edit-button:hover{
-            background-color: #f0f0f0;
-            color:#2a24d1
-        }
-        .gear-menu{
+
+        /* Menu de configurações */
+        .gear-menu {
             display: none;
             position: absolute;
             top: 90px;
@@ -73,23 +77,23 @@
             padding: 10px;
             box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
         }
-        .gear-menu a{
-            display:block;
+
+        .gear-menu a {
+            display: block;
             padding: 5px 10px;
             text-decoration: none;
             color: #1a2a6c;
             border-bottom: 1px solid #e0e0e0;
         }
-        .gear-menu a:hover{
-            background-color: #f0f0f0;
-        }
+
+        /* Botão de configuração no rodapé */
         .soccer-ball {
-            position:fixed;
+            position: fixed;
             bottom: 20px;
-            left:50%;
+            left: 50%;
             transform: translateX(-50%);
-            font-size:45px;
-            color:#1a2a6c;
+            font-size: 45px;
+            color: #1a2a6c;
             background-color: #ffffff;
             padding: 2px;
             border-radius: 50%;
@@ -97,89 +101,95 @@
             z-index: 1000;
             transition: background-color 0.3s, transform 0.3s;
         }
-        .soccer-ball:hover {
-            background-color: #ffffff;
-            transform: translateX(-50%) scale(1.1);
-        }
-        .soccer-ball i {
-            color: #1a2a6c;
-        }
-        .profile-details{
+
+        /* Estilos para a seção de detalhes do perfil */
+        .profile-details {
             display: flex;
             justify-content: space-between;
             width: 100%;
             margin-top: 20px;
         }
+
         .profile-details div {
             box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
-            margin-bottom: 20px;
             padding: 20px;
             border: 1px solid #ccc;
             border-radius: 10px;
             background-color: transparent;
-            width: calc(100% - 50px);
+            width: calc(50% - 10px);
         }
+
         .profile-details h2 {
-                        border-bottom: 1px solid #ccc;
-            padding-bottom: 5px;
             color: #1a2a6c;
             font-size: 20px;
             margin-bottom: 10px;
-            grid-column: span 2;
         }
-        .profile-details p{
+
+        .profile-details p {
             margin: 10px 0;
-            border-bottom: 1px solid #e0e0e0;
             padding-bottom: 5px;
+            border-bottom: 1px solid #e0e0e0;
         }
-        .profile-details a{
+
+        /* Layout para os vídeos */
+        #athleteVideos {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+            gap: 10px;
+            margin-top: 10px;
+        }
+
+        .video-link {
             display: inline-block;
-            padding: 5px 10px;
+            padding: 8px 10px;
             background-color: #1a2a6c;
             color: white;
             border-radius: 5px;
+            text-align: center;
+            text-decoration: none;
             transition: background-color 0.3s;
-            font-size: 13px;
-        }
-        .profile-details a:hover {
-            background-color: #2a24d1;
         }
 
+        .video-link:hover {
+            background-color: #2a24d1;
+        }
     </style>
 </head>
 <body>
 
-    <div class="profile-container">
-        <a href="#" class="edit-button">
-            <i class="fas fa-gear"></i>
-        </a>
-        <img id="profilePic" class="profile-pic" src="C:\Users\vhdtv\Desktop\Faculdade\Programação\ScoutPlay\uploads\fotos_perfil" alt="Foto do Atleta">
-        <h1 id="athleteName">Nome do Atleta</h1>
+<div class="profile-container">
+    <a href="#" class="edit-button">
+        <i class="fas fa-gear"></i>
+    </a>
+    <img id="profilePic" class="profile-pic" src="" alt="Foto do Atleta">
+    <h1 id="athleteName">Nome do Atleta</h1>
 
-        <div class="gear-menu" id="gearMenu">
-            <a href="editarPerfilAtleta.html">Editar perfil</a>
-            <a href="login.html">Sair</a>
+    <div class="gear-menu" id="gearMenu">
+        <a href="editarPerfilAtleta.html">Editar perfil</a>
+        <a href="http://localhost:8080">Sair</a>
+    </div>
+
+    <a href="feedAtleta.html" class="soccer-ball">
+        <i class="fa-regular fa-futbol"></i>
+    </a>
+
+    <div class="profile-details">
+        <div>
+            <h2>Sobre o atleta</h2>
+            <p><strong>Idade:</strong> <span id="athleteAge">--</span> anos</p>
+            <p><strong>Peso:</strong> <span id="athleteWeight">--</span> kg</p>
+            <p><strong>Altura:</strong> <span id="athleteHeight">--</span> cm</p>
+            <p><strong>Posição:</strong> <span id="athletePosition">--</span></p>
+            <p><strong>Pé Dominante:</strong> <span id="athleteDominantFoot">--</span></p>
         </div>
-    
-        <a href="feedAtleta.html" class="soccer-ball">
-            <i class="fa-regular fa-futbol"></i>
-        </a>
+        <div>
+            <h2>Carreira e vídeo</h2>
+            <p><strong>Clubes Anteriores:</strong> <span id="athleteClubs">--</span></p>
+            <div id="athleteVideos"></div> <!-- Contêiner para os links dos vídeos -->
+        </div>
+    </div>
+</div>
 
-        <div class="profile-details">
-            <div>
-                    <h2>Sobre o atleta</h2>
-        <p><strong>Idade:</strong> <span id="athleteAge">--</span> anos</p>
-        <p><strong>Peso:</strong> <span id="athleteWeight">--</span> </p>
-        <p><strong>Altura:</strong> <span id="athleteHeight">--</span></p>
-        <p><strong>Posição:</strong> <span id="athletePosition">--</span></p>
-        <p><strong>Pé Dominante:</strong> <span id="athleteDominantFoot"></span></p>
-            </div>
-            <div>
-                    <h2>Carreira e vídeo</h2>         
-        <p><strong>Clubes Anteriores:</strong> <span id="athleteClubs"></span></p>
-        <p><strong>Vídeo: </strong><a id="athleteVideoLink" href="#" target="_blank">Seu link</a></p>
-            </div>
-
-    <script src="scriptFeedAtleta.js"></script>
+<script src="scriptFeedAtleta.js"></script>
 </body>
 </html>

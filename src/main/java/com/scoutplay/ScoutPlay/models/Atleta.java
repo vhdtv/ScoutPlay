@@ -20,7 +20,7 @@ public class Atleta extends Usuario {
     @Enumerated(EnumType.STRING)
     private PeDominante peDominante;
 
-    @OneToMany(mappedBy = "atleta", cascade = CascadeType.ALL)
+    @OneToMany(mappedBy = "atleta", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<VideoAtleta> videos = new ArrayList<>();
 
     @ManyToOne
@@ -34,8 +34,6 @@ public class Atleta extends Usuario {
 
 
 }
-enum PeDominante {
-    DESTRO, CANHOTO, AMBIDESTRO
-}
+
 
 

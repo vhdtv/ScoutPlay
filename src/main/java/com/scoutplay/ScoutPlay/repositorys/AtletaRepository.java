@@ -13,4 +13,5 @@ public interface AtletaRepository extends JpaRepository<Atleta, String> {
 
     Optional<Atleta> findByEmail(String email);
     boolean existsByCpf(String cpf);
+    boolean existsByEmail(String email);
 }
