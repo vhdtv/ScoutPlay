@@ -1,5 +1,6 @@
 package com.scoutplay.ScoutPlay.models;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import lombok.Data;
 
@@ -16,6 +17,7 @@ public class VideoAtleta {
 
     @ManyToOne
     @JoinColumn(name = "atleta_id")
+    @JsonIgnore // Ignora o campo atleta na serialização evitando um loop
     private Atleta atleta;
 
 }

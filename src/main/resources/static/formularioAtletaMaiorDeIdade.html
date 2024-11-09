@@ -74,7 +74,7 @@
 </head>
 <body>
 <div class="form-container">
-    <h2>Prencha seus dados pessoais</h2>
+    <h2>Dados pessoais do atleta</h2>
     <label for="name">Nome:</label>
     <input type="text" id="name" name="name" required>
 
@@ -148,10 +148,13 @@
             <option value="DESTRO">Destro</option>
             <option value="CANHOTO">Canhoto</option>
             <option value="AMBIDESTRO">Ambidestro</option>
-        </select> 
+        </select>
 
-        <label for="video">Link do vídeo (YouTube):</label>
-        <input type="url" id="video" name="video" placeholder="Coloque o link do seu DVD" required>
+        <label for="videoLinksContainer">Links dos vídeos (YouTube):</label>
+        <div id="videoLinksContainer">
+            <input type="url" name="videos[]" placeholder="Coloque o link do seu DVD">
+        </div>
+        <button type="button" onclick="addVideoLink()">Adicionar outro link de vídeo</button>
 
         <div class="checkbox-container">
             <input class="check" type="checkbox" id="over18" name="over18" required>
@@ -162,6 +165,6 @@
     </form>
    
 </div>
- <script src="scriptFormularioAtleta.js"></script>
+ <script src="scriptFormularioAtletaMaiorDeIdade.js"></script>
 </body>
 </html>
