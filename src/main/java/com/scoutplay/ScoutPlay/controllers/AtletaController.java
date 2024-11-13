@@ -84,16 +84,22 @@ public class AtletaController {
         }
     }
 
-    @GetMapping
-    public List<Atleta> listarTodosAtletas() {
-        return atletaService.buscarTodosAtletas();
-    }
-
     @GetMapping("/{id}")
     public ResponseEntity<Atleta> buscarAtletaPorId(@PathVariable String id) {
         Optional<Atleta> atleta = atletaService.buscarAtletaPorId(id);
         return atleta.map(ResponseEntity::ok).orElseGet(() -> ResponseEntity.notFound().build());
     }
+    @GetMapping
+    public List<Atleta> listarAtletasComFiltro(
+            @RequestParam(value = "name", required = false) String nome,
+            @RequestParam(value = "birthYear", required = false) Integer anoNascimento,
+            @RequestParam(value = "weight", required = false) Double peso,
+            @RequestParam(value = "height", required = false) Double altura,
+            @RequestParam(value = "position", required = false) String posicao) {
+
+        return atletaService.buscarAtletasComFiltro(nome, anoNascimento, peso, altura, posicao);
+    }
+
 
     @PutMapping("/{id}")
     public ResponseEntity<Atleta> atualizarInformacoesAtleta(@PathVariable String id, @RequestBody Atleta atualizarInformacoesAtleta) {

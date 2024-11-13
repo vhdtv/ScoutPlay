@@ -14,6 +14,7 @@ import java.nio.file.Paths;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
+import java.util.stream.Collectors;
 
 @Service
 public class AtletaService {
@@ -53,6 +54,9 @@ public class AtletaService {
     // Método para buscar todos atletas
     public List<Atleta> buscarTodosAtletas() {
         return atletaRepository.findAll();
+    }
+    public List<Atleta> buscarAtletasComFiltro(String nome, Integer anoNascimento, Double peso, Double altura, String posicao) {
+        return atletaRepository.findByFilters(nome, anoNascimento, peso, altura, posicao);
     }
 
     // Método para buscar atleta por ID
