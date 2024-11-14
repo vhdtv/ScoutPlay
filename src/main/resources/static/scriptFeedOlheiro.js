@@ -1,3 +1,6 @@
+function handleExit() {
+    window.location.href = 'http://localhost:8080';
+}
 function handleSearch(event) {
     event.preventDefault(); // Evita o envio do formulário
     const name = document.getElementById('name').value;
@@ -38,7 +41,7 @@ function handleSearch(event) {
                     <p>Altura: ${atleta.altura || 'Não especificado'} cm</p>
                     <p>Posição: ${atleta.posicao || 'Não especificado'}</p>
                     <p>Pe Dominante: ${atleta.peDominante || 'Não especificado'}</p>
-                    <a href="#">Ver Perfil</a>
+                    <a href="/feedAtleta.html">Ver Perfil</a>
                 `;
                 resultsContainer.appendChild(resultItem);
             });

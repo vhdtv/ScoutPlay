@@ -98,11 +98,67 @@
     
         <label for="location">Local:</label>
         <input type="text" id="location" name="location" required>
-    
+<!--        <button type="button" onclick="fillForm()">Preencher com Dados Aleatorios</button>-->
         <button type="submit">Cadastrar</button>
     </form>
     
 </div>
+<!--<script>-->
+<!--    function getRandomName() {-->
+<!--        const names = ["João Silva", "Maria Oliveira", "Pedro Souza", "Ana Santos", "Lucas Fernandes"];-->
+<!--        return names[Math.floor(Math.random() * names.length)];-->
+<!--    }-->
+
+<!--    function getRandomPhone() {-->
+<!--        return `(${Math.floor(Math.random() * 10)}${Math.floor(Math.random() * 10)}) 9${Math.floor(1000 + Math.random() * 9000)}-${Math.floor(1000 + Math.random() * 9000)}`;-->
+<!--    }-->
+
+<!--    function getRandomCPF() {-->
+<!--        return `${Math.floor(100 + Math.random() * 900)}.${Math.floor(100 + Math.random() * 900)}.${Math.floor(100 + Math.random() * 900)}-${Math.floor(10 + Math.random() * 90)}`;-->
+<!--    }-->
+
+<!--    function getRandomDate() {-->
+<!--        const start = new Date(1980, 0, 1);-->
+<!--        const end = new Date(2005, 0, 1);-->
+<!--        const date = new Date(start.getTime() + Math.random() * (end.getTime() - start.getTime()));-->
+<!--        return date.toISOString().split('T')[0];-->
+<!--    }-->
+
+<!--    function getRandomCEP() {-->
+<!--        return `${Math.floor(10000 + Math.random() * 90000)}-${Math.floor(100 + Math.random() * 900)}`;-->
+<!--    }-->
+
+<!--    function getRandomEmail() {-->
+<!--        const domains = ["gmail.com", "yahoo.com", "outlook.com"];-->
+<!--        return `${Math.random().toString(36).substring(2, 7)}@${domains[Math.floor(Math.random() * domains.length)]}`;-->
+<!--    }-->
+
+<!--    function getRandomPassword() {-->
+<!--        return Math.random().toString(36).slice(-8);-->
+<!--    }-->
+
+<!--    function getRandomClub() {-->
+<!--        const clubs = ["Clube Atlético", "Esporte Clube", "Futebol Clube", "Sociedade Esportiva"];-->
+<!--        return clubs[Math.floor(Math.random() * clubs.length)];-->
+<!--    }-->
+
+<!--    function getRandomLocation() {-->
+<!--        const locations = ["São Paulo", "Rio de Janeiro", "Belo Horizonte", "Curitiba", "Porto Alegre"];-->
+<!--        return locations[Math.floor(Math.random() * locations.length)];-->
+<!--    }-->
+
+<!--    function fillForm() {-->
+<!--        document.getElementById("name").value = getRandomName();-->
+<!--        document.getElementById("telefone").value = getRandomPhone();-->
+<!--        document.getElementById("cpf").value = getRandomCPF();-->
+<!--        document.getElementById("data-nascimento").value = getRandomDate();-->
+<!--        document.getElementById("cep").value = getRandomCEP();-->
+<!--        document.getElementById("email").value = getRandomEmail();-->
+<!--        document.getElementById("senha").value = getRandomPassword();-->
+<!--        document.getElementById("club").value = getRandomClub();-->
+<!--        document.getElementById("location").value = getRandomLocation();-->
+<!--    }-->
+<!--</script>-->
 <script src="scriptFormularioOlheiro.js"></script>
 </body>
 </html>

@@ -26,10 +26,12 @@
             color: white;
             padding: 10px;
             text-align: center;
+            position: relative;  /* Importante para o filho absolute */
         }
 
         .menu-bar h2 {
-            margin-bottom: 10px;
+            margin-bottom: 5px;
+            text-align
         }
 
         .filter-item {
@@ -149,12 +151,31 @@
             box-shadow: 0 4px 10px rgba(0, 0, 0, 0.3);
             color: white;
         }
+
+        .exit-btn {
+            padding: 10px 20px;
+            background-color: #EE4B2B;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-weight: bold;
+            transition: background-color 0.3s;
+            position: absolute;  /* Torna o botão relativo ao menu-bar */
+            top: 10px;  /* Distância do topo do menu-bar */
+            right: 10px;  /* Distância da direita do menu-bar */
+        }
+
+        .exit-btn:hover {
+            background-color: #b22222;
+        }
     </style>
 </head>
 <body>
 
 <div class="menu-bar">
     <h2>Pesquisa de Atletas</h2>
+    <button class="exit-btn" onclick="handleExit()">Sair</button>
 </div>
 
 <div class="filter-container">
@@ -207,7 +228,6 @@
 <div class="search-results" id="search-results">
     <h3>Resultados da Pesquisa:</h3>
 </div>
-
 <script src="scriptFeedOlheiro.js"></script>
 </body>
 </html>
