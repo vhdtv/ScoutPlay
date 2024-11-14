@@ -1,6 +1,7 @@
 function handleExit() {
     window.location.href = 'http://localhost:8080';
 }
+
 function handleSearch(event) {
     event.preventDefault(); // Evita o envio do formulário
     const name = document.getElementById('name').value;
@@ -33,16 +34,39 @@ function handleSearch(event) {
             data.forEach(atleta => {
                 const resultItem = document.createElement('div');
                 resultItem.classList.add('result-item');
+
+                // Converte a data de nascimento para o formato brasileiro
+                const dataNascimentoFormatada = atleta.dataNascimento ?
+                    new Date(atleta.dataNascimento).toLocaleDateString('pt-BR') :
+                    'Não especificado';
+
                 resultItem.innerHTML = `
                     <img class="result-img" src="/api/atletas/fotos/${atleta.fotoPerfil.split('/').pop()}" alt="Foto do atleta">
                     <h4>${atleta.nome || 'Não especificado'}</h4>
-                    <p>Ano de Nascimento: ${atleta.dataNascimento || 'Não especificado'}</p>
+                    <p>Data de Nascimento: ${dataNascimentoFormatada}</p>
                     <p>Peso: ${atleta.peso || 'Não especificado'} kg</p>
                     <p>Altura: ${atleta.altura || 'Não especificado'} cm</p>
                     <p>Posição: ${atleta.posicao || 'Não especificado'}</p>
-                    <p>Pe Dominante: ${atleta.peDominante || 'Não especificado'}</p>
-                    <a href="/feedAtleta.html">Ver Perfil</a>
+                    <p>Pé Dominante: ${atleta.peDominante || 'Não especificado'}</p>
+                    <p>Telefone: ${atleta.telefone || 'Não especificado'}
+                    <p>Email: ${atleta.email || 'Não especificado'}</p>
                 `;
+
+                // Verificar se há vídeos e criar botões
+                if (atleta.videos && atleta.videos.length > 0) {
+                    const videoContainer = document.createElement('div');
+                    videoContainer.classList.add('video-container');
+                    atleta.videos.forEach(video => {
+                        const videoButton = document.createElement('a');
+                        videoButton.href = video.urlVideo;
+                        videoButton.innerText = "Assistir no YouTube";
+                        videoButton.target = "_blank"; // Abre o link em uma nova aba
+                        videoButton.classList.add('video-link');
+                        videoContainer.appendChild(videoButton);
+                    });
+                    resultItem.appendChild(videoContainer);
+                }
+
                 resultsContainer.appendChild(resultItem);
             });
         } else {
