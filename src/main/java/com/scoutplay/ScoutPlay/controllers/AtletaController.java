@@ -89,16 +89,27 @@ public class AtletaController {
         Optional<Atleta> atleta = atletaService.buscarAtletaPorId(id);
         return atleta.map(ResponseEntity::ok).orElseGet(() -> ResponseEntity.notFound().build());
     }
+
     @GetMapping
     public List<Atleta> listarAtletasComFiltro(
             @RequestParam(value = "name", required = false) String nome,
             @RequestParam(value = "birthYear", required = false) Integer anoNascimento,
             @RequestParam(value = "weight", required = false) Double peso,
             @RequestParam(value = "height", required = false) Double altura,
-            @RequestParam(value = "position", required = false) String posicao) {
+            @RequestParam(value = "position", required = false) String posicao,
+            @RequestParam(value = "dominantFoot", required = false) String dominantFoot) {
 
-        return atletaService.buscarAtletasComFiltro(nome, anoNascimento, peso, altura, posicao);
+        // Convertendo o valor para o enum se ele for não-nulo
+        PeDominante peDominante = (dominantFoot != null && !dominantFoot.isEmpty()) ? PeDominante.valueOf(dominantFoot) : null;
+
+        return atletaService.buscarAtletasComFiltro(nome, anoNascimento, peso, altura, posicao, peDominante);
     }
+
+
+
+
+
+
 
 
     @PutMapping("/{id}")

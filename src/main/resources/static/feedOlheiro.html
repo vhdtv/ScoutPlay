@@ -6,35 +6,34 @@
     <title>Pesquisa de Atletas</title>
     <style>
         * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
 
-        .filter-item label {
-        color: white;
-        font-weight: bold;
-        }
+.filter-item label {
+    color: white;
+    font-weight: bold;
+}
 
-        body {
-            font-family: Arial, sans-serif;
-            background-color: #f4f4f4;
-        }
+body {
+    font-family: Arial, sans-serif;
+    background-color: #f4f4f4;
+}
 
-        .menu-bar {
-            background-color: #071333;
-            color: white;
-            padding: 10px;
-            text-align: center;
-            position: relative;  /* Importante para o filho absolute */
-        }
+.menu-bar {
+    background-color: #071333;
+    color: white;
+    padding: 10px;
+    text-align: center;
+    position: relative;  /* Importante para o filho absolute */
+}
 
-        .menu-bar h2 {
-            margin-bottom: 5px;
-            text-align
-        }
+.menu-bar h2 {
+    margin-bottom: 5px;
+}
 
-        .video-link {
+.video-link {
     padding: 5px 10px;
     background-color: #FF0000; /* Vermelho do YouTube */
     color: white;
@@ -49,141 +48,155 @@
     background-color: #CC0000;
 }
 
-        .filter-item {
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-        }
+.filter-item {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
 
-        .filter-item input,
-        .filter-item select {
-            padding: 10px;
-            border: 2px solid #333;
-            border-radius: 5px;
-            width: 100%;
-            margin-top: 5px;
-        }
+.filter-item input,
+.filter-item select {
+    padding: 10px;
+    border: 2px solid #333;
+    border-radius: 5px;
+    width: 100%;
+    margin-top: 5px;
+}
 
-        .search-btn {
-            padding: 10px 20px;
-            background-color: #5246f9;
-            color: white;
-            border: none;
-            border-radius: 5px;
-            cursor: pointer;
-            font-weight: bold;
-            transition: background-color 0.3s;
-        }
+.search-btn,
+.clear-filters-btn {
+    padding: 10px 20px;
+    border-radius: 5px;
+    cursor: pointer;
+    font-weight: bold;
+    transition: background-color 0.3s;
+    width: 100%; /* Garante que ambos os botões fiquem do mesmo tamanho */
+}
 
-        .search-btn:hover {
-            background-color: #333;
-        }
+.search-btn {
+    background-color: #5246f9;
+    color: white;
+}
 
-        .filter-container form {
-            display: flex;
-            justify-content: space-around;
-            width: 100%;
-        }
+.search-btn:hover {
+    background-color: #333;
+}
 
-        .filter-container {
-            display: flex;
-            justify-content: space-around;
-            background-color: #0c13d9;
-            padding: 20px;
-            border-radius: 5px;
-            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.6);
-        }
+.clear-filters-btn {
+    background-color: #4CAF50; /* Cor diferente do vermelho */
+    color: white;
+    margin-top: 10px;
+}
 
-        .search-results {
-            margin: 20px;
-            text-align: center;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-        }
+.clear-filters-btn:hover {
+    background-color: #45a049; /* Efeito de hover */
+}
 
-        .result-item {
-            background-color: #fff;
-            color: #333;
-            padding: 20px;
-            border-radius: 10px;
-            margin: 10px 0;
-            width: calc(33% - 40px);
-            max-width: 600px;
-            box-shadow: 0 10px 20px rgba(0, 0, 0, 0.1);
-            text-align: left;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-        }
+.filter-container form {
+    display: flex;
+    justify-content: space-around;
+    width: 100%;
+}
 
-        .result-item h4 {
-            color: #1a2a6c;
-            margin: 10px 0;
-        }
+.filter-container {
+    display: flex;
+    justify-content: space-around;
+    background-color: #0c13d9;
+    padding: 20px;
+    border-radius: 5px;
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.6);
+}
 
-        .result-item p {
-            color: #05026e;
-            margin: 5px 0;
-            border-bottom: 1px solid #e0e0e0;
-            padding-bottom: 5px;
-        }
+.search-results {
+    margin: 20px;
+    text-align: center;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
 
-        .result-item a {
-            padding: 5px 10px;
-            background-color: #1a2a6c;
-            color: white;
-            border-radius: 5px;
-            transition: background-color 0.3s;
-            font-size: 13px;
-            text-decoration: none;
-        }
+.result-item {
+    background-color: #fff;
+    color: #333;
+    padding: 20px;
+    border-radius: 10px;
+    margin: 10px 0;
+    width: calc(33% - 40px);
+    max-width: 600px;
+    box-shadow: 0 10px 20px rgba(0, 0, 0, 0.1);
+    text-align: left;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
 
-        .result-item a:hover {
-            background-color: #2a24d1;
-        }
+.result-item h4 {
+    color: #1a2a6c;
+    margin: 10px 0;
+}
 
-        .result-img {
-            max-width: 100px;
-            height: 100px;
-            object-fit: cover;
-            border-radius: 50%;
-            border:3px solid #05026e;
-            margin-bottom: 20px ;
-        }
+.result-item p {
+    color: #05026e;
+    margin: 5px 0;
+    border-bottom: 1px solid #e0e0e0;
+    padding-bottom: 5px;
+}
 
-        .search-results h3 {
-            margin-bottom: 20px;
-            margin: 20px;
-            text-align: center;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            background-color: #444e75;
-            border-radius: 10px;
-            padding: 20px;
-            width: 1000px;
-            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.3);
-            color: white;
-        }
+.result-item a {
+    padding: 5px 10px;
+    background-color: #1a2a6c;
+    color: white;
+    border-radius: 5px;
+    transition: background-color 0.3s;
+    font-size: 13px;
+    text-decoration: none;
+}
 
-        .exit-btn {
-            padding: 10px 20px;
-            background-color: #EE4B2B;
-            color: white;
-            border: none;
-            border-radius: 5px;
-            cursor: pointer;
-            font-weight: bold;
-            transition: background-color 0.3s;
-            position: absolute;  /* Torna o botão relativo ao menu-bar */
-            top: 10px;  /* Distância do topo do menu-bar */
-            right: 10px;  /* Distância da direita do menu-bar */
-        }
+.result-item a:hover {
+    background-color: #2a24d1;
+}
 
-        .exit-btn:hover {
-            background-color: #b22222;
-        }
+.result-img {
+    max-width: 100px;
+    height: 100px;
+    object-fit: cover;
+    border-radius: 50%;
+    border: 3px solid #05026e;
+    margin-bottom: 20px;
+}
+
+.search-results h3 {
+    margin-bottom: 20px;
+    margin: 20px;
+    text-align: center;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    background-color: #444e75;
+    border-radius: 10px;
+    padding: 20px;
+    width: 1000px;
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.3);
+    color: white;
+}
+
+.exit-btn {
+    padding: 10px 20px;
+    background-color: #EE4B2B;
+    color: white;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    font-weight: bold;
+    transition: background-color 0.3s;
+    position: absolute;  /* Torna o botão relativo ao menu-bar */
+    top: 10px;  /* Distância do topo do menu-bar */
+    right: 10px;  /* Distância da direita do menu-bar */
+}
+
+.exit-btn:hover {
+    background-color: #b22222;
+}
     </style>
 </head>
 <body>
@@ -215,14 +228,21 @@
             <label for="position">Posição</label>
             <select id="position" name="position">
                 <option value="">Selecione</option>
+                <option value="Centroavante">Centroavante</option>
+                <option value="Ponta esquerda">Ponta esquerda</option>
+                <option value="Ponta direita">Ponta direita</option>
+                <option value="Segundo atacante">Segundo atacante</option>
+                <option value="Meio-campista central">Meio-campista central</option>
+                <option value="Meio-campista direito">Meio-campista direito</option>
+                <option value="Meio-campista esquerda">Meio-campista esquerda</option>
+                <option value="Volante direito">Volante direito</option>
+                <option value="Volante esquerdo">Volante esquerdo</option>
+                <option value="Lateral direito">Lateral direito</option>
+                <option value="Lateral esquerdo">Lateral esquerdo</option>
+                <option value="Zagueiro central">Zagueiro central</option>
+                <option value="Zagueiro direito">Zagueiro direito</option>
+                <option value="Zagueiro esquerdo">Zagueiro esquerdo</option>
                 <option value="Goleiro">Goleiro</option>
-                <option value="Defensor">Zagueiro</option>
-                <option value="Meio-campo">Meio-campo</option>
-                <option value="Atacante">Atacante</option>
-                <option value="Atacante">Volante</option>
-                <option value="Atacante">Lateral-Esquerdo</option>
-                <option value="Atacante">Lateral-Direito</option>
-                <option value="Atacante">Centroavante</option>
             </select>
         </div>
         <div class="filter-item">
@@ -236,12 +256,9 @@
         </div>
         <div class="filter-item">
             <button type="submit" class="search-btn">Pesquisar</button>
+            <button type="button" class="clear-filters-btn" onclick="handleClearFilters()">Limpar Filtros</button>
         </div>
     </form>
-</div>
-
-<div class="search-results" id="search-results">
-    <h3>Resultados da Pesquisa:</h3>
 </div>
 <script src="scriptFeedOlheiro.js"></script>
 </body>

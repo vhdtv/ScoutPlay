@@ -1,25 +1,33 @@
+window.onload = function() {
+    // Chama a função handleSearch sem parâmetros para buscar todos os atletas ao carregar a página
+    handleSearch();
+};
+
 function handleExit() {
     window.location.href = 'http://localhost:8080';
 }
 
 function handleSearch(event) {
-    event.preventDefault(); // Evita o envio do formulário
+    if (event) event.preventDefault(); // Evita o envio do formulário (se o evento for passado)
+
     const name = document.getElementById('name').value;
     const birthYear = document.getElementById('birth-year').value;
     const weight = document.getElementById('weight').value;
     const height = document.getElementById('height').value;
     const position = document.getElementById('position').value;
+    const dominantFoot = document.getElementById('dominant-foot').value; // Corrigir o nome da variável
 
-    const searchFilters = {
-        name: name,
-        birthYear: birthYear,
-        weight: weight,
-        height: height,
-        position: position
-    };
+    // Monta os parâmetros de busca, ignorando os vazios
+    const params = new URLSearchParams();
+    if (name) params.append('name', name);
+    if (birthYear) params.append('birthYear', birthYear);
+    if (weight) params.append('weight', weight);
+    if (height) params.append('height', height);
+    if (position) params.append('position', position);
+    if (dominantFoot) params.append('dominantFoot', dominantFoot);
 
     // Realiza a busca via API
-    fetch(`/api/atletas?name=${name}&birthYear=${birthYear}&weight=${weight}&height=${height}&position=${position}`, {
+    fetch(`/api/atletas?${params.toString()}`, {
         method: 'GET',
         headers: {
             'Content-Type': 'application/json'
@@ -35,7 +43,6 @@ function handleSearch(event) {
                 const resultItem = document.createElement('div');
                 resultItem.classList.add('result-item');
 
-                // Converte a data de nascimento para o formato brasileiro
                 const dataNascimentoFormatada = atleta.dataNascimento ?
                     new Date(atleta.dataNascimento).toLocaleDateString('pt-BR') :
                     'Não especificado';
@@ -48,11 +55,10 @@ function handleSearch(event) {
                     <p>Altura: ${atleta.altura || 'Não especificado'} cm</p>
                     <p>Posição: ${atleta.posicao || 'Não especificado'}</p>
                     <p>Pé Dominante: ${atleta.peDominante || 'Não especificado'}</p>
-                    <p>Telefone: ${atleta.telefone || 'Não especificado'}
+                    <p>Telefone: ${atleta.telefone || 'Não especificado'}</p>
                     <p>Email: ${atleta.email || 'Não especificado'}</p>
                 `;
 
-                // Verificar se há vídeos e criar botões
                 if (atleta.videos && atleta.videos.length > 0) {
                     const videoContainer = document.createElement('div');
                     videoContainer.classList.add('video-container');
@@ -77,4 +83,10 @@ function handleSearch(event) {
         console.error('Erro ao buscar atletas:', error);
         document.getElementById('search-results').innerHTML = `<p>Erro ao buscar os resultados.</p>`;
     });
+}
+
+function handleClearFilters() {
+    // Limpar todos os campos do formulário
+    document.getElementById('searchForm').reset();
+    document.getElementById('search-results').innerHTML = '';
 }

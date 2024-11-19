@@ -1,6 +1,7 @@
 package com.scoutplay.ScoutPlay.services;
 
 import com.scoutplay.ScoutPlay.models.Atleta;
+import com.scoutplay.ScoutPlay.models.PeDominante;
 import com.scoutplay.ScoutPlay.models.VideoAtleta;
 import com.scoutplay.ScoutPlay.repositorys.AtletaRepository;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -55,8 +56,9 @@ public class AtletaService {
     public List<Atleta> buscarTodosAtletas() {
         return atletaRepository.findAll();
     }
-    public List<Atleta> buscarAtletasComFiltro(String nome, Integer anoNascimento, Double peso, Double altura, String posicao) {
-        return atletaRepository.findByFilters(nome, anoNascimento, peso, altura, posicao);
+
+    public List<Atleta> buscarAtletasComFiltro(String nome, Integer anoNascimento, Double peso, Double altura, String posicao, PeDominante peDominante) {
+        return atletaRepository.findByFilters(nome, anoNascimento, peso, altura, posicao, peDominante);
     }
 
     // Método para buscar atleta por ID
