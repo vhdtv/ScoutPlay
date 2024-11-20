@@ -1,7 +1,7 @@
-window.onload = function() {
+window.addEventListener('DOMContentLoaded', function() {
     // Chama a função handleSearch sem parâmetros para buscar todos os atletas ao carregar a página
     handleSearch();
-};
+});
 
 function handleExit() {
     window.location.href = 'http://localhost:8080';
