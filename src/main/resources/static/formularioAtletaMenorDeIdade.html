@@ -69,6 +69,15 @@
         color: #020036;
     }
 
+    button#add{
+        background-color: rgb(43, 43, 43);
+        color: #ffffff;
+    }
+    .divider {
+            border-top: 2px solid #0f0b38;
+            margin: 20px 0;
+        }
+
     </style>
 
 </head>
@@ -151,7 +160,8 @@
         <div id="videoLinksContainer">
             <input type="url" name="videos[]" placeholder="Coloque o link do seu DVD">
         </div>
-        <button type="button" onclick="addVideoLink()">Adicionar outro link de vídeo</button>
+        <button type="button" onclick="addVideoLink()" id="add">Adicionar outro link de vídeo</button>
+        <div class="divider"></div> <!-- Linha divisória -->
 
         <div class="">
             <h2>Contato do responsável</h2>

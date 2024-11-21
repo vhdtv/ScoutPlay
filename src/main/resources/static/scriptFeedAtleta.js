@@ -1,19 +1,3 @@
-// Função para exibir o menu ao clicar na engrenagem
-document.querySelector('.edit-button').addEventListener('click', function(e) {
-    e.preventDefault();
-    const gearMenu = document.getElementById('gearMenu');
-    gearMenu.style.display = (gearMenu.style.display === 'block') ? 'none' : 'block';
-});
-
-// Fecha o menu ao clicar fora dele
-document.addEventListener('click', function(event) {
-    const gearMenu = document.getElementById('gearMenu');
-    const editButton = document.querySelector('.edit-button');
-    if (!gearMenu.contains(event.target) && !editButton.contains(event.target)) {
-        gearMenu.style.display = 'none';
-    }
-});
-
 // Função para calcular a idade a partir da data de nascimento
 function calcularIdade(dataNascimento) {
     const hoje = new Date();
@@ -59,7 +43,11 @@ function carregarPerfilAtleta() {
         .catch(error => console.error("Erro ao carregar perfil do atleta:", error));
 }
 
+// Adicionar funcionalidade ao botão de saída
+document.getElementById("redirectButton").addEventListener("click", function () {
+    // Redireciona para outra página
+    window.location.href = "http://localhost:8080"; // Substitua pelo URL desejado
+});
+
 // Carregar o perfil do atleta quando a página for carregada
 window.onload = carregarPerfilAtleta;
-
-
