@@ -50,27 +50,40 @@
         .form-container button:hover {
             background-color: #0056b3;
         }
-       .form-container input, .form-container select {
-    width: 90%; /* Ajuste a porcentagem conforme necessário */
-    padding: 10px;
-    margin-bottom: 20px;
-    border-radius: 5px;
-    border: 1px solid #2b00ff;
-}
-    .checkbox-container{
-        text-align: center;
-        padding: 1px;
-
-    }
-
-    .confirmoquesoumaior{
-        margin-top: 1px;
-        font-weight: bold;
-        color: #020036;
-    }
-
+        .form-container input, .form-container select {
+            width: 90%;
+            padding: 10px;
+            margin-bottom: 20px;
+            border-radius: 5px;
+            border: 1px solid #2b00ff;
+        }
+        .checkbox-container {
+            text-align: center;
+            padding: 1px;
+        }
+        .confirmoquesoumaior {
+            margin-top: 1px;
+            font-weight: bold;
+            color: #020036;
+        }
+        .divider {
+            border-top: 2px solid #ccc;
+            margin: 20px 0;
+        }
+        button#addVideoButton {
+            width: 100%;
+            padding: 10px;
+            background-color: #737373; /* Cor laranja */
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 16px;
+        }
+        button#addVideoButton:hover {
+            background-color: #010101; /* Cor laranja mais escura ao passar o mouse */
+        }
     </style>
-
 </head>
 <body>
 <div class="form-container">
@@ -78,9 +91,6 @@
     <label for="name">Nome:</label>
     <input type="text" id="name" name="name" required>
 
-
-
-    
     <label for="cpf">CPF</label>
     <input type="text" id="cpf" name="cpf" placeholder="Digite seu CPF" required>
 
@@ -90,21 +100,13 @@
     <label for="cep">CEP</label>
     <input type="text" id="cep" name="cep" placeholder="Digite seu CEP" required>
 
-    
-
     <label for="senha">Senha</label>
     <input type="password" id="senha" name="senha" placeholder="Digite sua senha" required>
-
-
-
-
-
 </div>
+
 <div class="form-container">
     <h2>Formulário do Atleta</h2>
     <form id="athleteForm">
-
-
         <label for="weight">Peso (kg):</label>
         <input type="number" id="weight" name="weight" required>
 
@@ -113,7 +115,7 @@
 
         <label for="position">Posição:</label>
         <select id="position" name="position" required>
-            <option value=""disabled selected>Selecione a posição:</option>
+            <option value="" disabled selected>Selecione a posição:</option>
             <option value="Centroavante">Centroavante</option>
             <option value="Ponta esquerda">Ponta esquerda</option>
             <option value="Ponta direita">Ponta direita</option>
@@ -131,13 +133,11 @@
             <option value="Goleiro">Goleiro</option>
         </select>
 
-
         <label for="clubes">Clubes Anteriores</label>
         <input type="text" id="clubes" name="clubes" placeholder="Digite os clubes onde você jogou" required>
 
         <label for="perfil-foto">Foto de Perfil</label>
         <input type="file" id="perfil-foto" name="perfil-foto" accept="image/*" required>
-
 
         <label for="pe-dominante">Pé Dominante</label>
         <select id="pe-dominante" name="pe-dominante" required>
@@ -151,27 +151,24 @@
         <div id="videoLinksContainer">
             <input type="url" name="videos[]" placeholder="Coloque o link do seu DVD">
         </div>
-        <button type="button" onclick="addVideoLink()">Adicionar outro link de vídeo</button>
+        <button type="button" id="addVideoButton" onclick="addVideoLink()">Adicionar outro link de vídeo</button>
 
-        <div class="">
-            <h2>Contato do responsável</h2>
+        <div class="divider"></div> <!-- Linha divisória -->
 
-            <label for="email">E-mail</label>
-            <input type="email" id="email" name="email" placeholder="Digite seu e-mail" required>
+        <h2>Contato do responsável</h2>
+        <label for="email">E-mail</label>
+        <input type="email" id="email" name="email" placeholder="Digite seu e-mail" required>
 
-            <label for="telefone">Telefone</label>
-            <input type="tel" id="telefone" name="telefone" placeholder="Digite seu telefone" required>
-            <div class="checkbox-container">
-                <input class="check" type="checkbox" id="over18" name="over18" required>
-                <label class="confirmoquesoumaior"  for="over18">Confirmo que sou o responsável do atleta</label>
-            </div>
-            <button type="submit">Cadastrar</button>
+        <label for="telefone">Telefone</label>
+        <input type="tel" id="telefone" name="telefone" placeholder="Digite seu telefone" required>
+
+        <div class="checkbox-container">
+            <input class="check" type="checkbox" id="over18" name="over18" required>
+            <label class="confirmoquesoumaior" for="over18">Confirmo que sou o responsável do atleta</label>
         </div>
-       
+
+        <button type="submit"> <b>CADASTRAR</b> </button>
     </form>
-
-    
-
 </div>
 
 <script src="scriptFormularioAtletaMaiorDeIdade.js"></script>

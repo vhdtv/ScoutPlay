@@ -50,40 +50,24 @@
             margin-bottom: 20px;
         }
 
-        /* Botão de edição */
-        .edit-button {
+        /* Botão vermelho de sair no canto superior direito */
+        .logout-button {
             position: absolute;
-            top: 40px;
-            right: 20px;
-            padding: 10px;
-            background-color: white;
-            color: #1a2a6c;
-            text-decoration: none;
+            top: 20px; /* Alinhado no topo */
+            right: 20px; /* Alinhado à direita */
+            background-color: #ff4d4d; /* Vermelho */
+            color: white;
+            border: none;
+            padding: 10px 20px;
             border-radius: 5px;
-            border: 1px solid #003366;
-            transition: background-color 0.3s, color 0.3s;
-            font-size: 24px;
+            font-size: 14px;
+            cursor: pointer;
+            transition: background-color 0.3s;
+            text-align: center;
         }
 
-        /* Menu de configurações */
-        .gear-menu {
-            display: none;
-            position: absolute;
-            top: 90px;
-            right: 20px;
-            background-color: white;
-            border: 1px solid #ccc;
-            border-radius: 5px;
-            padding: 10px;
-            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-        }
-
-        .gear-menu a {
-            display: block;
-            padding: 5px 10px;
-            text-decoration: none;
-            color: #1a2a6c;
-            border-bottom: 1px solid #e0e0e0;
+        .logout-button:hover {
+            background-color: #cc0000; /* Vermelho mais escuro ao passar o mouse */
         }
 
         /* Botão de configuração no rodapé */
@@ -139,39 +123,31 @@
             margin-top: 10px;
         }
 
-.video-link {
-    display: flex;
-    justify-content: center; /* Centraliza horizontalmente */
-    align-items: center; /* Centraliza verticalmente */
-    padding: 8px 10px;
-    background-color: #1a2a6c;
-    color: white;
-    border-radius: 5px;
-    text-align: center;
-    text-decoration: none;
-    height: 40px; /* Ajuste a altura conforme necessário */
-    transition: background-color 0.3s;
-}
+        .video-link {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 8px 10px;
+            background-color: #1a2a6c;
+            color: white;
+            border-radius: 5px;
+            text-align: center;
+            text-decoration: none;
+            height: 40px;
+            transition: background-color 0.3s;
+        }
 
-.video-link:hover {
-    background-color: #2a24d1;
-}
-
+        .video-link:hover {
+            background-color: #2a24d1;
+        }
     </style>
 </head>
 <body>
 
 <div class="profile-container">
-    <a href="#" class="edit-button">
-        <i class="fas fa-gear"></i>
-    </a>
+    <button id="logoutButton" class="logout-button">Sair</button>
     <img id="profilePic" class="profile-pic" src="" alt="Foto do Atleta">
     <h1 id="athleteName">Nome do Atleta</h1>
-
-    <div class="gear-menu" id="gearMenu">
-        <a href="editarPerfilAtleta.html">Editar perfil</a>
-        <a href="http://localhost:8080">Sair</a>
-    </div>
 
     <a href="feedAtleta.html" class="soccer-ball">
         <i class="fa-regular fa-futbol"></i>
@@ -189,11 +165,11 @@
         <div>
             <h2>Carreira e vídeo</h2>
             <p><strong>Clubes Anteriores:</strong> <span id="athleteClubs">--</span></p>
-            <div id="athleteVideos"></div> <!-- Contêiner para os links dos vídeos -->
+            <div id="athleteVideos"></div>
         </div>
     </div>
 </div>
 
-<script src="scriptFeedAtleta.js"></script>
+
 </body>
 </html>

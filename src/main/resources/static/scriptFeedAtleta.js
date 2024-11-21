@@ -59,6 +59,10 @@ function carregarPerfilAtleta() {
         .catch(error => console.error("Erro ao carregar perfil do atleta:", error));
 }
 
+document.getElementById('logoutButton').addEventListener('click', function () {
+    window.location.href = 'http://localhost:8080'; // Redirecione para a URL desejada
+});
+
 // Carregar o perfil do atleta quando a página for carregada
 window.onload = carregarPerfilAtleta;
 

@@ -61,5 +61,16 @@ async function handleAtletaForm(event) {
     }
 }
 
+
+    // Função para adicionar novos campos de vídeo
+    function addVideoLink() {
+        const container = document.getElementById('videoLinksContainer');
+        const newInput = document.createElement('input');
+        newInput.type = 'url';
+        newInput.name = 'videos[]';
+        newInput.placeholder = 'Coloque outro link do seu DVD';
+        container.appendChild(newInput);
+    }
+
 // Adiciona o listener para o evento de envio do formulário
 document.getElementById('athleteForm').addEventListener('submit', handleAtletaForm);
