@@ -1,4 +1,4 @@
-```markdown
+
 # Scout Play Application
 
 Bem-vindo ao **Scout Play Application**, uma plataforma que conecta jovens jogadores de futebol a olheiros e clubes. Esta aplicação utiliza Spring Boot, PostgreSQL e oferece uma API RESTful para gerenciar perfis de atletas e olheiros.
@@ -15,10 +15,7 @@ Certifique-se de ter os seguintes softwares instalados:
 ## Configuração do Ambiente
 
 1. **Clone o repositório:**
-   ```bash
    git clone https://github.com/vhdtv/ScoutPlay.git
-   cd ScoutPlay
-   ```
 
 2. **Configuração do banco de dados:**
    - Crie um banco de dados no PostgreSQL chamado `scoutplaydb`.
