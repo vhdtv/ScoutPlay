@@ -7,12 +7,14 @@ Com login dedicado para players, o Scope permite encontrar talentos de forma rá
 
 ## Integrantes
 
-- Victor Henrique Dias - 4231920004
-- Paulo Vitor Amorim de Oliveira - 42322453
-- Maria Clara Marques Lino - 4231924407
-- Lucas Ferreira Andrade - 4231921505
-- Cesar Augusto Ferreira Martins - 4231921453
-- Caio Alves Fernandes - 4231925609
+| | Nome | RA |
+| --- | --- | --- |
+| <img src="https://avatars.githubusercontent.com/u/101878978?v=4" style="display: inline-block; width: 64px"> | Victor Henrique Dias | 4231920004
+| <img src="https://avatars.githubusercontent.com/u/130322697?v=4" style="display: inline-block; width: 64px"> | Paulo Vitor Amorim de Oliveira | 42322453
+| <img src="https://avatars.githubusercontent.com/u/129996963?v=4" style="display: inline-block; width: 64px"> | Maria Clara Marques Lino | 4231924407
+| <img src="https://avatars.githubusercontent.com/u/129918519?v=4" style="display: inline-block; width: 64px"> | Lucas Ferreira Andrade | 4231921505
+| <img src="https://avatars.githubusercontent.com/u/134884115?v=4" style="display: inline-block; width: 64px"> | Cesar Augusto Ferreira Martins | 4231921453
+| <img src="https://avatars.githubusercontent.com/u/35999467?v=4" style="display: inline-block; width: 64px"> | Caio Alves Fernandes | 4231925609
 ---
 
 ## 📋 Sumário
