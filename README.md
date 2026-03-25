@@ -6,6 +6,7 @@ Com login dedicado para players, o Scope permite encontrar talentos de forma rá
 
 
 *##Integrantes*
+
 Victor Henrique Dias - 4231920004
 1. Paulo Vitor Amorim de Oliveira - 42322453
 2. Maria Clara Marques Lino- 4231924407
