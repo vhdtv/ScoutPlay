@@ -1,6 +1,8 @@
 # Scout Play Application
 
 Bem-vindo ao **Scout Play Application** 🎯 - uma plataforma inovadora que conecta jovens talentos de futebol a olheiros e clubes profissionais. Esta aplicação utiliza **Spring Boot 3**, **PostgreSQL** e oferece uma API RESTful completa para gerenciar perfis de atletas, olheiros e autenticação de usuários.
+O Scoutplay (Scope) resolve a desorganização na captação e análise de atletas ⚽📊. Centralizamos players CRZ, cadastro de atletas e upload de vídeos em um só lugar, facilitando a busca por oportunidades e visibilidade em mercados e clubes.
+Com login dedicado para players, o Scope permite encontrar talentos de forma rápida, estruturada e estratégica 🚀, transformando dados e vídeos em oportunidades reais.
 
 ---
 
@@ -212,6 +214,17 @@ curl -X POST http://localhost:8080/api/atletas \
 ```
 
 ### 👁️ Olheiros (`/api/olheiros`)
+*Funcionalidades do sistema*
+O Scoutplay é uma plataforma completa para gestão de olheiros e atletas ⚽📊, trazendo organização, controle e escalabilidade para sua operação.
+
+Funcionalidades principais:
+✨ Cadastro de novos olheiros
+📋 Listagem completa e organizada
+🔍 Busca rápida por ID
+✏️ Atualização de dados em tempo real
+🗑️ Remoção de registros
+
+Além disso, o sistema garante mais agilidade na gestão, centralização das informações e suporte ao crescimento da operação 🚀
 
 | Método | Endpoint | Descrição |
 |--------|----------|-----------|
