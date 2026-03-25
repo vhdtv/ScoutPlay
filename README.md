@@ -4,7 +4,13 @@ Bem-vindo ao **Scout Play Application** 🎯 - uma plataforma inovadora que cone
 O Scoutplay (Scope) resolve a desorganização na captação e análise de atletas ⚽📊. Centralizamos players CRZ, cadastro de atletas e upload de vídeos em um só lugar, facilitando a busca por oportunidades e visibilidade em mercados e clubes.
 Com login dedicado para players, o Scope permite encontrar talentos de forma rápida, estruturada e estratégica 🚀, transformando dados e vídeos em oportunidades reais.
 
-
+##Integrantes
+Victor Henrique Dias - 4231920004
+1. Paulo Vitor Amorim de Oliveira - 42322453
+2. Maria Clara Marques Lino- 4231924407
+3. Lucas Ferreira Andrade - 4231921505
+4. Cesar Augusto Ferreira Martins - 4231921453
+5. Caio Alves Fernandes - 4231925609
 ---
 
 ## 📋 Sumário
