@@ -4,9 +4,11 @@ Bem-vindo ao **Scout Play Application** 🎯 - uma plataforma inovadora que cone
 O Scoutplay (Scope) resolve a desorganização na captação e análise de atletas ⚽📊. Centralizamos players CRZ, cadastro de atletas e upload de vídeos em um só lugar, facilitando a busca por oportunidades e visibilidade em mercados e clubes.
 Com login dedicado para players, o Scope permite encontrar talentos de forma rápida, estruturada e estratégica 🚀, transformando dados e vídeos em oportunidades reais.
 
+
 ---
 
 ## 📋 Sumário
+- [Integrantes](#integrantes)
 - [Visão Geral](#visão-geral)
 - [Pré-requisitos](#pré-requisitos)
 - [Configuração Rápida](#configuração-rápida)
