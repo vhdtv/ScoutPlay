@@ -7,12 +7,12 @@ Com login dedicado para players, o Scope permite encontrar talentos de forma rá
 
 *##Integrantes*
 
-Victor Henrique Dias - 4231920004
-1. Paulo Vitor Amorim de Oliveira - 42322453
-2. Maria Clara Marques Lino- 4231924407
-3. Lucas Ferreira Andrade - 4231921505
-4. Cesar Augusto Ferreira Martins - 4231921453
-5. Caio Alves Fernandes - 4231925609
+. Victor Henrique Dias - 4231920004
+. Paulo Vitor Amorim de Oliveira - 42322453
+. Maria Clara Marques Lino- 4231924407
+. Lucas Ferreira Andrade - 4231921505
+. Cesar Augusto Ferreira Martins - 4231921453
+. Caio Alves Fernandes - 4231925609
 ---
 
 ## 📋 Sumário
@@ -39,7 +39,7 @@ A plataforma Scout Play funciona em três pilares:
 **Stack Tecnológico:**
 - Backend: Java 21 + Spring Boot 3.3.4
 - Banco de Dados: PostgreSQL 42.7.4
-- Frontend: HTML5 + CSS3 + JavaScript (Vanilla)
+- Frontend: HTML5 + CSS3 + JavaScript (Vanilla) + React.
 - Build Tool: Maven
 
 ---
