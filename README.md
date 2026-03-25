@@ -5,14 +5,14 @@ O Scoutplay (Scope) resolve a desorganização na captação e análise de atlet
 Com login dedicado para players, o Scope permite encontrar talentos de forma rápida, estruturada e estratégica 🚀, transformando dados e vídeos em oportunidades reais.
 
 
-*##Integrantes*
+## Integrantes
 
-<h2>. Victor Henrique Dias - 4231920004
-. Paulo Vitor Amorim de Oliveira - 42322453
-. Maria Clara Marques Lino- 4231924407
-. Lucas Ferreira Andrade - 4231921505
-. Cesar Augusto Ferreira Martins - 4231921453
-. Caio Alves Fernandes - 4231925609 </h2>
+- Victor Henrique Dias - 4231920004
+- Paulo Vitor Amorim de Oliveira - 42322453
+- Maria Clara Marques Lino - 4231924407
+- Lucas Ferreira Andrade - 4231921505
+- Cesar Augusto Ferreira Martins - 4231921453
+- Caio Alves Fernandes - 4231925609
 ---
 
 ## 📋 Sumário
