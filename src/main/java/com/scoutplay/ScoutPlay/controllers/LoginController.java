@@ -6,6 +6,7 @@ import com.scoutplay.ScoutPlay.api.response.ApiResponse;
 import com.scoutplay.ScoutPlay.models.Atleta;
 import com.scoutplay.ScoutPlay.models.Olheiro;
 import com.scoutplay.ScoutPlay.models.Usuario;
+import com.scoutplay.ScoutPlay.security.JwtTokenProvider;
 import com.scoutplay.ScoutPlay.services.LoginService;
 import jakarta.validation.Valid;
 import lombok.extern.slf4j.Slf4j;
@@ -27,10 +28,16 @@ public class LoginController {
     @Autowired
     private LoginService loginService;
 
+    @Autowired
+    private JwtTokenProvider jwtTokenProvider;
+
     /**
-     * Autentica usuário e retorna informações com token
+     * Autentica usuário e retorna JWT token
+     * Request: { "email": "user@test.com", "senha": "password123" }
+     * Response: { "success": true, "data": { "token": "...", "userId": "...", ... } }
+     *
      * @param loginRequest credenciais do usuário
-     * @return resposta padronizada com dados de login
+     * @return resposta com JWT token
      */
     @PostMapping("/login")
     public ResponseEntity<ApiResponse<LoginResponse>> login(@Valid @RequestBody LoginRequest loginRequest) {
@@ -53,7 +60,7 @@ public class LoginController {
     }
 
     /**
-     * Constrói resposta de login baseado no tipo de usuário
+     * Constrói resposta de login com JWT token
      */
     private LoginResponse construirLoginResponse(Usuario usuario) {
         String userType;
@@ -66,13 +73,17 @@ public class LoginController {
             userType = "RESPONSAVEL";
         }
 
+        // Gera JWT token
+        String token = jwtTokenProvider.generateToken(usuario.getId(), userType);
+
         return LoginResponse.builder()
+            .token(token)
             .userId(usuario.getId())
             .userType(userType)
             .nome(usuario.getNome())
             .email(usuario.getEmail())
-            .expiresIn(86400000L)  // 24 horas em ms
-            // token será adicionado na Semana 2 com JWT
+            .expiresIn(jwtTokenProvider.getExpirationMs())
             .build();
     }
 }
+
