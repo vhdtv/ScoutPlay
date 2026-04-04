@@ -16,7 +16,8 @@ import lombok.NoArgsConstructor;
 public class LoginResponse {
     private String token;
     private String userId;
-    private String userType; // 'atleta', 'olheiro', 'responsavel'
+    private String userType; // 'ATLETA', 'OLHEIRO', 'RESPONSAVEL'
     private String nome;
     private String email;
+    private Long expiresIn;   // Tempo de expiração em milissegundos
 }

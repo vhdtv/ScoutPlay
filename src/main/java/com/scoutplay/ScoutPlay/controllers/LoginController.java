@@ -1,42 +1,78 @@
 package com.scoutplay.ScoutPlay.controllers;
 
+import com.scoutplay.ScoutPlay.api.dto.LoginRequest;
+import com.scoutplay.ScoutPlay.api.dto.LoginResponse;
+import com.scoutplay.ScoutPlay.api.response.ApiResponse;
 import com.scoutplay.ScoutPlay.models.Atleta;
 import com.scoutplay.ScoutPlay.models.Olheiro;
 import com.scoutplay.ScoutPlay.models.Usuario;
 import com.scoutplay.ScoutPlay.services.LoginService;
+import jakarta.validation.Valid;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
-import org.springframework.http.HttpStatusCode;
 import org.springframework.http.ResponseEntity;
-import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import java.util.Optional;
 
+@Slf4j
 @RestController
+@RequestMapping("/api")
 public class LoginController {
 
     @Autowired
     private LoginService loginService;
 
-    @PostMapping("/api/login")
-    public ResponseEntity<String> login(@RequestParam("email") String email, @RequestParam("senha") String senha){
-        Optional<Usuario> usuario = loginService.autenticar(email, senha);
-        if(usuario.isPresent()){
-            if(usuario.get() instanceof com.scoutplay.ScoutPlay.models.Atleta){
-                Atleta atleta = (Atleta) usuario.get();
-                return ResponseEntity.ok(atleta.getId());
-                //Preciso retornar um JSON para front consumir em feedAtleta
+    /**
+     * Autentica usuário e retorna informações com token
+     * @param loginRequest credenciais do usuário
+     * @return resposta padronizada com dados de login
+     */
+    @PostMapping("/login")
+    public ResponseEntity<ApiResponse<LoginResponse>> login(@Valid @RequestBody LoginRequest loginRequest) {
+        try {
+            Optional<Usuario> usuario = loginService.autenticar(loginRequest.getEmail(), loginRequest.getSenha());
 
-            } else if (usuario.get() instanceof com.scoutplay.ScoutPlay.models.Olheiro) {
-                Olheiro olheiro = (Olheiro) usuario.get();
-                return ResponseEntity.ok(olheiro.getId());
-                //Preciso retornar um JSON para front consumir em feedOlheiro
+            if (usuario.isPresent()) {
+                LoginResponse response = construirLoginResponse(usuario.get());
+                return ResponseEntity.ok(ApiResponse.success(response, "Login realizado com sucesso"));
             }
+
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
+                .body(ApiResponse.error("UNAUTHORIZED", "Email ou senha inválidos"));
+
+        } catch (Exception e) {
+            log.error("Erro ao realizar login", e);
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                .body(ApiResponse.error("LOGIN_ERROR", "Erro ao processar login"));
         }
-        return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Usuário ou senha inválidos");
     }
 
+    /**
+     * Constrói resposta de login baseado no tipo de usuário
+     */
+    private LoginResponse construirLoginResponse(Usuario usuario) {
+        String userType;
+
+        if (usuario instanceof Atleta) {
+            userType = "ATLETA";
+        } else if (usuario instanceof Olheiro) {
+            userType = "OLHEIRO";
+        } else {
+            userType = "RESPONSAVEL";
+        }
+
+        return LoginResponse.builder()
+            .userId(usuario.getId())
+            .userType(userType)
+            .nome(usuario.getNome())
+            .email(usuario.getEmail())
+            .expiresIn(86400000L)  // 24 horas em ms
+            // token será adicionado na Semana 2 com JWT
+            .build();
+    }
 }
