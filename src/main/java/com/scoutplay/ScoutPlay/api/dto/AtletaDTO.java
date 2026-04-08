@@ -29,6 +29,10 @@ public class AtletaDTO {
     @Email(message = "Email deve ser válido")
     private String email;
 
+    @NotBlank(message = "Senha é obrigatória")
+    @Size(min = 6, message = "Senha deve ter no mínimo 6 caracteres")
+    private String senha;
+
     @Pattern(regexp = "^\\(\\d{2}\\) \\d{4,5}-\\d{4}$", message = "Telefone deve estar no formato (XX) XXXXX-XXXX")
     private String telefone;
 
@@ -57,6 +61,5 @@ public class AtletaDTO {
     private String clubesAnteriores;
     private Integer idade;
 
-    @Valid
-    private List<VideoDTO> videos;
+    private List<@Pattern(regexp = "^(https?://).+", message = "Cada vídeo deve ser uma URL válida") String> videos;
 }

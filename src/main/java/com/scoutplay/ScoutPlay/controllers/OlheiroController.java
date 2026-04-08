@@ -1,12 +1,32 @@
 package com.scoutplay.ScoutPlay.controllers;
 
+import com.scoutplay.ScoutPlay.api.dto.OlheiroDTO;
+import com.scoutplay.ScoutPlay.api.dto.LoginResponse;
+import com.scoutplay.ScoutPlay.api.response.ApiResponse;
+import com.scoutplay.ScoutPlay.api.response.PageResponse;
+import com.scoutplay.ScoutPlay.exceptions.ResourceNotFoundException;
 import com.scoutplay.ScoutPlay.models.Olheiro;
+import com.scoutplay.ScoutPlay.security.JwtTokenProvider;
+import com.scoutplay.ScoutPlay.security.SecurityUtils;
 import com.scoutplay.ScoutPlay.services.OlheiroService;
+import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
-import org.springframework.http.HttpStatusCode;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.security.access.AccessDeniedException;
+import org.springframework.web.bind.annotation.DeleteMapping;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.RestController;
 
 import java.util.List;
 import java.util.Optional;
@@ -18,48 +38,92 @@ public class OlheiroController {
     @Autowired
     private OlheiroService olheiroService;
 
-    //Endpoint para criar um olheiro
+    @Autowired
+    private JwtTokenProvider jwtTokenProvider;
+
+    @PostMapping("/registro")
+    public ResponseEntity<ApiResponse<LoginResponse>> registrarOlheiro(@Valid @RequestBody OlheiroDTO olheiroDTO) {
+        Olheiro olheiroCriado = olheiroService.criarOlheiro(toOlheiro(olheiroDTO));
+        return ResponseEntity.status(HttpStatus.CREATED)
+            .body(ApiResponse.success(buildLoginResponse(olheiroCriado), "Olheiro cadastrado com sucesso"));
+    }
+
     @PostMapping
-    public ResponseEntity<Olheiro> criarOlheiro(@RequestBody Olheiro novoOlheiro) {
-        try{
-            Olheiro olheiroCriado = olheiroService.criarOlheiro(novoOlheiro);
-            return new ResponseEntity<>(olheiroCriado, HttpStatus.CREATED);
-        }catch (IllegalArgumentException e){
-            return new ResponseEntity<>(null, HttpStatus.BAD_REQUEST);
-        }catch (Exception e){
-            return new ResponseEntity<>(null, HttpStatus.INTERNAL_SERVER_ERROR);
-        }
-
+    public ResponseEntity<ApiResponse<Olheiro>> criarOlheiro(@Valid @RequestBody OlheiroDTO olheiroDTO) {
+        Olheiro olheiroCriado = olheiroService.criarOlheiro(toOlheiro(olheiroDTO));
+        return ResponseEntity.status(HttpStatus.CREATED)
+                .body(ApiResponse.success(olheiroCriado, "Olheiro criado com sucesso"));
     }
-    //Endpoint para buscar todos olheiros
+
     @GetMapping
-    public List<Olheiro> listarTodosOlheiros() {
-        return olheiroService.buscarTodosOlheiros();
+    public ResponseEntity<ApiResponse<PageResponse<Olheiro>>> listarTodosOlheiros(
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "10") int size) {
+
+        List<Olheiro> olheiros = olheiroService.buscarTodosOlheiros();
+        Pageable pageable = PageRequest.of(page, size);
+        int start = Math.min((int) pageable.getOffset(), olheiros.size());
+        int end = Math.min(start + pageable.getPageSize(), olheiros.size());
+        Page<Olheiro> olheiroPage = new PageImpl<>(olheiros.subList(start, end), pageable, olheiros.size());
+
+        return ResponseEntity.ok(ApiResponse.success(PageResponse.fromPage(olheiroPage), "Olheiros listados com sucesso"));
     }
 
-    //Endpoint para buscar olheiro por ID
     @GetMapping("/{id}")
-    public ResponseEntity<Olheiro> buscarOlheiroPorId(@PathVariable String id) {
+    public ResponseEntity<ApiResponse<Olheiro>> buscarOlheiroPorId(@PathVariable String id) {
         Optional<Olheiro> olheiro = olheiroService.buscarOlheiroPorId(id);
-        return olheiro.map(ResponseEntity::ok).orElseGet(() -> ResponseEntity.notFound().build());
+        return olheiro
+                .map(value -> ResponseEntity.ok(ApiResponse.success(value, "Olheiro encontrado com sucesso")))
+                .orElseThrow(() -> new ResourceNotFoundException("Olheiro não encontrado com ID " + id));
     }
 
-
-    //Endpoint para atualizar informações de um olheiro existente
     @PutMapping("/{id}")
-    public ResponseEntity<Olheiro> atualizarInformacoesDoOlheiro(@PathVariable String id, @RequestBody Olheiro atualizarInformacoesDoOlheiro) {
-        try{
-            Olheiro olheiro = olheiroService.atualizarOlheiro(id, atualizarInformacoesDoOlheiro);
-            return ResponseEntity.ok(olheiro);
-        }catch (RuntimeException e){
-            return ResponseEntity.notFound().build();
+    public ResponseEntity<ApiResponse<Olheiro>> atualizarInformacoesDoOlheiro(
+            @PathVariable String id,
+            @Valid @RequestBody OlheiroDTO olheiroDTO) {
+
+        assertOlheiroOwner(id);
+
+        Olheiro olheiro = olheiroService.atualizarOlheiro(id, toOlheiro(olheiroDTO));
+        return ResponseEntity.ok(ApiResponse.success(olheiro, "Olheiro atualizado com sucesso"));
+    }
+
+    @DeleteMapping("/{id}")
+    public ResponseEntity<ApiResponse<Void>> deletarOlheiro(@PathVariable String id) {
+        assertOlheiroOwner(id);
+        olheiroService.deletarOlheiroPorId(id);
+        return ResponseEntity.ok(ApiResponse.success(null, "Olheiro removido com sucesso"));
+    }
+
+    private Olheiro toOlheiro(OlheiroDTO olheiroDTO) {
+        Olheiro olheiro = new Olheiro();
+        olheiro.setId(olheiroDTO.getId());
+        olheiro.setNome(olheiroDTO.getNome());
+        olheiro.setTelefone(olheiroDTO.getTelefone());
+        olheiro.setCpf(olheiroDTO.getCpf());
+        olheiro.setDataNascimento(olheiroDTO.getDataNascimento());
+        olheiro.setCep(olheiroDTO.getCep());
+        olheiro.setEmail(olheiroDTO.getEmail());
+        olheiro.setSenha(olheiroDTO.getSenha());
+        olheiro.setClube(olheiroDTO.getClube());
+        olheiro.setLocal(olheiroDTO.getLocal());
+        return olheiro;
+    }
+
+    private void assertOlheiroOwner(String olheiroId) {
+        if (!SecurityUtils.isOwner(olheiroId)) {
+            throw new AccessDeniedException("Você não tem permissão para alterar este olheiro.");
         }
     }
 
-    //Endpoint para deletar um atleta por ID
-    @DeleteMapping("/{id}")
-    public ResponseEntity<Olheiro> deletarOlheiro(@PathVariable String id) {
-        olheiroService.deletarOlheiroPorId(id);
-        return ResponseEntity.noContent().build();
+    private LoginResponse buildLoginResponse(Olheiro olheiro) {
+        return LoginResponse.builder()
+            .token(jwtTokenProvider.generateToken(olheiro.getId(), "OLHEIRO"))
+            .userId(olheiro.getId())
+            .userType("OLHEIRO")
+            .nome(olheiro.getNome())
+            .email(olheiro.getEmail())
+            .expiresIn(jwtTokenProvider.getExpirationMs())
+            .build();
     }
 }

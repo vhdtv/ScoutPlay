@@ -1,3 +1,11 @@
+function salvarSessao(sessao) {
+    localStorage.setItem('authToken', sessao.token);
+    localStorage.setItem('userId', sessao.userId);
+    localStorage.setItem('userType', sessao.userType);
+    localStorage.setItem('userName', sessao.nome || '');
+    localStorage.setItem('userEmail', sessao.email || '');
+}
+
 // Função para adicionar mais campos de link de vídeo dinamicamente
 function addVideoLink() {
     const container = document.getElementById("videoLinksContainer");
@@ -33,31 +41,53 @@ async function handleAtletaForm(event) {
         videos: Array.from(document.querySelectorAll("input[name='videos[]']")).map(url => url.value).filter(url => url !== "")
     };
 
-    const formData = new FormData();
-    formData.append('atleta', new Blob([JSON.stringify(atleta)], { type: "application/json" }));
-
     const fotoPerfil = document.getElementById('perfil-foto').files[0];
-    if (fotoPerfil) {
-        formData.append('fotoPerfil', fotoPerfil);
-    }
 
     // Envia o formulário
     try {
-        const response = await fetch("http://localhost:8080/api/atletas", {
-            method: "POST",
-            body: formData
+        const response = await fetch('/api/atletas/registro', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify(atleta)
         });
-        if (response.ok) {
-            alert("Cadastro de atleta realizado com sucesso!");
-            location.href = 'http://localhost:8080';
-        } else {
-            const errorText = await response.text();
-            console.error("Erro na resposta:", errorText);
-            alert("Erro no cadastro do atleta.");
+
+        const payload = await response.json();
+        if (!response.ok || !payload.success) {
+            throw new Error(payload.message || 'Erro no cadastro do atleta.');
         }
+
+        salvarSessao(payload.data);
+
+        if (fotoPerfil) {
+            const fotoData = new FormData();
+            fotoData.append('fotoPerfil', fotoPerfil);
+            await fetch(`/api/atletas/${payload.data.userId}/foto`, {
+                method: 'POST',
+                headers: {
+                    'Authorization': `Bearer ${payload.data.token}`
+                },
+                body: fotoData
+            });
+        }
+
+        for (const urlVideo of atleta.videos) {
+            await fetch(`/api/atletas/${payload.data.userId}/videos`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Authorization': `Bearer ${payload.data.token}`
+                },
+                body: JSON.stringify({ titulo: 'Video do atleta', urlVideo })
+            });
+        }
+
+        alert('Cadastro de atleta realizado com sucesso!');
+        location.href = '/feedAtleta.html';
     } catch (error) {
         console.error("Erro na requisição:", error);
-        alert("Erro na requisição.");
+        alert(error.message || 'Erro na requisição.');
     }
 }
 

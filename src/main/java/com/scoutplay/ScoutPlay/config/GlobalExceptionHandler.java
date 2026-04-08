@@ -1,9 +1,13 @@
 package com.scoutplay.ScoutPlay.config;
 
 import com.scoutplay.ScoutPlay.api.response.ApiResponse;
+import com.scoutplay.ScoutPlay.exceptions.ConflictException;
+import com.scoutplay.ScoutPlay.exceptions.ResourceNotFoundException;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.http.converter.HttpMessageNotReadableException;
+import org.springframework.security.access.AccessDeniedException;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
@@ -44,6 +48,79 @@ public class GlobalExceptionHandler {
         return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(response);
     }
 
+    @ExceptionHandler(HttpMessageNotReadableException.class)
+    public ResponseEntity<ApiResponse<Void>> handleInvalidJson(
+            HttpMessageNotReadableException ex, WebRequest request) {
+
+        ApiResponse<Void> response = ApiResponse.<Void>builder()
+            .success(false)
+            .errorCode("INVALID_REQUEST")
+            .message("Corpo da requisição inválido ou mal formatado")
+            .timestamp(LocalDateTime.now())
+            .build();
+
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(response);
+    }
+
+    @ExceptionHandler(ConflictException.class)
+    public ResponseEntity<ApiResponse<Void>> handleConflictException(
+            ConflictException ex, WebRequest request) {
+
+        ApiResponse<Void> response = ApiResponse.<Void>builder()
+            .success(false)
+            .errorCode("CONFLICT")
+            .message(ex.getMessage())
+            .timestamp(LocalDateTime.now())
+            .build();
+
+        return ResponseEntity.status(HttpStatus.CONFLICT).body(response);
+    }
+
+    @ExceptionHandler(IllegalArgumentException.class)
+    public ResponseEntity<ApiResponse<Void>> handleIllegalArgumentException(
+            IllegalArgumentException ex, WebRequest request) {
+
+        ApiResponse<Void> response = ApiResponse.<Void>builder()
+            .success(false)
+            .errorCode("BAD_REQUEST")
+            .message(ex.getMessage())
+            .timestamp(LocalDateTime.now())
+            .build();
+
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(response);
+    }
+
+    @ExceptionHandler(AccessDeniedException.class)
+    public ResponseEntity<ApiResponse<Void>> handleAccessDeniedException(
+            AccessDeniedException ex, WebRequest request) {
+
+        ApiResponse<Void> response = ApiResponse.<Void>builder()
+            .success(false)
+            .errorCode("FORBIDDEN")
+            .message(ex.getMessage() != null ? ex.getMessage() : "Acesso negado")
+            .timestamp(LocalDateTime.now())
+            .build();
+
+        return ResponseEntity.status(HttpStatus.FORBIDDEN).body(response);
+    }
+
+    /**
+     * Trata exceções de recurso não encontrado
+     */
+    @ExceptionHandler(ResourceNotFoundException.class)
+    public ResponseEntity<ApiResponse<Void>> handleResourceNotFoundException(
+            ResourceNotFoundException ex, WebRequest request) {
+
+        ApiResponse<Void> response = ApiResponse.<Void>builder()
+            .success(false)
+            .errorCode("RESOURCE_NOT_FOUND")
+            .message(ex.getMessage() != null ? ex.getMessage() : "Recurso não encontrado")
+            .timestamp(LocalDateTime.now())
+            .build();
+
+        return ResponseEntity.status(HttpStatus.NOT_FOUND).body(response);
+    }
+
     /**
      * Trata exceções genéricas não capturadas
      */
@@ -56,27 +133,10 @@ public class GlobalExceptionHandler {
         ApiResponse<Void> response = ApiResponse.<Void>builder()
             .success(false)
             .errorCode("INTERNAL_SERVER_ERROR")
-            .message("Erro interno do servidor. Contato o administrador.")
+            .message("Erro interno do servidor. Contate o administrador.")
             .timestamp(LocalDateTime.now())
             .build();
 
         return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(response);
-    }
-
-    /**
-     * Trata exceções de recurso não encontrado
-     */
-    @ExceptionHandler(RuntimeException.class)
-    public ResponseEntity<ApiResponse<Void>> handleRuntimeException(
-            RuntimeException ex, WebRequest request) {
-
-        ApiResponse<Void> response = ApiResponse.<Void>builder()
-            .success(false)
-            .errorCode("RESOURCE_NOT_FOUND")
-            .message(ex.getMessage() != null ? ex.getMessage() : "Recurso não encontrado")
-            .timestamp(LocalDateTime.now())
-            .build();
-
-        return ResponseEntity.status(HttpStatus.NOT_FOUND).body(response);
     }
 }

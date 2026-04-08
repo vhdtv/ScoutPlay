@@ -10,4 +10,5 @@ import java.util.Optional;
 @Repository
 public interface ResponsavelRepository extends JpaRepository<Responsavel, String> {
     Optional<Responsavel> findByCpf(String cpf);
+    Optional<Responsavel> findByEmail(String email);
 }

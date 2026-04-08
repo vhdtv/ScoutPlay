@@ -9,4 +9,5 @@ import java.util.Optional;
 @Repository
 public interface OlheiroRepository extends JpaRepository<Olheiro, String> {
     Optional<Olheiro> findByEmail(String email);
+    Optional<Olheiro> findByCpf(String cpf);
 }

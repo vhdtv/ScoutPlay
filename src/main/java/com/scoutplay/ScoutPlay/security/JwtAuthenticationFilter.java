@@ -8,10 +8,14 @@ import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpHeaders;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Component;
 import org.springframework.web.filter.OncePerRequestFilter;
 
 import java.io.IOException;
+import java.util.List;
 
 /**
  * Filtro para validar JWT token nas requisições
@@ -30,14 +34,11 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
     /**
      * Endpoints que não precisam de autenticação JWT
      */
-    private static final String[] PUBLIC_ENDPOINTS = {
+    private static final String[] PUBLIC_API_ENDPOINTS = {
         "/api/login",
-        "/api/registro",
-        "/",
-        "/index.html",
-        "/css/",
-        "/js/",
-        "/img/"
+        "/api/atletas/registro",
+        "/api/olheiros/registro",
+        "/api/responsaveis"
     };
 
     @Override
@@ -45,7 +46,8 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
             throws ServletException, IOException {
 
         // Pula validação para endpoints públicos
-        if (isPublicEndpoint(request.getRequestURI())) {
+        String requestUri = request.getRequestURI();
+        if (isPublicEndpoint(requestUri)) {
             filterChain.doFilter(request, response);
             return;
         }
@@ -53,23 +55,33 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
         try {
             String token = extractTokenFromRequest(request);
 
-            if (token != null && jwtTokenProvider.validateToken(token)) {
-                // Token é válido
+            if (token == null) {
+                filterChain.doFilter(request, response);
+                return;
+            }
+
+            if (jwtTokenProvider.validateToken(token)) {
                 String userId = jwtTokenProvider.extractUserId(token);
                 String userType = jwtTokenProvider.extractUserType(token);
 
-                // Pode adicionar informações ao contexto se necessário
                 request.setAttribute("userId", userId);
                 request.setAttribute("userType", userType);
+                UsernamePasswordAuthenticationToken authentication = new UsernamePasswordAuthenticationToken(
+                    userId,
+                    null,
+                    List.of(new SimpleGrantedAuthority("ROLE_" + userType))
+                );
+                SecurityContextHolder.getContext().setAuthentication(authentication);
 
                 filterChain.doFilter(request, response);
             } else {
-                // Token inválido
+                SecurityContextHolder.clearContext();
                 response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
                 response.setContentType("application/json");
                 response.getWriter().write("{\"success\":false,\"errorCode\":\"UNAUTHORIZED\",\"message\":\"Token inválido ou expirado\"}");
             }
         } catch (JwtException ex) {
+            SecurityContextHolder.clearContext();
             log.error("Erro ao processar JWT token: {}", ex.getMessage());
             response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
             response.setContentType("application/json");
@@ -95,7 +107,13 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
      * Verifica se o endpoint é público (não precisa de JWT)
      */
     private boolean isPublicEndpoint(String requestUri) {
-        for (String publicEndpoint : PUBLIC_ENDPOINTS) {
+        if (!requestUri.startsWith("/api/")) {
+            return true;
+        }
+        if (requestUri.startsWith("/api/atletas/fotos/")) {
+            return true;
+        }
+        for (String publicEndpoint : PUBLIC_API_ENDPOINTS) {
             if (requestUri.startsWith(publicEndpoint)) {
                 return true;
             }

@@ -6,7 +6,6 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 
 import jakarta.validation.constraints.NotBlank;
-import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
 import java.time.LocalDateTime;
 import java.util.UUID;
@@ -29,6 +28,5 @@ public class VideoDTO {
     @Size(min = 3, max = 100, message = "Título deve ter entre 3 e 100 caracteres")
     private String titulo;
 
-    @NotNull(message = "Data de criação é obrigatória")
     private LocalDateTime dataCriacao;
 }
