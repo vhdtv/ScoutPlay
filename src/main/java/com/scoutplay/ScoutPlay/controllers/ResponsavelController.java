@@ -1,10 +1,12 @@
 package com.scoutplay.ScoutPlay.controllers;
 
 import com.scoutplay.ScoutPlay.api.dto.ResponsavelDTO;
+import com.scoutplay.ScoutPlay.api.dto.LoginResponse;
 import com.scoutplay.ScoutPlay.api.response.ApiResponse;
 import com.scoutplay.ScoutPlay.api.response.PageResponse;
 import com.scoutplay.ScoutPlay.exceptions.ResourceNotFoundException;
 import com.scoutplay.ScoutPlay.models.Responsavel;
+import com.scoutplay.ScoutPlay.security.JwtTokenProvider;
 import com.scoutplay.ScoutPlay.services.ResponsavelService;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -32,6 +34,16 @@ public class ResponsavelController {
 
     @Autowired
     private ResponsavelService responsavelService;
+
+    @Autowired
+    private JwtTokenProvider jwtTokenProvider;
+
+    @PostMapping("/registro")
+    public ResponseEntity<ApiResponse<LoginResponse>> registrarResponsavel(@Valid @RequestBody ResponsavelDTO responsavelDTO) {
+        Responsavel criado = responsavelService.save(toResponsavel(responsavelDTO));
+        return ResponseEntity.status(HttpStatus.CREATED)
+            .body(ApiResponse.success(buildLoginResponse(criado), "Responsável cadastrado com sucesso"));
+    }
 
     @PostMapping
     public ResponseEntity<ApiResponse<Responsavel>> salvarResponsavel(@Valid @RequestBody ResponsavelDTO responsavelDTO) {
@@ -78,5 +90,16 @@ public class ResponsavelController {
         responsavel.setEmail(responsavelDTO.getEmail());
         responsavel.setSenha(responsavelDTO.getSenha());
         return responsavel;
+    }
+
+    private LoginResponse buildLoginResponse(Responsavel responsavel) {
+        return LoginResponse.builder()
+            .token(jwtTokenProvider.generateToken(responsavel.getId(), "RESPONSAVEL"))
+            .userId(responsavel.getId())
+            .userType("RESPONSAVEL")
+            .nome(responsavel.getNome())
+            .email(responsavel.getEmail())
+            .expiresIn(jwtTokenProvider.getExpirationMs())
+            .build();
     }
 }

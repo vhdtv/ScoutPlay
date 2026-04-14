@@ -12,9 +12,7 @@ import com.scoutplay.ScoutPlay.services.OlheiroService;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.PageRequest;
-import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.AccessDeniedException;
@@ -28,7 +26,6 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
-import java.util.List;
 import java.util.Optional;
 
 @RestController
@@ -60,12 +57,7 @@ public class OlheiroController {
             @RequestParam(defaultValue = "0") int page,
             @RequestParam(defaultValue = "10") int size) {
 
-        List<Olheiro> olheiros = olheiroService.buscarTodosOlheiros();
-        Pageable pageable = PageRequest.of(page, size);
-        int start = Math.min((int) pageable.getOffset(), olheiros.size());
-        int end = Math.min(start + pageable.getPageSize(), olheiros.size());
-        Page<Olheiro> olheiroPage = new PageImpl<>(olheiros.subList(start, end), pageable, olheiros.size());
-
+        Page<Olheiro> olheiroPage = olheiroService.buscarOlheirosPaginado(PageRequest.of(page, size));
         return ResponseEntity.ok(ApiResponse.success(PageResponse.fromPage(olheiroPage), "Olheiros listados com sucesso"));
     }
 

@@ -5,6 +5,8 @@ import com.scoutplay.ScoutPlay.exceptions.ResourceNotFoundException;
 import com.scoutplay.ScoutPlay.models.Olheiro;
 import com.scoutplay.ScoutPlay.repositorys.OlheiroRepository;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
@@ -26,6 +28,14 @@ public class OlheiroService {
             novoOlheiro.setId(novoOlheiro.gerarIdPersonalizado());
         }
 
+        if (novoOlheiro.getSenha() == null || novoOlheiro.getSenha().isBlank()) {
+            throw new IllegalArgumentException("Senha é obrigatória para cadastro.");
+        }
+
+        olheiroRepository.findByCpf(novoOlheiro.getCpf()).ifPresent(existing -> {
+            throw new ConflictException("Um olheiro com este CPF já existe.");
+        });
+
         olheiroRepository.findByEmail(novoOlheiro.getEmail()).ifPresent(existing -> {
             throw new ConflictException("Este e-mail já está em uso. Por favor, utilize outro.");
         });
@@ -34,6 +44,12 @@ public class OlheiroService {
 
         return olheiroRepository.save(novoOlheiro);
     }
+
+    //Método para buscar todos os olheiros (paginado via DB)
+    public Page<Olheiro> buscarOlheirosPaginado(Pageable pageable) {
+        return olheiroRepository.findAll(pageable);
+    }
+
     //Método para buscar todos os olheiros
     public List<Olheiro> buscarTodosOlheiros(){
         return olheiroRepository.findAll();

@@ -3,16 +3,23 @@ package com.scoutplay.ScoutPlay.controllers;
 import com.scoutplay.ScoutPlay.api.dto.LoginRequest;
 import com.scoutplay.ScoutPlay.api.dto.LoginResponse;
 import com.scoutplay.ScoutPlay.api.response.ApiResponse;
+import com.scoutplay.ScoutPlay.exceptions.ResourceNotFoundException;
 import com.scoutplay.ScoutPlay.models.Atleta;
 import com.scoutplay.ScoutPlay.models.Olheiro;
+import com.scoutplay.ScoutPlay.models.Responsavel;
 import com.scoutplay.ScoutPlay.models.Usuario;
+import com.scoutplay.ScoutPlay.repositorys.AtletaRepository;
+import com.scoutplay.ScoutPlay.repositorys.OlheiroRepository;
+import com.scoutplay.ScoutPlay.repositorys.ResponsavelRepository;
 import com.scoutplay.ScoutPlay.security.JwtTokenProvider;
+import com.scoutplay.ScoutPlay.security.SecurityUtils;
 import com.scoutplay.ScoutPlay.services.LoginService;
 import jakarta.validation.Valid;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -30,6 +37,15 @@ public class LoginController {
 
     @Autowired
     private JwtTokenProvider jwtTokenProvider;
+
+    @Autowired
+    private AtletaRepository atletaRepository;
+
+    @Autowired
+    private OlheiroRepository olheiroRepository;
+
+    @Autowired
+    private ResponsavelRepository responsavelRepository;
 
     /**
      * Autentica usuário e retorna JWT token
@@ -57,6 +73,39 @@ public class LoginController {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
                 .body(ApiResponse.error("LOGIN_ERROR", "Erro ao processar login"));
         }
+    }
+
+    /**
+     * Retorna os dados do usuário autenticado (via JWT)
+     * GET /api/me  → Authorization: Bearer <token>
+     */
+    @GetMapping("/me")
+    public ResponseEntity<ApiResponse<LoginResponse>> getCurrentUser() {
+        String userId = SecurityUtils.currentUserId();
+
+        if (userId == null) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
+                .body(ApiResponse.error("UNAUTHORIZED", "Usuário não autenticado"));
+        }
+
+        Optional<Usuario> usuario = findUsuarioById(userId);
+
+        return usuario
+            .map(u -> ResponseEntity.ok(ApiResponse.success(construirLoginResponse(u), "Usuário autenticado")))
+            .orElseThrow(() -> new ResourceNotFoundException("Usuário não encontrado com ID " + userId));
+    }
+
+    private Optional<Usuario> findUsuarioById(String id) {
+        Optional<Atleta> atleta = atletaRepository.findById(id);
+        if (atleta.isPresent()) return Optional.of(atleta.get());
+
+        Optional<Olheiro> olheiro = olheiroRepository.findById(id);
+        if (olheiro.isPresent()) return Optional.of(olheiro.get());
+
+        Optional<Responsavel> responsavel = responsavelRepository.findById(id);
+        if (responsavel.isPresent()) return Optional.of(responsavel.get());
+
+        return Optional.empty();
     }
 
     /**

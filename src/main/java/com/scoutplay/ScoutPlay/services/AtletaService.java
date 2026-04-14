@@ -43,6 +43,11 @@ public class AtletaService {
             novoAtleta.setId(novoAtleta.gerarIdPersonalizado());
         }
 
+        // Valida que senha foi fornecida no cadastro
+        if (novoAtleta.getSenha() == null || novoAtleta.getSenha().isBlank()) {
+            throw new IllegalArgumentException("Senha é obrigatória para cadastro.");
+        }
+
         // Verificação de duplicidade de CPF
         if (atletaRepository.existsByCpf(novoAtleta.getCpf())) {
             throw new ConflictException("Um atleta com este CPF já existe.");

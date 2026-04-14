@@ -47,6 +47,7 @@ public class SecurityConfig {
                     "/api/atletas/registro",
                     "/api/olheiros/registro",
                     "/api/responsaveis",
+                    "/api/responsaveis/registro",
                     "/api/atletas/fotos/**"
                 ).permitAll()
                 .anyRequest().authenticated()
