@@ -3,6 +3,9 @@ package com.scoutplay.ScoutPlay.controllers;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.scoutplay.ScoutPlay.models.Atleta;
 import com.scoutplay.ScoutPlay.models.Olheiro;
+import com.scoutplay.ScoutPlay.repositorys.AtletaRepository;
+import com.scoutplay.ScoutPlay.repositorys.OlheiroRepository;
+import com.scoutplay.ScoutPlay.repositorys.ResponsavelRepository;
 import com.scoutplay.ScoutPlay.services.LoginService;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -23,6 +26,11 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 
 import org.springframework.test.web.servlet.MockMvc;
 
+import com.scoutplay.ScoutPlay.repositorys.AtletaRepository;
+import com.scoutplay.ScoutPlay.repositorys.OlheiroRepository;
+import com.scoutplay.ScoutPlay.repositorys.ResponsavelRepository;
+import com.scoutplay.ScoutPlay.security.SecurityUtils;
+
 @WebMvcTest(LoginController.class)
 @AutoConfigureMockMvc(addFilters = false)
 class LoginControllerTest {
@@ -38,6 +46,15 @@ class LoginControllerTest {
 
     @MockBean
     private JwtTokenProvider jwtTokenProvider;
+
+    @MockBean
+    private AtletaRepository atletaRepository;
+
+    @MockBean
+    private OlheiroRepository olheiroRepository;
+
+    @MockBean
+    private ResponsavelRepository responsavelRepository;
 
     @Test
     void deveRealizarLoginDeAtletaComSucesso() throws Exception {

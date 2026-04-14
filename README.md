@@ -41,8 +41,27 @@ A plataforma Scout Play funciona em três pilares:
 **Stack Tecnológico:**
 - Backend: Java 21 + Spring Boot 3.3.4
 - Banco de Dados: PostgreSQL 42.7.4
-- Frontend: HTML5 + CSS3 + JavaScript (Vanilla) + React.
+- Frontend: HTML5 + CSS3 + JavaScript (Vanilla) + React
 - Build Tool: Maven
+
+---
+
+## ✨ Funcionalidades
+
+| # | Funcionalidade | Descrição |
+|---|---|---|
+| 1 | **Cadastro de atleta** | Jovens jogadores criam perfil com dados pessoais, posição, pé dominante e senha |
+| 2 | **Cadastro de olheiro** | Profissionais de scouting se registram com clube e localização |
+| 3 | **Cadastro de responsável** | Responsáveis legais de atletas menores de idade |
+| 4 | **Autenticação (login)** | Login por e-mail/senha com retorno de token JWT; válido para 3 tipos de usuário |
+| 5 | **Busca e filtro de atletas** | Olheiros filtram atletas por nome, posição, peso, altura, pé dominante; resultado paginado |
+| 6 | **Upload de foto de perfil** | Atleta envia foto; sistema valida formato (JPG/PNG/WEBP) e redimensiona para 500×500 |
+| 7 | **Gestão de vídeos** | Atleta associa, atualiza e remove vídeos do perfil |
+| 8 | **Avaliações de atletas** | Olheiro registra avaliação (nota + comentário) sobre atleta |
+| 9 | **Consultar perfil autenticado** | Endpoint `GET /api/me` retorna dados do usuário logado via JWT |
+| 10 | **Atualização e exclusão de perfil** | Usuário edita ou remove o próprio perfil (somente o próprio — verificação de ownership) |
+
+**Regra de negócio não-trivial:** Validação de unicidade de CPF e e-mail por tipo de usuário + validação de formato/tamanho de imagem no upload de foto de perfil + controle de ownership via JWT para PUT/DELETE.
 
 ---
 
@@ -170,31 +189,39 @@ ScoutPlay/
 │   ├── main/
 │   │   ├── java/com/scoutplay/ScoutPlay/
 │   │   │   ├── ScoutPlayApplication.java    (Classe principal)
-│   │   │   ├── controllers/                 (APIs REST)
-│   │   │   │   ├── AtletaController.java
-│   │   │   │   ├── OlheiroController.java
-│   │   │   │   ├── ResponsavelController.java
-│   │   │   │   ├── UserController.java
-│   │   │   │   └── LoginController.java
-│   │   │   ├── models/                      (Entidades JPA)
-│   │   │   │   ├── Atleta.java
-│   │   │   │   ├── Olheiro.java
-│   │   │   │   └── ...
-│   │   │   ├── repositorys/                 (Acesso a dados)
-│   │   │   ├── services/                    (Lógica de negócio)
-│   │   │   └── DTO/                         (Data Transfer Objects)
+│   │   │   ├── controllers/                 (APIs REST — camada UI)
+│   │   │   ├── models/                      (Entidades JPA — camada domain)
+│   │   │   ├── repositorys/                 (Acesso a dados — camada infra)
+│   │   │   ├── services/                    (Lógica de negócio — camada service)
+│   │   │   ├── api/dto/                     (Data Transfer Objects)
+│   │   │   ├── api/response/                (ApiResponse padrão)
+│   │   │   ├── config/                      (CORS, Security)
+│   │   │   ├── exceptions/                  (ConflictException, ResourceNotFoundException)
+│   │   │   └── security/                    (JWT Filter, Provider, SecurityUtils)
 │   │   └── resources/
-│   │       ├── application.properties       (Configurações)
-│   │       └── static/                      (Frontend - HTML/CSS/JS)
-│   │           ├── index.html
-│   │           ├── login.html
-│   │           ├── style.css
-│   │           └── script*.js
-│   └── test/                                (Testes unitários)
+│   │       ├── application.properties
+│   │       └── static/                      (Frontend HTML/CSS/JS)
+│   └── test/
+│       ├── java/com/scoutplay/ScoutPlay/
+│       │   ├── services/                    (Testes unitários — JUnit 5 + Mockito)
+│       │   ├── controllers/                 (Testes de integração — MockMvc)
+│       │   └── bdd/                         (Cucumber runner + step definitions)
+│       └── resources/
+│           ├── features/                    (Arquivos .feature Gherkin)
+│           └── application-test.properties  (Config de teste com H2)
+├── docs/
+│   ├── requisitos/
+│   │   ├── requisitos-funcionais.md
+│   │   └── requisitos-nao-funcionais.md
+│   └── testes/
+│       ├── plano-de-teste.md
+│       ├── roteiros-de-teste.md
+│       ├── usabilidade.md                   (a preencher)
+│       └── evidencias/                      (prints dos testes)
 ├── uploads/
-│   └── fotos_perfil/                        (Fotos de perfil dos usuários)
-├── pom.xml                                  (Dependências Maven)
-└── README.md                                (Este arquivo)
+│   └── fotos_perfil/
+├── pom.xml
+└── README.md
 ```
 
 ---
@@ -257,7 +284,35 @@ Além disso, o sistema garante mais agilidade na gestão, centralização das in
 
 ## 🧪 Testando a Aplicação
 
-### Opção 1: Usando Postman
+### ▶️ Rodar todos os testes automatizados
+
+```bash
+# Rodar testes unitários (JUnit 5 + Mockito)
+./mvnw test
+
+# Rodar apenas um arquivo de teste específico
+./mvnw test -Dtest=AtletaServiceTest
+
+# Gerar relatório de cobertura JaCoCo
+./mvnw test
+# Abrir: target/site/jacoco/index.html
+
+# Relatório Cucumber (BDD)
+# Abrir: target/cucumber-reports/report.html
+```
+
+**Classes testadas e cobertura:**
+
+| Classe | Tipo | Testes |
+|---|---|---|
+| `AtletaService` | Unitário | 10 cenários (criação, CPF/e-mail duplicado, senha, update, delete) |
+| `OlheiroService` | Unitário | 8 cenários (criação, duplicidade, update, delete) |
+| `LoginService` | Unitário | 6 cenários (atleta, olheiro, responsável, senha inválida, e-mail inexistente) |
+| `LoginController` | Integração (MockMvc) | 3 cenários (atleta, olheiro, credenciais inválidas) |
+| Autenticação | BDD (Cucumber) | 5 cenários Gherkin |
+| Cadastro de atleta | BDD (Cucumber) | 4 cenários Gherkin |
+
+### Opção 2: Usando Postman
 
 1. Baixe [Postman](https://www.postman.com/)
 2. Importe as requisições da API
