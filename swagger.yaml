@@ -1,0 +1,416 @@
+openapi: "3.0.4"
+info:
+  title: ScoutPlay
+  version: '0.1.0'
+  description: |
+    Fazendo o meio-de-campo entre atletas e olheiros
+defaultContentType: application/json
+
+servers:
+  - url: localhost:8080/api
+
+paths:
+  /auth/login:
+      post:
+        summary: Autentica o usuário
+        requestBody:
+          content:
+            text/plain:
+              schema:
+                type: object
+                properties:
+                  login: 
+                    type: string
+                  senha: 
+                    type: string
+        responses:
+            "200":
+              description: "Usuário autenticado, retorno é o JWT"
+              content:
+                text/plain:
+                  schema:
+                    type: string
+                    example: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxMjM0NTY3ODkwIiwibmFtZSI6IkpvaG4gRG9lIiwiYWRtaW4iOnRydWUsImlhdCI6MTUxNjIzOTAyMn0.KMUFsIDTnFmyG3nMiGM6H9FNFUROf3wh7SmqJp-QV30
+            "401":
+              description: "Não autorizado"
+  /user/{username}:
+    get:
+      summary: "Obtém as informações básicas de um usuário"
+      parameters:
+        - in: path
+          name: username
+          description: "Endereço único do usuário (é o arroba)"
+          required: true
+          schema: 
+            type: string
+        - in: cookie
+          name: usuario_autenticado
+          description: "Token de autenticação do usuário"
+          required: false
+          schema:
+            type: string
+      responses: 
+        "200":
+          description: "Dados encontrados para este usuário"
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  informacoes:
+                    $ref: '#/components/schemas/usuario'
+                  carreira:
+                    type: object
+                    properties:
+                      posicoes:
+                        type: array
+                        items:
+                          type: object
+                          properties:
+                            nome_exibicao:
+                              type: string
+                            nome_slug:
+                              type: string
+                      clubes:
+                        type: array
+                        items:
+                          type: object
+                          properties:
+                            nome_exibicao:
+                              type: string
+                            nome_slug:
+                              type: string
+                            data_entrada:
+                              type: string
+                              format: date-time
+                            data_saida:
+                              type: string
+                              format: date-time
+                  publicacoes:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/publicacao'
+                  sou_eu:
+                    type: boolean
+                    nullable: true
+  /posts/{username}:
+    get:
+      summary: "Retorna os posts de um usuário"
+      parameters:
+        - in: path
+          name: username
+          description: "Endereço único do usuário (é o arroba)"
+          required: true
+          schema:
+            type: string
+        - in: query
+          name: page
+          description: "Qual página de resultados deseja ver"
+          schema:
+            type: integer
+        - in: query
+          name: results_number
+          description: "Quantidade de resultados por página"
+          schema:
+            type: integer
+        - in: query
+          name: images
+          description: "Deseja trazer imagens"
+          schema:
+            type: boolean
+        - in: query
+          name: videos
+          description: "Deseja trazer videos"
+          schema:
+            type: boolean
+        - in: cookie
+          name: usuario_autenticado
+          description: "Token de autenticação do usuário"
+          required: false
+          schema:
+            type: string
+      responses:
+        "200":
+          description: "Encontrado"
+          content:
+            application/json: 
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/publicacao'
+
+        "404":
+          description: "Não Encontrado"
+  /feed:
+    get:
+      summary: "Retorna o feed do usuario com base nos perfis que acompanha"
+      parameters:
+        - in: cookie
+          name: usuario_autenticado
+          description: "Token de autenticação do usuário"
+          required: false
+          schema:
+            type: string
+        - in: query
+          name: page
+          description: "Qual página de resultados deseja ver"
+          schema:
+            type: integer
+        - in: query
+          name: results_number
+          description: "Quantidade de resultados por página"
+          schema:
+            type: integer
+      responses: 
+        "200":
+          description: "Encontrado"
+          content:
+            application/json: 
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/publicacao'
+
+        "404":
+          description: "Não Encontrado"
+  /like/{post_id}:
+    post:
+      summary: "Dá like em um post"
+      parameters:
+        - in: path
+          name: post_id
+          required: true
+          schema:
+            type: string
+        - in: cookie
+          name: usuario_autenticado
+          description: "Token de autenticação do usuário"
+          required: true
+          schema:
+            type: string
+      responses: 
+        "204":
+          description: "Ação executada com sucesso"
+        "401":
+          description: "Ação não autorizada"
+        "404":
+          description: "Post não encontrado"
+  /dislike/{post_id}:
+    post:
+      summary: "Dá dislike em um post"
+      parameters:
+        - in: path
+          name: post_id
+          required: true
+          schema:
+            type: string
+        - in: cookie
+          name: usuario_autenticado
+          description: "Token de autenticação do usuário"
+          required: true
+          schema:
+            type: string
+      responses: 
+        "204":
+          description: "Ação executada com sucesso"
+        "401":
+          description: "Ação não autorizada"
+        "404":
+          description: "Post não encontrado"
+  /rate/{post_id}:
+    post:
+      summary: "Permite o usuário a dar destaque a uma competência a publicação"
+      parameters:
+        - in: path
+          name: post_id
+          description: "Identificador do post"
+          required: true
+          schema: 
+            type: string
+        - in: cookie
+          name: usuario_autenticado
+          description: "Token de autenticação do usuário"
+          required: false
+          schema:
+            type: string
+      requestBody:
+          content:
+            text/plain:
+              schema:
+                type: object
+                properties:
+                  rate_id: 
+                    type: string
+                    format: uuid
+      responses:
+        "204":
+          description: "Ação executada com sucesso"
+        "401":
+          description: "Ação não autorizada"
+        "404":
+          description: "Post não encontrado"
+        
+  # /insight/{post_id}:
+  #   post:
+  /following/{username}:
+    get:
+      summary: "Retorna a lista de perfis que seguem o usuário"
+      parameters:
+        - in: path
+          name: username
+          description: "Endereço único do usuário (é o arroba)"
+          required: true
+          schema: 
+            type: string
+      responses:
+        "200":
+          description: "Encontrado"
+          content:
+            application/json: 
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/usuario'
+        "401":
+          description: "Ação não autorizada"
+        "404":
+          description: "Usuário não encontrado"
+  /follow/{username}:
+    post:
+      summary: "Usuário pode seguir um perfil"
+      parameters:
+        - in: path
+          name: username
+          description: "Endereço único do usuário (é o arroba)"
+          required: true
+          schema: 
+            type: string
+        - in: cookie
+          name: usuario_autenticado
+          description: "Token de autenticação do usuário"
+          required: false
+          schema:
+            type: string
+      responses:
+        "204":
+          description: "Ação executada com sucesso"
+        "401":
+          description: "Ação não autorizada"
+        "404":
+          description: "Usuário não encontrado"
+    get:
+      summary: "Retorna a lista que o usuário segue"
+      parameters:
+        - in: path
+          name: username
+          description: "Endereço único do usuário (é o arroba)"
+          required: true
+          schema: 
+            type: string
+      responses:
+        "200":
+          description: "Encontrado"
+          content:
+            application/json: 
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/usuario'
+        "401":
+          description: "Ação não autorizada"
+        "404":
+          description: "Usuário não encontrado"
+  /unfollow/{username}:
+    post:
+      summary: "Usuário pode parar de seguir um perfil"
+      parameters:
+        - in: path
+          name: username
+          description: "Endereço único do usuário (é o arroba)"
+          required: true
+          schema: 
+            type: string
+        - in: cookie
+          name: usuario_autenticado
+          description: "Token de autenticação do usuário"
+          required: false
+          schema:
+            type: string
+      responses:
+        "204":
+          description: "Ação executada com sucesso"
+        "401":
+          description: "Ação não autorizada"
+        "404":
+          description: "Usuário não encontrado"
+
+components:
+  schemas: 
+    publicacao:
+      properties:
+        id: 
+          type: string
+          format: uuid
+        titulo:
+          type: string
+        criado_em:
+          type: string
+          format: date-time
+        descricao:
+          type: string
+        tipo_midia:
+          type: string
+          nullable: true
+        caminho_arquivo:
+          type: string
+          nullable: true
+        metadata:
+          type: array
+          items:
+            type: object
+            nullable: true
+            properties:
+              id:
+                type: string
+                format: uuid
+              type:
+                type: string
+              data:
+                description: "Pode ser uma string, número de likes, um objeto, etc."
+                nullable: true
+      required: 
+        - id
+        - titulo
+        - criado_em
+        - descricao
+    usuario:
+      properties:
+        nome: 
+          type: string
+        endereco:
+          type: string
+        arroba:
+          type: string
+        foto_perfil:
+          type: string
+        tipo_perfil:
+          type: array
+          nullable: true
+          items:
+            type: string
+            format: uuid
+        responsavel:
+          type: object
+          nullable: true
+          properties:
+            arroba:
+              type: string
+            foto_perfil:
+              type: string
+            nome:
+              type: string
+      required:
+        - nome
+        - endereco
+        - arroba
+        - foto_perfil
