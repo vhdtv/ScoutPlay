@@ -11,7 +11,6 @@ import contentCollections from '@content-collections/vite'
 const config = defineConfig({
   plugins: [
     devtools(),
-    contentCollections(),
     tsconfigPaths({ projects: ['./tsconfig.json'] }),
     tailwindcss(),
     tanstackStart(),
