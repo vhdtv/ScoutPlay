@@ -48,9 +48,9 @@ public class LoginService {
     }
 
     private boolean senhaConfere(String senhaInformada, String senhaArmazenada) {
-        if (senhaArmazenada == null) {
+        if (senhaArmazenada == null || senhaArmazenada.isBlank()) {
             return false;
         }
-        return senhaArmazenada.equals(senhaInformada) || passwordEncoder.matches(senhaInformada, senhaArmazenada);
+        return passwordEncoder.matches(senhaInformada, senhaArmazenada);
     }
 }

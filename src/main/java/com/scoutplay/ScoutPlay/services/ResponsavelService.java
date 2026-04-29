@@ -34,9 +34,10 @@ public class ResponsavelService {
             throw new ConflictException("CPF já cadastrado.");
         }
 
-        if (responsavel.getSenha() != null && !responsavel.getSenha().isBlank()) {
-            responsavel.setSenha(passwordEncoder.encode(responsavel.getSenha()));
+        if (responsavel.getSenha() == null || responsavel.getSenha().isBlank()) {
+            throw new IllegalArgumentException("Senha é obrigatória para cadastro.");
         }
+        responsavel.setSenha(passwordEncoder.encode(responsavel.getSenha()));
 
         return responsavelRepository.save(responsavel);
     }
