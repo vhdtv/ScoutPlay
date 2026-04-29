@@ -2,6 +2,14 @@
 const urlParams = new URLSearchParams(window.location.search);
 const userType = urlParams.get('type');
 
+function salvarSessao(sessao) {
+    localStorage.setItem('authToken', sessao.token);
+    localStorage.setItem('userId', sessao.userId);
+    localStorage.setItem('userType', sessao.userType);
+    localStorage.setItem('userName', sessao.nome || '');
+    localStorage.setItem('userEmail', sessao.email || '');
+}
+
 // Atualiza o título e o link dependendo do tipo de usuário
 if (userType === 'atleta') {
     document.getElementById('login-title').innerText = 'Login - Atleta';
@@ -17,26 +25,27 @@ function handleLogin(event) {
     fetch('/api/login', {
         method: 'POST',
         headers: {
-            'Content-Type': 'application/x-www-form-urlencoded',
+            'Content-Type': 'application/json',
         },
-        body: new URLSearchParams({
+        body: JSON.stringify({
             email: event.target.elements[0].value,
             senha: event.target.elements[1].value
         })
     })
         .then(response => {
-            if (response.ok) {
-                return response.text();
-            } else {
-                throw new Error('Login falhou');
-            }
+            return response.json().then(payload => ({ ok: response.ok, payload }));
         })
-        .then(data => {
-        localStorage.setItem("userId", data)
+        .then(({ ok, payload }) => {
+            if (!ok || !payload.success) {
+                throw new Error(payload.message || 'Login falhou');
+            }
+
+            const data = payload.data;
+            salvarSessao(data);
             alert('Login realizado com sucesso!');
-            if ( data.substring(0,3) === 'ATL') {
+            if (data.userType === 'ATLETA') {
                 window.location.href = 'feedAtleta.html'; // Redireciona para o painel de atleta
-            } else{
+            } else {
                 window.location.href = 'feedOlheiro.html'; // Redireciona para o painel de olheiro
             }
         })

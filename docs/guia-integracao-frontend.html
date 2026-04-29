@@ -1,0 +1,778 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <title>ScoutPlay – Guia de Integração Frontend ↔ Backend</title>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      font-family: Arial, Helvetica, sans-serif;
+      font-size: 13px;
+      color: #1e293b;
+      background: #fff;
+      line-height: 1.6;
+    }
+
+    /* ── COVER ── */
+    .cover {
+      page-break-after: always;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      height: 100vh;
+      background: linear-gradient(135deg, #0f172a 0%, #1e3a5f 60%, #0f766e 100%);
+      color: #fff;
+      text-align: center;
+      padding: 40px;
+    }
+    .cover .logo { font-size: 52px; font-weight: 700; letter-spacing: -2px; }
+    .cover .logo span { color: #34d399; }
+    .cover h1 { font-size: 24px; font-weight: 600; margin-top: 16px; opacity: 0.9; }
+    .cover .sub { font-size: 14px; margin-top: 8px; opacity: 0.65; }
+    .cover .badge {
+      margin-top: 32px;
+      display: inline-block;
+      background: rgba(255,255,255,0.12);
+      border: 1px solid rgba(255,255,255,0.25);
+      border-radius: 8px;
+      padding: 10px 24px;
+      font-size: 13px;
+      letter-spacing: 0.5px;
+    }
+    .cover .meta { margin-top: 20px; font-size: 12px; opacity: 0.5; }
+
+    /* ── LAYOUT ── */
+    .page { max-width: 820px; margin: 0 auto; padding: 40px 48px; }
+
+    h1.section-title {
+      font-size: 22px;
+      font-weight: 700;
+      color: #0f172a;
+      border-bottom: 3px solid #0f766e;
+      padding-bottom: 8px;
+      margin: 32px 0 20px;
+    }
+    h2.sub-section {
+      font-size: 16px;
+      font-weight: 600;
+      color: #1e3a5f;
+      margin: 24px 0 10px;
+    }
+    h3.endpoint-title {
+      font-size: 13px;
+      font-weight: 600;
+      margin: 20px 0 6px;
+      color: #334155;
+    }
+
+    p { margin-bottom: 8px; }
+
+    /* ── CALLOUTS ── */
+    .callout {
+      border-left: 4px solid;
+      padding: 12px 16px;
+      border-radius: 0 8px 8px 0;
+      margin: 16px 0;
+      font-size: 12.5px;
+    }
+    .callout.info  { border-color: #3b82f6; background: #eff6ff; color: #1e3a8a; }
+    .callout.warn  { border-color: #f59e0b; background: #fffbeb; color: #78350f; }
+    .callout.danger{ border-color: #ef4444; background: #fef2f2; color: #7f1d1d; }
+    .callout.tip   { border-color: #10b981; background: #ecfdf5; color: #064e3b; }
+    .callout strong { display: block; margin-bottom: 4px; font-size: 12px; text-transform: uppercase; letter-spacing: 0.5px; }
+
+    /* ── BADGES ── */
+    .method {
+      display: inline-block;
+      border-radius: 4px;
+      padding: 2px 8px;
+      font-family: Courier, monospace;
+      font-size: 11px;
+      font-weight: 600;
+      margin-right: 6px;
+    }
+    .get    { background: #dbeafe; color: #1d4ed8; }
+    .post   { background: #dcfce7; color: #15803d; }
+    .put    { background: #fef9c3; color: #854d0e; }
+    .delete { background: #fee2e2; color: #b91c1c; }
+
+    .auth-required {
+      display: inline-block;
+      font-size: 10px;
+      background: #f1f5f9;
+      border: 1px solid #cbd5e1;
+      color: #475569;
+      border-radius: 4px;
+      padding: 1px 6px;
+      vertical-align: middle;
+    }
+    .auth-open {
+      display: inline-block;
+      font-size: 10px;
+      background: #dcfce7;
+      border: 1px solid #86efac;
+      color: #15803d;
+      border-radius: 4px;
+      padding: 1px 6px;
+      vertical-align: middle;
+    }
+
+    /* ── CODE ── */
+    pre {
+      background: #0f172a;
+      color: #e2e8f0;
+      border-radius: 8px;
+      padding: 16px;
+      font-family: Courier, monospace;
+      font-size: 11.5px;
+      line-height: 1.7;
+      overflow-x: auto;
+      margin: 8px 0 16px;
+    }
+    code {
+      font-family: Courier, monospace;
+      font-size: 11.5px;
+      background: #f1f5f9;
+      color: #0f766e;
+      padding: 1px 5px;
+      border-radius: 3px;
+    }
+    .str  { color: #86efac; }
+    .key  { color: #7dd3fc; }
+    .num  { color: #fda4af; }
+    .bool { color: #fbbf24; }
+    .cmt  { color: #64748b; }
+
+    /* ── TABLE ── */
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin: 10px 0 20px;
+      font-size: 12px;
+    }
+    th {
+      background: #1e3a5f;
+      color: #fff;
+      font-weight: 600;
+      text-align: left;
+      padding: 9px 12px;
+    }
+    td {
+      padding: 8px 12px;
+      border-bottom: 1px solid #e2e8f0;
+      vertical-align: top;
+    }
+    tr:nth-child(even) td { background: #f8fafc; }
+    td code { background: #e0f2fe; color: #0369a1; }
+
+    .required { color: #ef4444; font-weight: 600; font-size: 11px; }
+    .optional { color: #64748b; font-size: 11px; }
+
+    /* ── ENDPOINT CARD ── */
+    .endpoint-card {
+      border: 1px solid #e2e8f0;
+      border-radius: 8px;
+      padding: 14px 16px;
+      margin: 12px 0;
+      background: #f8fafc;
+    }
+    .endpoint-card .route {
+      font-family: Courier, monospace;
+      font-size: 12.5px;
+      color: #0f172a;
+      font-weight: 600;
+    }
+    .endpoint-card .desc {
+      font-size: 12px;
+      color: #64748b;
+      margin-top: 4px;
+    }
+
+    /* ── PAGE BREAK ── */
+    .page-break { page-break-before: always; }
+
+    /* ── TOC ── */
+    .toc { margin: 24px 0; }
+    .toc li { padding: 4px 0; border-bottom: 1px dotted #e2e8f0; display: flex; justify-content: space-between; }
+    .toc a { color: #1e3a5f; text-decoration: none; }
+    .toc .page-num { color: #94a3b8; font-size: 11px; }
+
+    /* ── FOOTER ── */
+    .footer {
+      margin-top: 40px;
+      padding-top: 16px;
+      border-top: 1px solid #e2e8f0;
+      font-size: 11px;
+      color: #94a3b8;
+      text-align: center;
+    }
+
+    @media print {
+      body { font-size: 12px; }
+      .cover { height: 100vh; }
+      .page-break { page-break-before: always; }
+      pre { font-size: 10.5px; }
+    }
+  </style>
+</head>
+<body>
+
+<!-- ═══════════════════════ COVER ═══════════════════════ -->
+<div class="cover">
+  <div class="logo">Scout<span>Play</span></div>
+  <h1>Guia de Integração Frontend ↔ Backend</h1>
+  <p class="sub">Documento técnico para a equipe de desenvolvimento frontend</p>
+  <div class="badge">API REST · JWT · Spring Boot 3</div>
+  <p class="meta">Versão 1.0 — Abril 2026</p>
+</div>
+
+<!-- ═══════════════════════ PAGE 1 ═══════════════════════ -->
+<div class="page">
+
+  <h1 class="section-title">1. Visão Geral</h1>
+
+  <p>O backend da ScoutPlay é uma <strong>API REST</strong> construída com <strong>Spring Boot 3</strong>. Toda a comunicação é feita em <strong>JSON</strong> via HTTP. A autenticação utiliza <strong>JWT (Bearer Token)</strong> — sem sessões no servidor.</p>
+
+  <div class="callout info">
+    <strong>Base URL (desenvolvimento local)</strong>
+    <code>http://localhost:8080</code>
+    &nbsp;— Certifique-se de que o backend e o PostgreSQL estão rodando antes de testar.
+  </div>
+
+  <h2 class="sub-section">Formato Padrão de Resposta</h2>
+  <p>Todas as respostas seguem o envelope <code>ApiResponse</code>:</p>
+
+  <pre><span class="cmt">// Sucesso</span>
+{
+  <span class="key">"success"</span>: <span class="bool">true</span>,
+  <span class="key">"message"</span>: <span class="str">"Operação realizada com sucesso"</span>,
+  <span class="key">"data"</span>: { <span class="cmt">/* objeto ou array retornado */</span> },
+  <span class="key">"timestamp"</span>: <span class="str">"2026-04-22T10:30:00"</span>
+}
+
+<span class="cmt">// Erro</span>
+{
+  <span class="key">"success"</span>: <span class="bool">false</span>,
+  <span class="key">"errorCode"</span>: <span class="str">"UNAUTHORIZED"</span>,
+  <span class="key">"message"</span>: <span class="str">"Acesso não autenticado"</span>,
+  <span class="key">"timestamp"</span>: <span class="str">"2026-04-22T10:30:00"</span>
+}</pre>
+
+  <div class="callout warn">
+    <strong>Atenção</strong>
+    Sempre verifique o campo <code>success</code> antes de acessar <code>data</code>. Em listas paginadas, <code>data</code> é um objeto <code>PageResponse</code> — veja a seção 5.
+  </div>
+
+  <h2 class="sub-section">Rotas Públicas (sem autenticação)</h2>
+  <table>
+    <tr><th>Método</th><th>Rota</th><th>Descrição</th></tr>
+    <tr><td><span class="method post">POST</span></td><td><code>/api/login</code></td><td>Autenticação — retorna JWT</td></tr>
+    <tr><td><span class="method post">POST</span></td><td><code>/api/atletas/registro</code></td><td>Cadastro de atleta</td></tr>
+    <tr><td><span class="method post">POST</span></td><td><code>/api/olheiros/registro</code></td><td>Cadastro de olheiro</td></tr>
+    <tr><td><span class="method post">POST</span></td><td><code>/api/responsaveis/registro</code></td><td>Cadastro de responsável</td></tr>
+    <tr><td><span class="method get">GET</span></td><td><code>/api/atletas/fotos/{filename}</code></td><td>Download de foto de perfil</td></tr>
+    <tr><td><span class="method get">GET</span></td><td>Qualquer rota <strong>fora</strong> de <code>/api/*</code></td><td>Páginas estáticas (HTML/JS/CSS)</td></tr>
+  </table>
+
+  <div class="callout danger">
+    <strong>Todas as demais rotas exigem autenticação JWT</strong>
+    Sem o header <code>Authorization: Bearer &lt;token&gt;</code>, o servidor retorna <strong>HTTP 401</strong> com <code>errorCode: "UNAUTHORIZED"</code>.
+  </div>
+
+</div>
+
+<!-- ═══════════════════════ PAGE 2 ═══════════════════════ -->
+<div class="page page-break">
+
+  <h1 class="section-title">2. Autenticação JWT</h1>
+
+  <h2 class="sub-section">2.1 Fazendo Login</h2>
+
+  <div class="endpoint-card">
+    <span class="method post">POST</span>
+    <span class="route">/api/login</span>
+    <span class="auth-open">público</span>
+    <p class="desc">Autentica o usuário e retorna um JWT válido por 24 horas (86.400.000 ms).</p>
+  </div>
+
+  <h3 class="endpoint-title">Request Body</h3>
+  <pre>{
+  <span class="key">"email"</span>: <span class="str">"atleta@email.com"</span>,
+  <span class="key">"senha"</span>: <span class="str">"minhasenha123"</span>
+}</pre>
+
+  <h3 class="endpoint-title">Response (200 OK)</h3>
+  <pre>{
+  <span class="key">"success"</span>: <span class="bool">true</span>,
+  <span class="key">"data"</span>: {
+    <span class="key">"token"</span>:    <span class="str">"eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9..."</span>,
+    <span class="key">"userId"</span>:   <span class="str">"a1b2c3d4-..."</span>,
+    <span class="key">"userType"</span>: <span class="str">"ATLETA"</span>,          <span class="cmt">// "ATLETA" | "OLHEIRO" | "RESPONSAVEL"</span>
+    <span class="key">"nome"</span>:     <span class="str">"João da Silva"</span>,
+    <span class="key">"email"</span>:    <span class="str">"atleta@email.com"</span>,
+    <span class="key">"expiresIn"</span>: <span class="num">86400000</span>
+  },
+  <span class="key">"message"</span>: <span class="str">"Login realizado com sucesso"</span>
+}</pre>
+
+  <h2 class="sub-section">2.2 Usando o Token nas Requisições</h2>
+  <p>Após o login, salve o token (localStorage ou cookie httpOnly) e inclua em <strong>todas</strong> as chamadas protegidas:</p>
+
+  <pre><span class="cmt">// Exemplo com fetch API</span>
+const token = localStorage.getItem(<span class="str">'scoutplay_token'</span>);
+
+fetch(<span class="str">'http://localhost:8080/api/atletas'</span>, {
+  method: <span class="str">'GET'</span>,
+  headers: {
+    <span class="str">'Content-Type'</span>: <span class="str">'application/json'</span>,
+    <span class="str">'Authorization'</span>: <span class="str">`Bearer ${token}`</span>
+  }
+});
+
+<span class="cmt">// Exemplo com axios (interceptor global recomendado)</span>
+axios.defaults.headers.common[<span class="str">'Authorization'</span>] = <span class="str">`Bearer ${token}`</span>;</pre>
+
+  <div class="callout tip">
+    <strong>Boas práticas</strong>
+    Implemente um interceptor de resposta no axios para capturar erros <strong>401</strong> e redirecionar o usuário para a tela de login automaticamente. Armazene também o <code>userId</code> e o <code>userType</code> para controlar permissões na UI.
+  </div>
+
+  <h2 class="sub-section">2.3 Obter Usuário Logado</h2>
+
+  <div class="endpoint-card">
+    <span class="method get">GET</span>
+    <span class="route">/api/me</span>
+    <span class="auth-required">🔒 requer JWT</span>
+    <p class="desc">Retorna os dados do usuário autenticado pelo token. Use para restaurar a sessão ao recarregar a página.</p>
+  </div>
+
+  <pre><span class="cmt">// Response: mesmo formato do login (LoginResponse)</span>
+{
+  <span class="key">"success"</span>: <span class="bool">true</span>,
+  <span class="key">"data"</span>: {
+    <span class="key">"token"</span>:    <span class="str">"eyJ..."</span>,
+    <span class="key">"userId"</span>:   <span class="str">"a1b2c3d4-..."</span>,
+    <span class="key">"userType"</span>: <span class="str">"OLHEIRO"</span>,
+    <span class="key">"nome"</span>:     <span class="str">"Carlos Olheiro"</span>,
+    <span class="key">"email"</span>:    <span class="str">"carlos@clube.com"</span>
+  }
+}</pre>
+
+  <h2 class="sub-section">2.4 Controle de Permissões por Tipo de Usuário</h2>
+  <table>
+    <tr><th>Ação</th><th>ATLETA</th><th>OLHEIRO</th><th>RESPONSAVEL</th></tr>
+    <tr><td>Ver perfil de atletas</td><td>✅</td><td>✅</td><td>✅</td></tr>
+    <tr><td>Editar próprio perfil</td><td>✅ (só o seu)</td><td>✅ (só o seu)</td><td>✅ (só o seu)</td></tr>
+    <tr><td>Deletar própria conta</td><td>✅ (só o seu)</td><td>✅ (só o seu)</td><td>—</td></tr>
+    <tr><td>Criar avaliação de atleta</td><td>❌</td><td>✅</td><td>❌</td></tr>
+    <tr><td>Adicionar/editar vídeos</td><td>✅ (só os seus)</td><td>❌</td><td>❌</td></tr>
+    <tr><td>Upload de foto de perfil</td><td>✅ (só o seu)</td><td>—</td><td>—</td></tr>
+  </table>
+
+  <div class="callout warn">
+    <strong>Importante</strong>
+    O backend valida ownership no servidor. Mesmo bloqueando na UI, um PUT/DELETE em recurso de outro usuário retornará <strong>HTTP 403 Forbidden</strong>. Trate esse erro na interface.
+  </div>
+
+</div>
+
+<!-- ═══════════════════════ PAGE 3 — ENDPOINTS ATLETA ═══════════════════════ -->
+<div class="page page-break">
+
+  <h1 class="section-title">3. Endpoints — Atleta</h1>
+
+  <!-- REGISTRO -->
+  <div class="endpoint-card">
+    <span class="method post">POST</span>
+    <span class="route">/api/atletas/registro</span>
+    <span class="auth-open">público</span>
+    <p class="desc">Cadastra um novo atleta e retorna JWT (login automático).</p>
+  </div>
+
+  <h3 class="endpoint-title">Request Body (JSON)</h3>
+  <table>
+    <tr><th>Campo</th><th>Tipo</th><th>Obrig.</th><th>Validação</th></tr>
+    <tr><td><code>nome</code></td><td>string</td><td><span class="required">SIM</span></td><td>3–150 caracteres</td></tr>
+    <tr><td><code>email</code></td><td>string</td><td><span class="required">SIM</span></td><td>Formato e-mail válido</td></tr>
+    <tr><td><code>senha</code></td><td>string</td><td><span class="required">SIM</span></td><td>Mínimo 6 caracteres</td></tr>
+    <tr><td><code>dataNascimento</code></td><td>string (ISO)</td><td><span class="required">SIM</span></td><td>Formato <code>YYYY-MM-DD</code></td></tr>
+    <tr><td><code>posicao</code></td><td>string</td><td><span class="required">SIM</span></td><td>Ex: "Atacante", "Meia"</td></tr>
+    <tr><td><code>peDominante</code></td><td>string</td><td><span class="required">SIM</span></td><td><code>DIREITO</code> | <code>ESQUERDO</code> | <code>AMBIDESTRO</code></td></tr>
+    <tr><td><code>telefone</code></td><td>string</td><td><span class="optional">não</span></td><td>Formato <code>(XX) XXXXX-XXXX</code></td></tr>
+    <tr><td><code>cpf</code></td><td>string</td><td><span class="optional">não</span></td><td>11 dígitos numéricos</td></tr>
+    <tr><td><code>altura</code></td><td>number</td><td><span class="optional">não</span></td><td>Valor positivo (ex: 1.75)</td></tr>
+    <tr><td><code>peso</code></td><td>number</td><td><span class="optional">não</span></td><td>Valor positivo (ex: 70.5)</td></tr>
+    <tr><td><code>cep</code></td><td>string</td><td><span class="optional">não</span></td><td>Formato <code>XXXXX-XXX</code></td></tr>
+    <tr><td><code>clubesAnteriores</code></td><td>string</td><td><span class="optional">não</span></td><td>Texto livre</td></tr>
+  </table>
+
+  <pre><span class="cmt">// Exemplo de payload mínimo</span>
+{
+  <span class="key">"nome"</span>: <span class="str">"Pedro Alves"</span>,
+  <span class="key">"email"</span>: <span class="str">"pedro@email.com"</span>,
+  <span class="key">"senha"</span>: <span class="str">"senha123"</span>,
+  <span class="key">"dataNascimento"</span>: <span class="str">"2005-03-15"</span>,
+  <span class="key">"posicao"</span>: <span class="str">"Atacante"</span>,
+  <span class="key">"peDominante"</span>: <span class="str">"DIREITO"</span>
+}
+
+<span class="cmt">// Response: 201 Created — mesmo formato do /api/login (LoginResponse)</span></pre>
+
+  <!-- LISTAR -->
+  <div class="endpoint-card">
+    <span class="method get">GET</span>
+    <span class="route">/api/atletas</span>
+    <span class="auth-required">🔒 requer JWT</span>
+    <p class="desc">Lista atletas com filtros e paginação.</p>
+  </div>
+
+  <h3 class="endpoint-title">Query Parameters</h3>
+  <table>
+    <tr><th>Parâmetro</th><th>Tipo</th><th>Padrão</th><th>Descrição</th></tr>
+    <tr><td><code>name</code></td><td>string</td><td>—</td><td>Filtro por nome (parcial)</td></tr>
+    <tr><td><code>birthYear</code></td><td>integer</td><td>—</td><td>Filtro por ano de nascimento</td></tr>
+    <tr><td><code>weight</code></td><td>double</td><td>—</td><td>Filtro por peso</td></tr>
+    <tr><td><code>height</code></td><td>double</td><td>—</td><td>Filtro por altura</td></tr>
+    <tr><td><code>position</code></td><td>string</td><td>—</td><td>Filtro por posição</td></tr>
+    <tr><td><code>dominantFoot</code></td><td>string</td><td>—</td><td><code>DIREITO</code> | <code>ESQUERDO</code> | <code>AMBIDESTRO</code></td></tr>
+    <tr><td><code>page</code></td><td>integer</td><td><code>0</code></td><td>Número da página (base 0)</td></tr>
+    <tr><td><code>size</code></td><td>integer</td><td><code>10</code></td><td>Itens por página</td></tr>
+  </table>
+
+  <pre><span class="cmt">// GET /api/atletas?position=Atacante&dominantFoot=DIREITO&page=0&size=10</span>
+{
+  <span class="key">"success"</span>: <span class="bool">true</span>,
+  <span class="key">"data"</span>: {
+    <span class="key">"content"</span>: [ <span class="cmt">/* array de Atleta */</span> ],
+    <span class="key">"totalElements"</span>: <span class="num">42</span>,
+    <span class="key">"totalPages"</span>: <span class="num">5</span>,
+    <span class="key">"currentPage"</span>: <span class="num">0</span>,
+    <span class="key">"size"</span>: <span class="num">10</span>,
+    <span class="key">"hasNext"</span>: <span class="bool">true</span>,
+    <span class="key">"hasPrevious"</span>: <span class="bool">false</span>
+  }
+}</pre>
+
+  <!-- BUSCAR POR ID -->
+  <div class="endpoint-card">
+    <span class="method get">GET</span>
+    <span class="route">/api/atletas/{id}</span>
+    <span class="auth-required">🔒 requer JWT</span>
+    <p class="desc">Busca um atleta específico pelo ID.</p>
+  </div>
+
+  <!-- ATUALIZAR -->
+  <div class="endpoint-card">
+    <span class="method put">PUT</span>
+    <span class="route">/api/atletas/{id}</span>
+    <span class="auth-required">🔒 dono do recurso</span>
+    <p class="desc">Atualiza os dados do atleta. Mesmo payload do registro (sem campos obrigatórios de senha no update).</p>
+  </div>
+
+  <!-- FOTO -->
+  <div class="endpoint-card">
+    <span class="method post">POST</span>
+    <span class="route">/api/atletas/{id}/foto</span>
+    <span class="auth-required">🔒 dono do recurso</span>
+    <p class="desc">Faz upload/atualização da foto de perfil. Enviar como <code>multipart/form-data</code>.</p>
+  </div>
+
+  <pre><span class="cmt">// Exemplo com FormData</span>
+const formData = new FormData();
+formData.append(<span class="str">'fotoPerfil'</span>, file); <span class="cmt">// campo obrigatório: "fotoPerfil"</span>
+
+fetch(<span class="str">`http://localhost:8080/api/atletas/${id}/foto`</span>, {
+  method: <span class="str">'POST'</span>,
+  headers: { <span class="str">'Authorization'</span>: <span class="str">`Bearer ${token}`</span> }, <span class="cmt">// NÃO incluir Content-Type</span>
+  body: formData
+});</pre>
+
+  <div class="callout warn">
+    <strong>Upload de foto</strong>
+    Não definir o header <code>Content-Type</code> manualmente — o browser define automaticamente o <code>multipart/form-data</code> com o boundary correto. Tamanho máximo: <strong>10 MB</strong>.
+  </div>
+
+  <!-- GET FOTO -->
+  <div class="endpoint-card">
+    <span class="method get">GET</span>
+    <span class="route">/api/atletas/fotos/{filename}</span>
+    <span class="auth-open">público</span>
+    <p class="desc">Retorna a imagem de perfil. O <code>filename</code> vem no campo <code>fotoPerfil</code> do objeto Atleta. Use como <code>src</code> de uma tag <code>&lt;img&gt;</code>.</p>
+  </div>
+
+  <!-- DELETAR -->
+  <div class="endpoint-card">
+    <span class="method delete">DELETE</span>
+    <span class="route">/api/atletas/{id}</span>
+    <span class="auth-required">🔒 dono do recurso</span>
+    <p class="desc">Remove o atleta. Retorna <code>data: null</code> com mensagem de confirmação.</p>
+  </div>
+
+</div>
+
+<!-- ═══════════════════════ PAGE 4 — OLHEIRO / RESPONSÁVEL ═══════════════════════ -->
+<div class="page page-break">
+
+  <h1 class="section-title">4. Endpoints — Olheiro</h1>
+
+  <div class="endpoint-card">
+    <span class="method post">POST</span>
+    <span class="route">/api/olheiros/registro</span>
+    <span class="auth-open">público</span>
+    <p class="desc">Cadastra um novo olheiro e retorna JWT.</p>
+  </div>
+
+  <h3 class="endpoint-title">Request Body</h3>
+  <table>
+    <tr><th>Campo</th><th>Tipo</th><th>Obrig.</th><th>Validação</th></tr>
+    <tr><td><code>nome</code></td><td>string</td><td><span class="required">SIM</span></td><td>3–150 caracteres</td></tr>
+    <tr><td><code>email</code></td><td>string</td><td><span class="required">SIM</span></td><td>Formato e-mail válido</td></tr>
+    <tr><td><code>senha</code></td><td>string</td><td><span class="required">SIM</span></td><td>Mínimo 6 caracteres</td></tr>
+    <tr><td><code>dataNascimento</code></td><td>string</td><td><span class="required">SIM</span></td><td>Formato <code>YYYY-MM-DD</code></td></tr>
+    <tr><td><code>clube</code></td><td>string</td><td><span class="required">SIM</span></td><td>Nome do clube</td></tr>
+    <tr><td><code>local</code></td><td>string</td><td><span class="required">SIM</span></td><td>Localidade de atuação</td></tr>
+    <tr><td><code>telefone</code></td><td>string</td><td><span class="optional">não</span></td><td>Formato <code>(XX) XXXXX-XXXX</code></td></tr>
+    <tr><td><code>cpf</code></td><td>string</td><td><span class="optional">não</span></td><td>11 dígitos numéricos</td></tr>
+    <tr><td><code>cep</code></td><td>string</td><td><span class="optional">não</span></td><td>Formato <code>XXXXX-XXX</code></td></tr>
+  </table>
+
+  <div class="endpoint-card">
+    <span class="method get">GET</span>
+    <span class="route">/api/olheiros</span>
+    <span class="auth-required">🔒 requer JWT</span>
+    <p class="desc">Lista olheiros paginados. Query params: <code>page</code> (padrão 0), <code>size</code> (padrão 10).</p>
+  </div>
+
+  <div class="endpoint-card">
+    <span class="method get">GET</span>
+    <span class="route">/api/olheiros/{id}</span>
+    <span class="auth-required">🔒 requer JWT</span>
+    <p class="desc">Busca olheiro por ID.</p>
+  </div>
+
+  <div class="endpoint-card">
+    <span class="method put">PUT</span>
+    <span class="route">/api/olheiros/{id}</span>
+    <span class="auth-required">🔒 dono do recurso</span>
+    <p class="desc">Atualiza dados do olheiro. Mesmo payload do registro.</p>
+  </div>
+
+  <div class="endpoint-card">
+    <span class="method delete">DELETE</span>
+    <span class="route">/api/olheiros/{id}</span>
+    <span class="auth-required">🔒 dono do recurso</span>
+    <p class="desc">Remove o olheiro.</p>
+  </div>
+
+  <h1 class="section-title">5. Endpoints — Responsável (Atleta Menor de Idade)</h1>
+
+  <p>O responsável é o cadastro do adulto que gerencia um atleta menor de idade.</p>
+
+  <div class="endpoint-card">
+    <span class="method post">POST</span>
+    <span class="route">/api/responsaveis/registro</span>
+    <span class="auth-open">público</span>
+    <p class="desc">Cadastra responsável e retorna JWT.</p>
+  </div>
+
+  <h3 class="endpoint-title">Request Body</h3>
+  <table>
+    <tr><th>Campo</th><th>Tipo</th><th>Obrig.</th><th>Validação</th></tr>
+    <tr><td><code>cpf</code></td><td>string</td><td><span class="required">SIM</span></td><td>11 dígitos numéricos</td></tr>
+    <tr><td><code>email</code></td><td>string</td><td><span class="required">SIM</span></td><td>Formato e-mail válido</td></tr>
+    <tr><td><code>senha</code></td><td>string</td><td><span class="required">SIM</span></td><td>Mínimo 6 caracteres</td></tr>
+    <tr><td><code>nome</code></td><td>string</td><td><span class="optional">não</span></td><td>3–150 caracteres</td></tr>
+    <tr><td><code>telefone</code></td><td>string</td><td><span class="optional">não</span></td><td>Formato <code>(XX) XXXXX-XXXX</code></td></tr>
+    <tr><td><code>cep</code></td><td>string</td><td><span class="optional">não</span></td><td>Formato <code>XXXXX-XXX</code></td></tr>
+  </table>
+
+</div>
+
+<!-- ═══════════════════════ PAGE 5 — AVALIAÇÕES / VÍDEOS ═══════════════════════ -->
+<div class="page page-break">
+
+  <h1 class="section-title">6. Endpoints — Avaliações</h1>
+
+  <p>As avaliações são criadas por <strong>olheiros</strong> e vinculadas a um atleta específico.</p>
+
+  <div class="endpoint-card">
+    <span class="method get">GET</span>
+    <span class="route">/api/atletas/{atletaId}/avaliacoes</span>
+    <span class="auth-required">🔒 requer JWT</span>
+    <p class="desc">Retorna todas as avaliações de um atleta. Não paginado.</p>
+  </div>
+
+  <pre><span class="cmt">// Response</span>
+{
+  <span class="key">"success"</span>: <span class="bool">true</span>,
+  <span class="key">"data"</span>: [
+    {
+      <span class="key">"id"</span>: <span class="str">"uuid..."</span>,
+      <span class="key">"nota"</span>: <span class="num">8.5</span>,
+      <span class="key">"comentario"</span>: <span class="str">"Bom desempenho técnico"</span>,
+      <span class="key">"videoId"</span>: <span class="str">"uuid-do-video"</span>,    <span class="cmt">// pode ser null</span>
+      <span class="key">"olheiro"</span>: { <span class="cmt">/* objeto Olheiro */</span> },
+      <span class="key">"atleta"</span>:  { <span class="cmt">/* objeto Atleta */</span> }
+    }
+  ]
+}</pre>
+
+  <div class="endpoint-card">
+    <span class="method post">POST</span>
+    <span class="route">/api/atletas/{atletaId}/avaliacoes</span>
+    <span class="auth-required">🔒 somente OLHEIRO</span>
+    <p class="desc">Cria uma avaliação para o atleta. Retorna HTTP 403 se o usuário logado não for olheiro.</p>
+  </div>
+
+  <h3 class="endpoint-title">Request Body</h3>
+  <table>
+    <tr><th>Campo</th><th>Tipo</th><th>Obrig.</th><th>Validação</th></tr>
+    <tr><td><code>nota</code></td><td>number</td><td><span class="required">SIM</span></td><td>0 a 10 (inclusive)</td></tr>
+    <tr><td><code>comentario</code></td><td>string</td><td><span class="optional">não</span></td><td>Máximo 500 caracteres</td></tr>
+    <tr><td><code>videoId</code></td><td>UUID (string)</td><td><span class="optional">não</span></td><td>ID de um vídeo do atleta</td></tr>
+  </table>
+
+  <pre>{
+  <span class="key">"nota"</span>: <span class="num">9.0</span>,
+  <span class="key">"comentario"</span>: <span class="str">"Excelente finalização e visão de jogo."</span>,
+  <span class="key">"videoId"</span>: <span class="str">"550e8400-e29b-41d4-a716-446655440000"</span>
+}</pre>
+
+  <h1 class="section-title">7. Endpoints — Vídeos</h1>
+
+  <div class="endpoint-card">
+    <span class="method get">GET</span>
+    <span class="route">/api/atletas/{atletaId}/videos</span>
+    <span class="auth-required">🔒 requer JWT</span>
+    <p class="desc">Lista vídeos do atleta com paginação. Params: <code>page</code>, <code>size</code>.</p>
+  </div>
+
+  <pre><span class="cmt">// Response — PageResponse</span>
+{
+  <span class="key">"data"</span>: {
+    <span class="key">"content"</span>: [
+      {
+        <span class="key">"id"</span>:          <span class="str">"uuid..."</span>,
+        <span class="key">"titulo"</span>:      <span class="str">"Gol contra o Flamengo"</span>,
+        <span class="key">"urlVideo"</span>:    <span class="str">"https://youtube.com/watch?v=..."</span>,
+        <span class="key">"dataCriacao"</span>: <span class="str">"2026-04-20T14:30:00"</span>
+      }
+    ],
+    <span class="key">"totalElements"</span>: <span class="num">5</span>,
+    <span class="key">"totalPages"</span>: <span class="num">1</span>,
+    <span class="key">"currentPage"</span>: <span class="num">0</span>
+  }
+}</pre>
+
+  <div class="endpoint-card">
+    <span class="method post">POST</span>
+    <span class="route">/api/atletas/{atletaId}/videos</span>
+    <span class="auth-required">🔒 dono do recurso (ATLETA)</span>
+    <p class="desc">Adiciona um vídeo ao perfil do atleta.</p>
+  </div>
+
+  <table>
+    <tr><th>Campo</th><th>Tipo</th><th>Obrig.</th><th>Validação</th></tr>
+    <tr><td><code>urlVideo</code></td><td>string</td><td><span class="required">SIM</span></td><td>URL do vídeo (YouTube, etc.)</td></tr>
+    <tr><td><code>titulo</code></td><td>string</td><td><span class="required">SIM</span></td><td>3–100 caracteres</td></tr>
+  </table>
+
+  <div class="endpoint-card">
+    <span class="method put">PUT</span>
+    <span class="route">/api/videos/{videoId}</span>
+    <span class="auth-required">🔒 dono do recurso</span>
+    <p class="desc">Atualiza título e/ou URL de um vídeo. Mesmo payload do POST.</p>
+  </div>
+
+  <div class="endpoint-card">
+    <span class="method delete">DELETE</span>
+    <span class="route">/api/videos/{videoId}</span>
+    <span class="auth-required">🔒 dono do recurso</span>
+    <p class="desc">Remove um vídeo.</p>
+  </div>
+
+</div>
+
+<!-- ═══════════════════════ PAGE 6 — ERROS / CORS / CHECKLIST ═══════════════════════ -->
+<div class="page page-break">
+
+  <h1 class="section-title">8. Tratamento de Erros HTTP</h1>
+
+  <table>
+    <tr><th>Código HTTP</th><th>errorCode</th><th>Causa</th><th>O que fazer no front</th></tr>
+    <tr><td><strong>400</strong> Bad Request</td><td><code>VALIDATION_ERROR</code></td><td>Campo inválido ou ausente</td><td>Exibir mensagem de validação ao usuário</td></tr>
+    <tr><td><strong>401</strong> Unauthorized</td><td><code>UNAUTHORIZED</code></td><td>Token ausente, inválido ou expirado</td><td>Redirecionar para tela de login</td></tr>
+    <tr><td><strong>403</strong> Forbidden</td><td><code>ACCESS_DENIED</code></td><td>Usuário autenticado mas sem permissão</td><td>Exibir "sem permissão" na tela</td></tr>
+    <tr><td><strong>404</strong> Not Found</td><td><code>RESOURCE_NOT_FOUND</code></td><td>Recurso não existe</td><td>Exibir tela de "não encontrado"</td></tr>
+    <tr><td><strong>500</strong> Server Error</td><td><code>INTERNAL_ERROR</code></td><td>Erro inesperado no servidor</td><td>Exibir mensagem genérica de erro</td></tr>
+  </table>
+
+  <pre><span class="cmt">// Exemplo de interceptor de erros com axios</span>
+axios.interceptors.response.use(
+  response => response,
+  error => {
+    const status = error.response?.status;
+    if (status === <span class="num">401</span>) {
+      localStorage.removeItem(<span class="str">'scoutplay_token'</span>);
+      window.location.href = <span class="str">'/login'</span>;
+    }
+    if (status === <span class="num">403</span>) {
+      alert(<span class="str">'Você não tem permissão para realizar esta ação.'</span>);
+    }
+    return Promise.reject(error);
+  }
+);</pre>
+
+  <h1 class="section-title">9. CORS — Origens Permitidas</h1>
+
+  <p>O backend já está configurado para aceitar requisições das seguintes origens em desenvolvimento:</p>
+  <table>
+    <tr><th>Origem</th><th>Uso</th></tr>
+    <tr><td><code>http://localhost:3000</code></td><td>React (Create React App / Next.js padrão)</td></tr>
+    <tr><td><code>http://localhost:5173</code></td><td>Vite (React, Vue, Svelte)</td></tr>
+  </table>
+
+  <div class="callout warn">
+    <strong>Frontend rodando em outra porta?</strong>
+    Peça ao time backend para adicionar a origem em <code>application.properties</code> na chave <code>spring.web.cors.allowed-origins</code>.
+  </div>
+
+  <h1 class="section-title">10. Checklist de Integração</h1>
+
+  <table>
+    <tr><th>Tarefa</th><th>Status</th></tr>
+    <tr><td>Configurar base URL da API (ambiente dev/prod)</td><td>☐</td></tr>
+    <tr><td>Implementar chamada POST /api/login e salvar token + userId + userType</td><td>☐</td></tr>
+    <tr><td>Implementar GET /api/me para restaurar sessão</td><td>☐</td></tr>
+    <tr><td>Criar interceptor axios com header Authorization automático</td><td>☐</td></tr>
+    <tr><td>Tratar erros 401 (redirecionar para login)</td><td>☐</td></tr>
+    <tr><td>Tratar erros 403 (exibir mensagem de permissão)</td><td>☐</td></tr>
+    <tr><td>Implementar formulário de cadastro de atleta (POST /api/atletas/registro)</td><td>☐</td></tr>
+    <tr><td>Implementar formulário de cadastro de olheiro (POST /api/olheiros/registro)</td><td>☐</td></tr>
+    <tr><td>Implementar formulário de cadastro de responsável (POST /api/responsaveis/registro)</td><td>☐</td></tr>
+    <tr><td>Implementar listagem de atletas com filtros e paginação</td><td>☐</td></tr>
+    <tr><td>Implementar upload de foto de perfil (multipart/form-data)</td><td>☐</td></tr>
+    <tr><td>Exibir foto de perfil via GET /api/atletas/fotos/{filename}</td><td>☐</td></tr>
+    <tr><td>Implementar edição de perfil do usuário logado (PUT)</td><td>☐</td></tr>
+    <tr><td>Implementar listagem e adição de vídeos do atleta</td><td>☐</td></tr>
+    <tr><td>Implementar criação de avaliação (bloqueado para não-olheiros na UI)</td><td>☐</td></tr>
+    <tr><td>Tratar campo success=false nas respostas de erro</td><td>☐</td></tr>
+    <tr><td>Implementar paginação com os campos do PageResponse</td><td>☐</td></tr>
+    <tr><td>Validar campos de formulário no front antes de enviar (e-mail, CPF, telefone)</td><td>☐</td></tr>
+  </table>
+
+  <div class="callout tip">
+    <strong>Dica: variáveis de ambiente</strong>
+    Configure a base URL via variável de ambiente (<code>VITE_API_URL</code> no Vite ou <code>REACT_APP_API_URL</code> no CRA) para facilitar a troca entre ambientes dev e produção sem alterar o código.
+  </div>
+
+  <div class="footer">
+    ScoutPlay — Guia de Integração Frontend ↔ Backend · v1.0 · Abril 2026
+  </div>
+
+</div>
+
+</body>
+</html>
