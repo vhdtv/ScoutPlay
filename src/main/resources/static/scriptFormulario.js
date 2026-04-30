@@ -35,13 +35,14 @@ function salvarResponsavel(cpf) {
         body: JSON.stringify({ cpf: cpf }),
     })
         .then(response => {
-            if (!response.ok) {
-                return response.text().then(text => { throw new Error(text); });
-            }
-            return response.json();
+            return response.json().then(payload => ({ ok: response.ok, payload }));
         })
-        .then(data => {
-            console.log('Responsável salvo:', data);
+        .then(({ ok, payload }) => {
+            if (!ok || !payload.success) {
+                throw new Error(payload.message || 'Erro ao salvar responsável');
+            }
+
+            console.log('Responsável salvo:', payload.data);
             location.href = window.location.origin + '/formularioAtletaMenorDeIdade.html';
         })
         .catch((error) => {

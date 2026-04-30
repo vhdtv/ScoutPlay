@@ -1,5 +1,6 @@
 package com.scoutplay.ScoutPlay.models;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.CascadeType;
 import jakarta.persistence.Entity;
 import jakarta.persistence.OneToMany;
@@ -12,6 +13,7 @@ import java.util.UUID;
 @Data
 public class Responsavel extends Usuario{
     @OneToMany(mappedBy = "responsavel", cascade = CascadeType.ALL)
+    @JsonIgnore
     private List<Atleta> atletas;
 
     @Override
