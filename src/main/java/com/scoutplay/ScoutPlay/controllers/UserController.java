@@ -1,13 +1,13 @@
 package com.scoutplay.ScoutPlay.controllers;
 
+import com.scoutplay.ScoutPlay.api.response.ApiResponse;
 import com.scoutplay.ScoutPlay.models.Usuario;
+import com.scoutplay.ScoutPlay.security.SecurityUtils;
 import com.scoutplay.ScoutPlay.services.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.AccessDeniedException;
 import org.springframework.web.bind.annotation.*;
-
-import java.util.List;
-import java.util.Optional;
 
 @RestController
 @RequestMapping("/api/usuarios")
@@ -16,43 +16,30 @@ public class UserController {
     @Autowired
     private UserService userService;
 
-    // Buscar todos os usuários
-    @GetMapping
-    public List<Usuario> getAllUsers() {
-        return userService.findAll();
-    }
-
-
-    // Atualizar um usuário existente
     @PutMapping("/{id}")
-    public ResponseEntity<Usuario> updateUser(@PathVariable String id, @RequestBody Usuario usuarioAtualizado) {
-        Optional<Usuario> usuario = userService.findById(id);
-        if (usuario.isPresent()) {
-            Usuario usuarioParaAtualizar = usuario.get();
-            usuarioParaAtualizar.setNome(usuarioAtualizado.getNome());
-            usuarioParaAtualizar.setTelefone(usuarioAtualizado.getTelefone());
-            usuarioParaAtualizar.setCpf(usuarioAtualizado.getCpf());
-            usuarioParaAtualizar.setDataNascimento(usuarioAtualizado.getDataNascimento());
-            usuarioParaAtualizar.setCep(usuarioAtualizado.getCep());
-            usuarioParaAtualizar.setEmail(usuarioAtualizado.getEmail());
-            usuarioParaAtualizar.setSenha(usuarioAtualizado.getSenha());
-
-            Usuario updatedUsuario = userService.save(usuarioParaAtualizar);
-            return ResponseEntity.ok(updatedUsuario);
-        } else {
-            return ResponseEntity.notFound().build();
+    public ResponseEntity<ApiResponse<Usuario>> updateUser(@PathVariable String id, @RequestBody Usuario usuarioAtualizado) {
+        if (!SecurityUtils.isOwner(id)) {
+            throw new AccessDeniedException("Você não tem permissão para alterar este usuário.");
         }
+
+        return userService.findById(id).map(usuario -> {
+            usuario.setNome(usuarioAtualizado.getNome());
+            usuario.setTelefone(usuarioAtualizado.getTelefone());
+            usuario.setCep(usuarioAtualizado.getCep());
+            Usuario updated = userService.save(usuario);
+            return ResponseEntity.ok(ApiResponse.success(updated, "Usuário atualizado com sucesso"));
+        }).orElse(ResponseEntity.notFound().build());
     }
 
-    // Deletar um usuário
     @DeleteMapping("/{id}")
-    public ResponseEntity<Void> deleteUser(@PathVariable String id) {
-        Optional<Usuario> usuario = userService.findById(id);
-        if (usuario.isPresent()) {
-            userService.delete(usuario.get());
-            return ResponseEntity.noContent().build();
-        } else {
-            return ResponseEntity.notFound().build();
+    public ResponseEntity<ApiResponse<Void>> deleteUser(@PathVariable String id) {
+        if (!SecurityUtils.isOwner(id)) {
+            throw new AccessDeniedException("Você não tem permissão para remover este usuário.");
         }
+
+        return userService.findById(id).map(usuario -> {
+            userService.delete(usuario);
+            return ResponseEntity.ok(ApiResponse.<Void>success(null, "Usuário removido com sucesso"));
+        }).orElse(ResponseEntity.notFound().build());
     }
 }

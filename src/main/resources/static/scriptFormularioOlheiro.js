@@ -1,3 +1,11 @@
+function salvarSessao(sessao) {
+    localStorage.setItem('authToken', sessao.token);
+    localStorage.setItem('userId', sessao.userId);
+    localStorage.setItem('userType', sessao.userType);
+    localStorage.setItem('userName', sessao.nome || '');
+    localStorage.setItem('userEmail', sessao.email || '');
+}
+
 // Função que lida com a submissão do formulário do olheiro
 function handleOlheiroForm(event) {
     event.preventDefault(); // Evita o comportamento padrão de recarregar a página
@@ -29,7 +37,7 @@ function handleOlheiroForm(event) {
         };
 
         // Fazer uma requisição POST para enviar os dados ao servidor
-        fetch('/api/olheiros', {
+        fetch('/api/olheiros/registro', {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
@@ -37,12 +45,14 @@ function handleOlheiroForm(event) {
             body: JSON.stringify(olheiroData),
         })
         .then(response => {
-            if (response.ok) {
-                return response.json();
-            }
-            throw new Error('Erro ao cadastrar o olheiro.');
+            return response.json().then(payload => ({ ok: response.ok, payload }));
         })
-        .then(data => {
+        .then(({ ok, payload }) => {
+            if (!ok || !payload.success) {
+                throw new Error(payload.message || 'Erro ao cadastrar o olheiro.');
+            }
+
+            salvarSessao(payload.data);
             // Sucesso no cadastro, redirecionar para a página feedOlheiro.html
             alert('Cadastro realizado com sucesso!');
             location.href = '/feedOlheiro.html'; // Redirecionar para a página de feed

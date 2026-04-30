@@ -1,3 +1,24 @@
+function getAuthHeaders() {
+    const token = localStorage.getItem('authToken');
+    return {
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${token}`
+    };
+}
+
+function salvarDadosLocais(atleta) {
+    localStorage.setItem('athleteName', atleta.nome || '');
+    localStorage.setItem('athletePhone', atleta.telefone || '');
+    localStorage.setItem('athleteCep', atleta.cep || '');
+    localStorage.setItem('athleteEmail', atleta.email || '');
+    localStorage.setItem('athleteWeight', atleta.peso || '');
+    localStorage.setItem('athleteHeight', atleta.altura || '');
+    localStorage.setItem('athletePosition', atleta.posicao || '');
+    localStorage.setItem('athleteClubs', atleta.clubesAnteriores || '');
+    localStorage.setItem('athleteDominantFoot', atleta.peDominante || '');
+    localStorage.setItem('athleteVideo', atleta.videos && atleta.videos[0] ? atleta.videos[0].urlVideo : '');
+}
+
 // Função para exibir o menu ao clicar na engrenagem
 document.querySelector('.edit-button').addEventListener('click', function(e) {
     e.preventDefault();
@@ -29,15 +50,29 @@ function calcularIdade(dataNascimento) {
 // Função para carregar e exibir as informações do atleta
 function carregarPerfilAtleta() {
     const id = localStorage.getItem("userId");
-    fetch(`/api/atletas/${id}`)
-        .then(response => response.json())
-        .then(atleta => {
+    fetch(`/api/atletas/${id}`, { headers: getAuthHeaders() })
+        .then(response => {
+            if (response.status === 401) {
+                window.location.href = '/login.html?type=atleta';
+                throw new Error('Sessão expirada');
+            }
+            return response.json().then(payload => ({ ok: response.ok, payload }));
+        })
+        .then(({ ok, payload }) => {
+            if (!ok || !payload.success) {
+                throw new Error(payload.message || 'Erro ao carregar perfil');
+            }
+
+            const atleta = payload.data;
+            salvarDadosLocais(atleta);
             console.table(atleta);
 
             // Preenchendo os dados no HTML
-            document.getElementById('profilePic').src = `/api/atletas/fotos/${encodeURIComponent(atleta.fotoPerfil.split('/').pop())}`;
+            if (atleta.fotoPerfil) {
+                document.getElementById('profilePic').src = `/api/atletas/fotos/${encodeURIComponent(atleta.fotoPerfil.split('/').pop())}`;
+            }
             document.getElementById('athleteName').textContent = atleta.nome;
-            document.getElementById('athleteAge').textContent = calcularIdade(atleta.dataNascimento);
+            document.getElementById('athleteAge').textContent = atleta.idade || calcularIdade(atleta.dataNascimento);
             document.getElementById('athleteWeight').textContent = atleta.peso;
             document.getElementById('athleteHeight').textContent = atleta.altura;
             document.getElementById('athletePosition').textContent = atleta.posicao;
@@ -47,7 +82,7 @@ function carregarPerfilAtleta() {
             // Exibir os links dos vídeos
             const videoContainer = document.getElementById('athleteVideos');
             videoContainer.innerHTML = ''; // Limpa o conteúdo anterior
-            atleta.videos.forEach(video => {
+            (atleta.videos || []).forEach(video => {
                 const videoLink = document.createElement('a');
                 videoLink.href = video.urlVideo; // Usa o link correto do JSON
                 videoLink.textContent = "Assistir vídeo";

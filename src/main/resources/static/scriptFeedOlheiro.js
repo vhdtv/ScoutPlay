@@ -3,8 +3,30 @@ window.addEventListener('DOMContentLoaded', function() {
     handleSearch();
 });
 
+function getAuthHeaders() {
+    const token = localStorage.getItem('authToken');
+    return {
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${token}`
+    };
+}
+
+function handleUnauthorized(response) {
+    if (response.status === 401) {
+        localStorage.removeItem('authToken');
+        localStorage.removeItem('userId');
+        localStorage.removeItem('userType');
+        window.location.href = '/login.html?type=olheiro';
+        return true;
+    }
+    return false;
+}
+
 function handleExit() {
-    window.location.href = 'http://localhost:8080';
+    localStorage.removeItem('authToken');
+    localStorage.removeItem('userId');
+    localStorage.removeItem('userType');
+    window.location.href = '/';
 }
 
 function handleSearch(event) {
@@ -29,12 +51,20 @@ function handleSearch(event) {
     // Realiza a busca via API
     fetch(`/api/atletas?${params.toString()}`, {
         method: 'GET',
-        headers: {
-            'Content-Type': 'application/json'
-        }
+        headers: getAuthHeaders()
     })
-    .then(response => response.json())
-    .then(data => {
+    .then(response => {
+        if (handleUnauthorized(response)) {
+            throw new Error('Sessão expirada');
+        }
+        return response.json().then(payload => ({ ok: response.ok, payload }));
+    })
+    .then(({ ok, payload }) => {
+        if (!ok || !payload.success) {
+            throw new Error(payload.message || 'Erro ao buscar atletas');
+        }
+
+        const data = payload.data.content || [];
         const resultsContainer = document.getElementById('search-results');
         resultsContainer.innerHTML = ''; // Limpa resultados anteriores
 
@@ -48,7 +78,7 @@ function handleSearch(event) {
                     'Não especificado';
 
                 resultItem.innerHTML = `
-                    <img class="result-img" src="/api/atletas/fotos/${atleta.fotoPerfil.split('/').pop()}" alt="Foto do atleta">
+                    <img class="result-img" src="${atleta.fotoPerfil ? `/api/atletas/fotos/${atleta.fotoPerfil.split('/').pop()}` : '/index.html'}" alt="Foto do atleta">
                     <h4>${atleta.nome || 'Não especificado'}</h4>
                     <p>Data de Nascimento: ${dataNascimentoFormatada}</p>
                     <p>Peso: ${atleta.peso || 'Não especificado'} kg</p>

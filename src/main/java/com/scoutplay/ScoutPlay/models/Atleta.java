@@ -1,5 +1,6 @@
 package com.scoutplay.ScoutPlay.models;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import lombok.Data;
 
@@ -25,6 +26,7 @@ public class Atleta extends Usuario {
 
     @ManyToOne
     @JoinColumn(name = "responsavel_id")
+    @JsonIgnore
     private Responsavel responsavel;
 
     @Override
