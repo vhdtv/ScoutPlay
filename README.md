@@ -40,9 +40,13 @@ A plataforma Scout Play funciona em três pilares:
 
 **Stack Tecnológico:**
 - Backend: Java 21 + Spring Boot 3.3.4
-- Banco de Dados: PostgreSQL 42.7.4
+- Banco de Dados: PostgreSQL
+- Segurança: Spring Security + JWT (jjwt 0.11.5)
 - Frontend: HTML5 + CSS3 + JavaScript (Vanilla) + React
 - Build Tool: Maven
+- Documentação: Swagger UI (springdoc-openapi 2.6.0)
+- Testes: JUnit 5 + Mockito + Cucumber 7 (BDD) + JaCoCo
+- IA: Python + Streamlit + Ollama (RAG + Classificação de craques)
 
 ---
 
@@ -60,6 +64,8 @@ A plataforma Scout Play funciona em três pilares:
 | 8 | **Avaliações de atletas** | Olheiro registra avaliação (nota + comentário) sobre atleta |
 | 9 | **Consultar perfil autenticado** | Endpoint `GET /api/me` retorna dados do usuário logado via JWT |
 | 10 | **Atualização e exclusão de perfil** | Usuário edita ou remove o próprio perfil (somente o próprio — verificação de ownership) |
+| 11 | **Copiloto de futebol (IA)** | Chatbot RAG com base em fundamentos técnicos e táticos do futebol, respondendo perguntas contextualizadas |
+| 12 | **Classificação de craques (IA)** | Modelo que classifica potencial de atletas com base em stats de jogadores reais (Brasileirão, SofaScore, Transfermarkt) |
 
 **Regra de negócio não-trivial:** Validação de unicidade de CPF e e-mail por tipo de usuário + validação de formato/tamanho de imagem no upload de foto de perfil + controle de ownership via JWT para PUT/DELETE.
 
@@ -200,7 +206,13 @@ ScoutPlay/
 │   │   │   └── security/                    (JWT Filter, Provider, SecurityUtils)
 │   │   └── resources/
 │   │       ├── application.properties
-│   │       └── static/                      (Frontend HTML/CSS/JS)
+│   │       ├── static/                      (Frontend HTML/CSS/JS)
+│   │       └── ia/
+│   │           ├── app.py                   (Copiloto RAG — Streamlit + Ollama)
+│   │           ├── arquivos/                (Base de conhecimento em PDF)
+│   │           ├── brasileirao/             (Dataset Brasileirão)
+│   │           ├── safa e transfermarkt/    (Datasets SofaScore + Transfermarkt)
+│   │           └── notebook/               (Notebooks de análise e modelo pkl)
 │   └── test/
 │       ├── java/com/scoutplay/ScoutPlay/
 │       │   ├── services/                    (Testes unitários — JUnit 5 + Mockito)
@@ -228,57 +240,85 @@ ScoutPlay/
 
 ## 🔌 Endpoints Disponíveis
 
+> A documentação interativa completa está disponível em **http://localhost:8080/swagger-ui.html** após iniciar a aplicação.
+
 ### 🏃 Atletas (`/api/atletas`)
 
-| Método | Endpoint | Descrição |
-|--------|----------|-----------|
-| `POST` | `/` | Cria novo atleta com foto de perfil |
-| `GET` | `/` | Lista todos atletas (com filtros) |
-| `GET` | `/{id}` | Busca atleta por ID |
-| `PUT` | `/{id}` | Atualiza dados do atleta |
-| `DELETE` | `/{id}` | Remove atleta |
-| `GET` | `/fotos/{filename}` | Download de foto de perfil |
+| Método | Endpoint | Auth | Descrição |
+|--------|----------|------|-----------|
+| `POST` | `/registro` | ❌ | Cadastra atleta e retorna token JWT |
+| `POST` | `/` | ❌ | Cria atleta com foto de perfil (multipart) |
+| `GET` | `/` | ✅ | Lista atletas com filtros e paginação |
+| `GET` | `/{id}` | ✅ | Busca atleta por ID |
+| `PUT` | `/{id}` | ✅ Owner | Atualiza dados do atleta |
+| `DELETE` | `/{id}` | ✅ Owner | Remove atleta |
+| `POST` | `/{id}/foto` | ✅ Owner | Atualiza foto de perfil (multipart) |
+| `GET` | `/fotos/{filename}` | ❌ | Download de foto de perfil |
 
-**Exemplo de requisição (POST):**
-```bash
-curl -X POST http://localhost:8080/api/atletas \
-  -H "Content-Type: application/json" \
-  -d '{
-    "nome": "João Silva",
-    "email": "joao@example.com",
-    "idade": 18,
-    "posicao": "Atacante",
-    "clube": "FC Example"
-  }'
-```
+**Filtros disponíveis em `GET /api/atletas`:** `nome`, `posicao`, `peso`, `altura`, `peDominante`, `anoNascimento` (paginado)
 
 ### 👁️ Olheiros (`/api/olheiros`)
-*Funcionalidades do sistema*
-O Scoutplay é uma plataforma completa para gestão de olheiros e atletas ⚽📊, trazendo organização, controle e escalabilidade para sua operação.
 
-Funcionalidades principais:
-✨ Cadastro de novos olheiros
-📋 Listagem completa e organizada
-🔍 Busca rápida por ID
-✏️ Atualização de dados em tempo real
-🗑️ Remoção de registros
+| Método | Endpoint | Auth | Descrição |
+|--------|----------|------|-----------|
+| `POST` | `/registro` | ❌ | Cadastra olheiro e retorna token JWT |
+| `POST` | `/` | ❌ | Cria olheiro |
+| `GET` | `/` | ✅ | Lista olheiros (paginado) |
+| `GET` | `/{id}` | ✅ | Busca olheiro por ID |
+| `PUT` | `/{id}` | ✅ Owner | Atualiza dados do olheiro |
+| `DELETE` | `/{id}` | ✅ Owner | Remove olheiro |
 
-Além disso, o sistema garante mais agilidade na gestão, centralização das informações e suporte ao crescimento da operação 🚀
+### 👪 Responsáveis (`/api/responsaveis`)
 
-| Método | Endpoint | Descrição |
-|--------|----------|-----------|
-| `POST` | `/` | Cria novo olheiro |
-| `GET` | `/` | Lista todos olheiros |
-| `GET` | `/{id}` | Busca olheiro por ID |
-| `PUT` | `/{id}` | Atualiza dados do olheiro |
-| `DELETE` | `/{id}` | Remove olheiro |
+| Método | Endpoint | Auth | Descrição |
+|--------|----------|------|-----------|
+| `POST` | `/registro` | ❌ | Cadastra responsável e retorna token JWT |
+| `POST` | `/` | ❌ | Cria responsável |
+| `GET` | `/` | ✅ | Lista responsáveis (paginado) |
+| `GET` | `/{id}` | ✅ | Busca responsável por ID |
+| `DELETE` | `/{id}` | ✅ Owner | Remove responsável |
 
-### 🔐 Autenticação (`/api/auth` ou `/login`)
+### 🎬 Vídeos (`/api/atletas/{atletaId}/videos`)
 
-| Método | Endpoint | Descrição |
-|--------|----------|-----------|
-| `POST` | `/login` | Autentica usuário |
-| `GET` | `/` | Página de login (HTML) |
+| Método | Endpoint | Auth | Descrição |
+|--------|----------|------|-----------|
+| `GET` | `/api/atletas/{atletaId}/videos` | ✅ | Lista vídeos do atleta (paginado) |
+| `POST` | `/api/atletas/{atletaId}/videos` | ✅ Owner | Adiciona vídeo |
+| `PUT` | `/api/videos/{videoId}` | ✅ Owner | Atualiza vídeo |
+| `DELETE` | `/api/videos/{videoId}` | ✅ Owner | Remove vídeo |
+
+### ⭐ Avaliações (`/api/atletas/{atletaId}/avaliacoes`)
+
+| Método | Endpoint | Auth | Descrição |
+|--------|----------|------|-----------|
+| `GET` | `/api/atletas/{atletaId}/avaliacoes` | ✅ | Lista avaliações do atleta |
+| `POST` | `/api/atletas/{atletaId}/avaliacoes` | ✅ OLHEIRO | Cria avaliação (nota + comentário + videoId opcional) |
+
+### 👤 Usuário Genérico (`/api/usuarios`)
+
+| Método | Endpoint | Auth | Descrição |
+|--------|----------|------|-----------|
+| `PUT` | `/api/usuarios/{id}` | ✅ Owner | Atualiza nome, telefone ou CEP |
+| `DELETE` | `/api/usuarios/{id}` | ✅ Owner | Remove usuário |
+
+### 🔐 Autenticação
+
+| Método | Endpoint | Auth | Descrição |
+|--------|----------|------|-----------|
+| `POST` | `/api/login` | ❌ | Autentica usuário (retorna JWT 24h) |
+| `GET` | `/api/me` | ✅ | Retorna dados do usuário logado |
+
+**Resposta do login:**
+```json
+{
+  "token": "eyJhbGciOiJIUzI1NiJ9...",
+  "userId": "ATL-xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx",
+  "userType": "ATLETA",
+  "nome": "João Silva",
+  "email": "joao@example.com",
+  "expiresIn": 86400000
+}
+```
 
 ---
 
@@ -412,27 +452,95 @@ mvn -version
 
 ---
 
-## 📊 Variáveis de Ambiente (Opcional)
+## 📊 Variáveis de Ambiente
 
-Para melhor segurança, configure variáveis de ambiente:
+### Desenvolvimento (opcionais)
 
 **Windows PowerShell:**
 ```powershell
-[Environment]::SetEnvironmentVariable("DB_URL", "jdbc:postgresql://localhost:5432/scoutplaydb", "User")
-[Environment]::SetEnvironmentVariable("DB_USER", "scout_user", "User")
-[Environment]::SetEnvironmentVariable("DB_PASSWORD", "senha_segura_123", "User")
+[Environment]::SetEnvironmentVariable("JWT_SECRET", "seu_secret_aqui", "User")
+[Environment]::SetEnvironmentVariable("JWT_EXPIRATION", "86400000", "User")
 ```
 
 **macOS/Linux:**
 ```bash
-export DB_URL=jdbc:postgresql://localhost:5432/scoutplaydb
-export DB_USER=scout_user
-export DB_PASSWORD=senha_segura_123
+export JWT_SECRET=seu_secret_aqui
+export JWT_EXPIRATION=86400000
 ```
+
+### Produção (obrigatórias — `application-prod.properties`)
+
+| Variável | Descrição | Exemplo |
+|----------|-----------|--------|
+| `DB_URL` | URL JDBC do banco | `jdbc:postgresql://host:5432/scoutplaydb` |
+| `DB_USERNAME` | Usuário do banco | `scout_user` |
+| `DB_PASSWORD` | Senha do banco | — |
+| `JWT_SECRET` | Chave HMAC-SHA256 para JWT (**obrigatória**) | — |
+| `JWT_EXPIRATION` | Expiração do token em ms | `86400000` (24h) |
+| `CORS_ORIGINS` | Origens permitidas | `https://scoutplay.com` |
+
+> **Atenção:** Em produção, `JWT_SECRET` não possui valor padrão — a aplicação não sobe sem ela. Use variáveis de ambiente ou secrets do seu provedor de nuvem.
 
 ---
 
-## 🤝 Contribuição
+## 🖥️ Páginas Frontend
+
+O frontend estático está disponível em `src/main/resources/static/` e pode ser acessado em `http://localhost:8080`:
+
+| Página | URL | Descrição |
+|--------|-----|-----------|
+| `index.html` | `/` | Home da plataforma |
+| `login.html` | `/login.html` | Login |
+| `esqueceuSenha.html` | `/esqueceuSenha.html` | Recuperação de senha |
+| `formularioAtletaMaiorDeIdade.html` | `/formularioAtletaMaiorDeIdade.html` | Cadastro de atleta (18+) |
+| `formularioAtletaMenorDeIdade.html` | `/formularioAtletaMenorDeIdade.html` | Cadastro de atleta menor |
+| `formularioOlheiro.html` | `/formularioOlheiro.html` | Cadastro de olheiro |
+| `feedAtleta.html` | `/feedAtleta.html` | Feed do atleta |
+| `feedOlheiro.html` | `/feedOlheiro.html` | Feed do olheiro (busca e filtros) |
+| `editarPerfilAtleta.html` | `/editarPerfilAtleta.html` | Edição de perfil do atleta |
+| `editarPerfilOlheiro.html` | `/editarPerfilOlheiro.html` | Edição de perfil do olheiro |
+
+---
+
+## 🤖 Módulo de Inteligência Artificial
+
+O ScoutPlay conta com dois recursos de IA, localizados em `src/main/resources/ia/`:
+
+### Copiloto de Futebol (RAG)
+
+Chatbot baseado em Retrieval-Augmented Generation que responde perguntas sobre fundamentos técnicos e táticos do futebol com base em material especializado.
+
+**Tecnologias:** Python, Streamlit, Ollama (`embeddinggemma`, `phi3:mini`)
+
+**Para executar:**
+```bash
+# Instale as dependências Python
+pip install streamlit ollama numpy
+
+# Certifique-se de ter o Ollama rodando localmente
+ollama serve
+
+# Inicie a aplicação
+streamlit run src/main/resources/ia/app.py
+```
+
+> **Atenção:** Antes de rodar, atualize o caminho `BASE_RAG` em `app.py` para o caminho local do arquivo `notebook/base_rag.pkl`.
+
+### Classificação de Craques
+
+Modelo de ML que classifica o potencial de atletas com base em estatísticas reais de jogadores do Brasileirão, SofaScore e Transfermarkt.
+
+**Dados utilizados:**
+- `brasileirao/database.csv` — estatísticas do Brasileirão
+- `safa e transfermarkt/partidas_sofascore.csv` — dados de partidas
+- `safa e transfermarkt/players_tm.csv` — perfis Transfermarkt
+- `safa e transfermarkt/market_value.csv` — valores de mercado
+
+**Exploração:** Ver notebooks em `ia/notebook/analise_bases.ipynb` e `ia/notebook/nb.ipynb`.
+
+---
+
+## �🤝 Contribuição
 
 Contribuições são bem-vindas! Siga os passos:
 
@@ -464,5 +572,5 @@ Encontrou um problema?
 
 ---
 
-**Última atualização:** Fevereiro de 2026  
-**Versão:** 1.0.0
+**Última atualização:** Abril de 2026  
+**Versão:** 1.2.0
