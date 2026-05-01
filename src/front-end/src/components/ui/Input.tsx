@@ -1,7 +1,23 @@
-export default function Input() {
+import type { InputHTMLAttributes } from "react"
+
+export default function Input({fieldName, hideLabel, ...props}: IExtendedProps) {
   return (
     <>
-      <input type="text" placeholder="Texto Aqui" className="px-3 py-2 rounded border border-sky-800/80 bg-sky-200/50" />
+      <label className="w-full">
+        {
+          fieldName && (hideLabel != true) 
+            ? <p className="uppercase font-extrabold mb-1 text-indigo-900">
+                { fieldName || "" }
+              </p>
+            : null
+        }
+        <input type={props.type ?? "text"} placeholder={props.placeholder} className={`py-3 px-5 border-1 border-gray-200 rounded-md placeholder-gray-300 text-lg w-full ${props.className}`} name={fieldName} />
+      </label>
     </>
   )
+}
+
+interface IExtendedProps extends InputHTMLAttributes<HTMLInputElement> {
+  fieldName: string,
+  hideLabel?: boolean
 }
