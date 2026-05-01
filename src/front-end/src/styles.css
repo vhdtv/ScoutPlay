@@ -143,17 +143,17 @@ code {
 }
 
 .button {
-  @apply transition transition-discrete p-3 cursor-pointer font-semibold text-center transition transition-discrete;
+  @apply transition transition-discrete p-3 cursor-pointer font-semibold text-center transition transition-discrete focus:outline-none;
   &.primary {
-    @apply bg-sky-700 hover:bg-sky-800 text-mist-50;
+    @apply bg-sky-700 hover:bg-sky-800 focus:bg-sky-800 text-mist-50;
   }
   &.primary-outlined {
-    @apply text-sky-700 hover:text-gray-50 hover:bg-sky-700 border-sky-700;
+    @apply text-sky-700 hover:text-gray-50 focus:text-gray-50 hover:bg-sky-800 focus:bg-sky-800 border-sky-700;
   }
   &.secondary {
 
   }
   &.ghost {
-    @apply text-sky-700 hover:text-sky-700 hover:bg-sky-100;
+    @apply text-sky-700 hover:text-sky-700 focus:text-sky-700 hover:bg-sky-100 focus:bg-sky-100;
   }
 }
