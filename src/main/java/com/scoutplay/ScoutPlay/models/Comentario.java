@@ -4,17 +4,24 @@ import jakarta.persistence.Entity;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
+import lombok.Getter;
+import lombok.Setter;
 
 @Entity
 @Table(name="t_comentario")
 public class Comentario extends TabelaBase {
     @ManyToOne
     @JoinColumn(name = "fk_usuario")
+    @Getter
     private Usuario autor;
     @ManyToOne
     @JoinColumn(name = "fk_post")
+    @Getter
     private Post post;
+    @Getter
+    @Setter
     private String texto;
     
     public Comentario() {}
+    public Comentario(String _texto, Post _post, Usuario _autor) {}
 }

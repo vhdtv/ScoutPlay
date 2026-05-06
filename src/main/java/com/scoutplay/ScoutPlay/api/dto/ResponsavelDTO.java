@@ -14,7 +14,7 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 @AllArgsConstructor
 public class ResponsavelDTO {
-    private String id;
+    private int id;
 
     @Size(min = 3, max = 150, message = "Nome deve ter entre 3 e 150 caracteres")
     private String nome;

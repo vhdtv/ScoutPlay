@@ -2,23 +2,27 @@ package com.scoutplay.ScoutPlay.models;
 
 import java.time.LocalDate;
 
-import org.hibernate.validator.constraints.UUID;
-
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.MappedSuperclass;
 import jakarta.persistence.PrePersist;
+import lombok.Getter;
+import lombok.Setter;
 
 @MappedSuperclass
 public abstract class TabelaBase {
     @Id
     @GeneratedValue(strategy=GenerationType.IDENTITY)
-    private String id;
-    @UUID
+    private int id;
+    @Getter
     private java.util.UUID aliasId;
+    @Getter
     private boolean ativo;
+    @Getter
     private LocalDate criadoEm;
+    @Getter
+    @Setter
     private LocalDate atualizadoEm;
     
 

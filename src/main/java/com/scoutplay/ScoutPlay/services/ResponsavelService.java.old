@@ -3,7 +3,8 @@ package com.scoutplay.ScoutPlay.services;
 import com.scoutplay.ScoutPlay.exceptions.ConflictException;
 import com.scoutplay.ScoutPlay.exceptions.ResourceNotFoundException;
 import com.scoutplay.ScoutPlay.models.Responsavel;
-import com.scoutplay.ScoutPlay.repositorys.ResponsavelRepository;
+import com.scoutplay.ScoutPlay.repositories.ResponsavelRepository;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
@@ -27,7 +28,7 @@ public class ResponsavelService {
         return responsavelRepository.findById(id);
     }
 
-    public Responsavel save(Responsavel responsavel) {
+    public Responsavel criarNovoUsuario(Responsavel responsavel) {
         Optional<Responsavel> existingResponsavel = responsavelRepository.findByCpf(responsavel.getCpf());
 
         if (existingResponsavel.isPresent()) {

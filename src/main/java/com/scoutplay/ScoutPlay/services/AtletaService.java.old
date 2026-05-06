@@ -2,10 +2,8 @@ package com.scoutplay.ScoutPlay.services;
 
 import com.scoutplay.ScoutPlay.exceptions.ConflictException;
 import com.scoutplay.ScoutPlay.exceptions.ResourceNotFoundException;
-import com.scoutplay.ScoutPlay.models.Atleta;
-import com.scoutplay.ScoutPlay.models.PeDominante;
-import com.scoutplay.ScoutPlay.models.VideoAtleta;
-import com.scoutplay.ScoutPlay.repositorys.AtletaRepository;
+import com.scoutplay.ScoutPlay.repositories.UsuarioRepository;
+
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -28,7 +26,7 @@ import java.util.UUID;
 public class AtletaService {
 
     @Autowired
-    private AtletaRepository atletaRepository;
+    private UsuarioRepository usuarioRepository;
 
     @Autowired
     private PasswordEncoder passwordEncoder;

@@ -40,7 +40,7 @@ public class ResponsavelController {
 
     @PostMapping("/registro")
     public ResponseEntity<ApiResponse<LoginResponse>> registrarResponsavel(@Valid @RequestBody ResponsavelDTO responsavelDTO) {
-        Responsavel criado = responsavelService.save(toResponsavel(responsavelDTO));
+        Responsavel novo_usuario = usuarioService.cadastrar(toResponsavel(responsavelDTO));
         return ResponseEntity.status(HttpStatus.CREATED)
             .body(ApiResponse.success(buildLoginResponse(criado), "Responsável cadastrado com sucesso"));
     }

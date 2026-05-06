@@ -1,7 +1,8 @@
 package com.scoutplay.ScoutPlay.services;
 
-import com.scoutplay.ScoutPlay.repositorys.UserRepository;
 import com.scoutplay.ScoutPlay.models.Usuario;
+import com.scoutplay.ScoutPlay.repositories.UserRepository;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 

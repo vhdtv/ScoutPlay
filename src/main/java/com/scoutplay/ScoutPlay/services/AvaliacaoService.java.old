@@ -6,10 +6,11 @@ import com.scoutplay.ScoutPlay.models.Avaliacao;
 import com.scoutplay.ScoutPlay.models.Atleta;
 import com.scoutplay.ScoutPlay.models.Olheiro;
 import com.scoutplay.ScoutPlay.models.VideoAtleta;
-import com.scoutplay.ScoutPlay.repositorys.AvaliacaoRepository;
-import com.scoutplay.ScoutPlay.repositorys.AtletaRepository;
-import com.scoutplay.ScoutPlay.repositorys.OlheiroRepository;
-import com.scoutplay.ScoutPlay.repositorys.VideoAtletaRepository;
+import com.scoutplay.ScoutPlay.repositories.AtletaRepository;
+import com.scoutplay.ScoutPlay.repositories.AvaliacaoRepository;
+import com.scoutplay.ScoutPlay.repositories.OlheiroRepository;
+import com.scoutplay.ScoutPlay.repositories.VideoAtletaRepository;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 

@@ -4,8 +4,9 @@ import com.scoutplay.ScoutPlay.api.dto.VideoDTO;
 import com.scoutplay.ScoutPlay.exceptions.ResourceNotFoundException;
 import com.scoutplay.ScoutPlay.models.Atleta;
 import com.scoutplay.ScoutPlay.models.VideoAtleta;
-import com.scoutplay.ScoutPlay.repositorys.AtletaRepository;
-import com.scoutplay.ScoutPlay.repositorys.VideoAtletaRepository;
+import com.scoutplay.ScoutPlay.repositories.AtletaRepository;
+import com.scoutplay.ScoutPlay.repositories.VideoAtletaRepository;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;

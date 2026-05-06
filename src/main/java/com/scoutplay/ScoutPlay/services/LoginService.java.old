@@ -4,9 +4,10 @@ import com.scoutplay.ScoutPlay.models.Atleta;
 import com.scoutplay.ScoutPlay.models.Olheiro;
 import com.scoutplay.ScoutPlay.models.Responsavel;
 import com.scoutplay.ScoutPlay.models.Usuario;
-import com.scoutplay.ScoutPlay.repositorys.AtletaRepository;
-import com.scoutplay.ScoutPlay.repositorys.OlheiroRepository;
-import com.scoutplay.ScoutPlay.repositorys.ResponsavelRepository;
+import com.scoutplay.ScoutPlay.repositories.AtletaRepository;
+import com.scoutplay.ScoutPlay.repositories.OlheiroRepository;
+import com.scoutplay.ScoutPlay.repositories.ResponsavelRepository;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;

@@ -3,7 +3,8 @@ package com.scoutplay.ScoutPlay.services;
 import com.scoutplay.ScoutPlay.exceptions.ConflictException;
 import com.scoutplay.ScoutPlay.exceptions.ResourceNotFoundException;
 import com.scoutplay.ScoutPlay.models.Olheiro;
-import com.scoutplay.ScoutPlay.repositorys.OlheiroRepository;
+import com.scoutplay.ScoutPlay.repositories.OlheiroRepository;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
