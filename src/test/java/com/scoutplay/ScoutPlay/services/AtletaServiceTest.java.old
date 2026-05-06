@@ -3,7 +3,8 @@ package com.scoutplay.ScoutPlay.services;
 import com.scoutplay.ScoutPlay.exceptions.ConflictException;
 import com.scoutplay.ScoutPlay.exceptions.ResourceNotFoundException;
 import com.scoutplay.ScoutPlay.models.Atleta;
-import com.scoutplay.ScoutPlay.repositorys.AtletaRepository;
+import com.scoutplay.ScoutPlay.repositories.AtletaRepository;
+
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
