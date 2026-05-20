@@ -3,6 +3,7 @@ package com.scoutplay.ScoutPlay.config;
 import com.scoutplay.ScoutPlay.api.response.ApiResponse;
 import com.scoutplay.ScoutPlay.exceptions.ConflictException;
 import com.scoutplay.ScoutPlay.exceptions.ResourceNotFoundException;
+import com.scoutplay.ScoutPlay.exceptions.ServiceUnavailableException;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -119,6 +120,20 @@ public class GlobalExceptionHandler {
             .build();
 
         return ResponseEntity.status(HttpStatus.NOT_FOUND).body(response);
+    }
+
+    @ExceptionHandler(ServiceUnavailableException.class)
+    public ResponseEntity<ApiResponse<Void>> handleServiceUnavailable(
+            ServiceUnavailableException ex, WebRequest request) {
+
+        ApiResponse<Void> response = ApiResponse.<Void>builder()
+            .success(false)
+            .errorCode("SERVICE_UNAVAILABLE")
+            .message(ex.getMessage())
+            .timestamp(LocalDateTime.now())
+            .build();
+
+        return ResponseEntity.status(HttpStatus.SERVICE_UNAVAILABLE).body(response);
     }
 
     /**
