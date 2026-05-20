@@ -28,20 +28,24 @@
 - Token JWT tem validade de 24 horas
 
 ## RF05 — Consultar Perfil Autenticado
-**Descrição:** Um usuário autenticado pode consultar seus próprios dados via `GET /api/me`.
+**Descrição:** Um usuário autenticado consulta seu próprio perfil usando o `userId` retornado no login:
+- Atleta: `GET /api/atletas/{id}`
+- Olheiro: `GET /api/olheiros/{id}`
 
-## RF06 — Listagem e Busca de Atletas (Feed do Olheiro)
-**Descrição:** Olheiros podem listar atletas com filtros por nome, ano de nascimento, peso, altura, posição e pé dominante.
+O `userId` está disponível no payload do token JWT e na resposta do login/registro.
+
+## RF06 — Listagem de Atletas (Feed do Olheiro)
+**Descrição:** Qualquer usuário autenticado pode listar todos os atletas ativos de forma paginada via `GET /api/atletas?page=0&size=10`.
 **Regras:**
 - Resultado retornado paginado (padrão: 10 por página)
-- Todos os filtros são opcionais
+- Filtros por posição, peso, altura e pé dominante não estão implementados no MVP
 
 ## RF07 — Upload de Foto de Perfil
-**Descrição:** Atletas podem enviar uma foto de perfil.
+**Descrição:** Atletas podem enviar uma foto de perfil via `POST /api/atletas/{id}/foto`.
 **Regras:**
-- Formatos aceitos: JPG, JPEG, PNG, WEBP
-- Imagem é redimensionada para 500x500 pixels
-- Outros formatos retornam erro
+- Formatos aceitos: JPG, JPEG, PNG
+- Tamanho máximo: 10 MB
+- Outros formatos retornam erro 400
 
 ## RF08 — Gerenciamento de Vídeos do Atleta
 **Descrição:** Atletas podem associar vídeos ao seu perfil (URL + título).

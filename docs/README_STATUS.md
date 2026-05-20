@@ -162,14 +162,13 @@ docs/
 
 ## 🔐 Security Checklist Implementado
 
-- ✅ Senhas não em plain text (preparado para BCrypt)
+- ✅ Senhas com BCrypt (fator padrão Spring Security)
 - ✅ JWT com HMAC-SHA256
 - ✅ Secrets via variáveis de ambiente
 - ✅ CORS restritivo (localhost:3000, localhost:5173)
 - ✅ Validação entrada (JSR-380)
 - ✅ Exception handling centralizado
-- ⏳ BCrypt (Semana 4)
-- ⏳ Rate limiting (Semana 4)
+- ⏳ Rate limiting
 - ⏳ HTTPS em produção (Deploy)
 
 ---
@@ -181,27 +180,27 @@ docs/
 | Validação | ✅ JSR-380 | ✅ | ✅ |
 | Autenticação | - | ✅ JWT | ✅ |
 | Exception Handling | ✅ Global | ✅ | ✅ |
-| CRUD Endpoints | - | - | 🟡 18 endpoints |
-| Upload Fotos | - | - | 🟡 1 endpoint |
-| Testes | - | - | 🟡 |
+| CRUD Endpoints | - | - | ✅ 18 endpoints |
+| Upload Fotos | - | - | ✅ 1 endpoint |
+| Testes | - | - | ⏳ |
 
 ---
 
-## 💡 Próximas Semanas (Semana 4+)
+## Próximas etapas
 
-- BCrypt para senhas
-- Refresh tokens
+- Testes unitários (JUnit + Mockito, meta ≥80% cobertura nos services)
+- Testes BDD (Cucumber)
+- Integração frontend com os 18 endpoints
 - Rate limiting
-- Tests (JUnit + Mockito)
 - Swagger/OpenAPI
 - Docker + CI/CD
-- Deploy AWS
+- Deploy
 
 ---
 
-**Status Atual:** ✅ Backend ready para Semana 3
-**Frontend:** 🟡 Esperando endpoints da Semana 3 para integração
-**Data-alvo deploy:** 2026-04-24
+**Status backend:** ✅ 18 endpoints prontos + remodel de banco + módulo IA integrado
+**Frontend:** ⏳ Integração com API pendente
+**Testes:** ⏳ Pendente
 
 ---
 

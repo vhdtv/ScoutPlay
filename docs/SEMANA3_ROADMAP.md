@@ -1,6 +1,9 @@
-# 📋 Semana 3 - Backend Endpoints & CRUD
+# Semana 3 - Backend Endpoints & CRUD
 
-## 🎯 Objetivo
+> **Status: Concluído.** Todos os 18 endpoints foram implementados.
+> Para o estado atual da API e modelagem do banco, consulte `docs/modelagem-banco.md`.
+
+## Objetivo
 Implementar todos os endpoints CRUD que o frontend React necessita para funcionamento completo.
 
 **Frontend Stack:** React 19 + TypeScript + React Router + React Query + Tailwind CSS
@@ -468,49 +471,17 @@ const response = await fetch('/api/atletas', {
 
 ---
 
-## 📊 Base de Dados - Modelagem
+## Base de Dados - Modelagem
 
-### Tabelas Necessárias (Verificar/Criar):
-```sql
--- Usuários (base class - existe)
-CREATE TABLE usuario (
-  id UUID PRIMARY KEY,
-  nome VARCHAR(150),
-  email VARCHAR(100),
-  senha VARCHAR(255),
-  tipo VARCHAR(20), -- ATLETA, OLHEIRO, RESPONSAVEL
-  ...
-);
+> **Atenção:** O esquema abaixo foi o planejamento original e está **desatualizado**.
+> O Caio realizou o remodel para um modelo flat. Consulte `docs/modelagem-banco.md` para o esquema atual.
 
--- Atletas (herda de usuario)
-CREATE TABLE atleta (
-  id UUID PRIMARY KEY REFERENCES usuario(id),
-  posicao VARCHAR(50),
-  pé_dominante VARCHAR(20),
-  altura DECIMAL,
-  peso DECIMAL,
-  ...
-);
-
--- Videos
-CREATE TABLE video_atleta (
-  id UUID PRIMARY KEY,
-  atleta_id UUID REFERENCES atleta(id),
-  url VARCHAR(500),
-  titulo VARCHAR(255),
-  data_criacao TIMESTAMP
-);
-
--- Avaliações
-CREATE TABLE avaliacao (
-  id UUID PRIMARY KEY,
-  atleta_id UUID REFERENCES atleta(id),
-  olheiro_id UUID REFERENCES olheiro(id),
-  nota DECIMAL,
-  comentario TEXT,
-  data_criacao TIMESTAMP
-);
-```
+O modelo atual usa:
+- `t_usuario` — todos os usuários (atletas, olheiros, responsáveis) na mesma tabela
+- `t_detalhes_perfil` — campos específicos de cada tipo (posicao, peso, altura, etc.) em JSONB
+- `xref_usuario_tipoconta` — relacionamento N:N com `e_tipo_conta` para determinar o tipo de conta
+- `t_video_atleta` — vídeos vinculados a `t_usuario`
+- `t_avaliacao` — avaliações com FK para atleta e olheiro em `t_usuario`
 
 ---
 
@@ -527,12 +498,10 @@ CREATE TABLE avaliacao (
 
 ---
 
-## 🎯 Status
+## Status
 
 **Backend Semana 1**: ✅ Infraestrutura + Validação
 **Backend Semana 2**: ✅ JWT Authentication
-**Backend Semana 3**: 🟡 Endpoints CRUD (Este documento)
-**Frontend**: Status Basic (apenas login form)
-
-**Data-alvo Semana 3:** 2026-04-14 (10 dias)
+**Backend Semana 3**: ✅ 18 endpoints CRUD implementados + remodel de banco
+**Frontend**: Aguardando integração com a API
 
