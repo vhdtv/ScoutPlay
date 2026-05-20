@@ -32,7 +32,7 @@ public class DetalhePerfilService {
         DetalhePerfil dado = this.detalhePerfilRepository.getByUsuario(usuario);
         if(dado == null) {
             dado = new DetalhePerfil(new HashMap<String, Object>(), usuario);
-            dado.getData().put(chave, dado);
+            dado.getData().put(chave, data);
             return this.detalhePerfilRepository.save(dado);
         };
         Map<String, Object> informacoesExistentes = dado.getData();
