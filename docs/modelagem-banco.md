@@ -1,131 +1,214 @@
 # Modelagem do Banco de Dados — ScoutPlay
 
-**Banco de dados:** PostgreSQL (`scoutplaydb`)  
-**ORM:** Spring Data JPA / Hibernate  
+**Banco de dados:** PostgreSQL (`scoutplaydb`)
+**ORM:** Spring Data JPA / Hibernate
 **DDL:** `ddl-auto=update` (Hibernate gerencia o schema automaticamente)
 
 ---
 
 ## Estratégia de Herança
 
-O projeto usa a estratégia **TABLE_PER_CLASS** implícita via `@MappedSuperclass`.
+O projeto usa um **modelo flat de tabela única** para usuários.
 
-`Usuario` é uma classe abstrata com `@MappedSuperclass` — ela **não gera tabela própria**. Os campos comuns são copiados para cada tabela filha (`atleta`, `olheiro`, `responsavel`).
+Todos os usuários (atletas, olheiros, responsáveis) são salvos na mesma tabela `t_usuario`.
+O tipo de conta é definido pela tabela de relacionamento `xref_usuario_tipoconta`.
+Campos específicos de cada tipo (posição, peso, clube, etc.) são armazenados como JSON em `t_detalhes_perfil`.
 
 ```
-Usuario (abstract — @MappedSuperclass)
- ├── Atleta     → tabela: atleta
- ├── Olheiro    → tabela: olheiro
- └── Responsavel → tabela: responsavel
+t_usuario  ←→  xref_usuario_tipoconta  ←→  e_tipo_conta
+    │
+    ↓
+t_detalhes_perfil  (JSON com campos do tipo de conta)
+t_video_atleta     (apenas para atletas)
+t_avaliacao        (olheiro → atleta)
 ```
 
 ---
 
 ## Tabelas
 
-### `atleta`
-| Coluna           | Tipo           | Observações                          |
-|------------------|----------------|--------------------------------------|
-| id               | VARCHAR (PK)   | Formato: `ATL-{UUID}`                |
-| nome             | VARCHAR        | Herdado de Usuario                   |
-| telefone         | VARCHAR        | Herdado de Usuario                   |
-| cpf              | VARCHAR        | Herdado de Usuario                   |
-| data_nascimento  | DATE           | Herdado de Usuario                   |
-| cep              | VARCHAR        | Herdado de Usuario                   |
-| email            | VARCHAR        | Herdado de Usuario                   |
-| senha            | VARCHAR        | Herdado de Usuario (hash)            |
-| posicao          | VARCHAR        |                                      |
-| peso             | DOUBLE         |                                      |
-| altura           | DOUBLE         |                                      |
-| clubes_anteriores| VARCHAR        |                                      |
-| foto_perfil      | VARCHAR        | Caminho do arquivo em `uploads/`     |
-| pe_dominante     | VARCHAR        | Enum: `DESTRO`, `CANHOTO`, `AMBIDESTRO` |
-| responsavel_id   | VARCHAR (FK)   | Referencia `responsavel.id` (nullable) |
+### `t_usuario`
+| Coluna          | Tipo        | Observações                                    |
+|-----------------|-------------|------------------------------------------------|
+| id              | INT (PK)    | Auto-incremento interno. Não exposto na API.   |
+| alias_id        | UUID        | ID público. Retornado como `userId` na API.    |
+| nome            | VARCHAR     |                                                |
+| sobrenome       | VARCHAR     |                                                |
+| email           | VARCHAR     | Único                                          |
+| cpf             | VARCHAR     | Único. Imutável após criação.                  |
+| senha           | VARCHAR     | Hash BCrypt                                    |
+| telefone        | VARCHAR     |                                                |
+| foto_perfil     | VARCHAR     | Nome do arquivo em `uploads/fotos_perfil/`     |
+| endereco_unico  | VARCHAR     | "@handle" gerado automaticamente               |
+| data_nascimento | DATE        |                                                |
+| ativo           | BOOLEAN     | `false` = conta desativada (soft delete)       |
+| criado_em       | DATE        | Preenchido via `@PrePersist`                   |
+| atualizado_em   | DATE        |                                                |
 
 ---
 
-### `olheiro`
-| Coluna          | Tipo           | Observações                          |
-|-----------------|----------------|--------------------------------------|
-| id              | VARCHAR (PK)   | Formato: `OLH-{UUID}`                |
-| nome            | VARCHAR        | Herdado de Usuario                   |
-| telefone        | VARCHAR        | Herdado de Usuario                   |
-| cpf             | VARCHAR        | Herdado de Usuario                   |
-| data_nascimento | DATE           | Herdado de Usuario                   |
-| cep             | VARCHAR        | Herdado de Usuario                   |
-| email           | VARCHAR        | Herdado de Usuario                   |
-| senha           | VARCHAR        | Herdado de Usuario (hash)            |
-| clube           | VARCHAR        |                                      |
-| local           | VARCHAR        |                                      |
+### `e_tipo_conta`
+| id | nome                  |
+|----|-----------------------|
+| 1  | olheiro               |
+| 2  | atleta                |
+| 3  | responsavel           |
+| 4  | representante de clube|
 
 ---
 
-### `responsavel`
-| Coluna          | Tipo           | Observações                          |
-|-----------------|----------------|--------------------------------------|
-| id              | VARCHAR (PK)   | Formato: `RESP-{UUID}`               |
-| nome            | VARCHAR        | Herdado de Usuario                   |
-| telefone        | VARCHAR        | Herdado de Usuario                   |
-| cpf             | VARCHAR        | Herdado de Usuario                   |
-| data_nascimento | DATE           | Herdado de Usuario                   |
-| cep             | VARCHAR        | Herdado de Usuario                   |
-| email           | VARCHAR        | Herdado de Usuario                   |
-| senha           | VARCHAR        | Herdado de Usuario (hash)            |
+### `xref_usuario_tipoconta`
+| Coluna        | Tipo     | Observações                         |
+|---------------|----------|-------------------------------------|
+| id            | INT (PK) |                                     |
+| alias_id      | UUID     |                                     |
+| fk_usuario    | INT (FK) | → `t_usuario.id`                    |
+| fk_tipo_conta | INT (FK) | → `e_tipo_conta.id`                 |
+| ativo         | BOOLEAN  |                                     |
+| criado_em     | DATE     |                                     |
 
 ---
 
-### `video_atleta`
-| Coluna      | Tipo           | Observações                          |
-|-------------|----------------|--------------------------------------|
-| id_video    | UUID (PK)      | Gerado automaticamente               |
-| url_video   | VARCHAR        |                                      |
-| titulo      | VARCHAR        |                                      |
-| data_criacao| TIMESTAMP      | Preenchido automaticamente (@PrePersist) |
-| atleta_id   | VARCHAR (FK)   | Referencia `atleta.id`               |
+### `t_detalhes_perfil`
+| Coluna     | Tipo     | Observações                                                     |
+|------------|----------|-----------------------------------------------------------------|
+| id         | INT (PK) |                                                                 |
+| alias_id   | UUID     |                                                                 |
+| fk_usuario | INT (FK) | → `t_usuario.id`                                               |
+| data       | JSONB    | Campos específicos do tipo de conta (ver convenção abaixo)      |
+
+**Convenção de chaves para atletas:**
+```json
+{
+  "posicao":          "Atacante",
+  "peso":             75.0,
+  "altura":           1.85,
+  "peDominante":      "Direito",
+  "cep":              "01310-100",
+  "clubesAnteriores": "Corinthians, Santos"
+}
+```
+
+**Convenção de chaves para olheiros:**
+```json
+{
+  "clube": "São Paulo FC",
+  "local": "São Paulo, SP",
+  "cep":   "01310-100"
+}
+```
+
+**Chave especial (responsável de atleta menor):**
+```json
+{
+  "RESPONSAVEL": "uuid-do-responsavel"
+}
+```
 
 ---
 
-### `avaliacao`
-| Coluna      | Tipo           | Observações                          |
-|-------------|----------------|--------------------------------------|
-| id          | UUID (PK)      | Gerado automaticamente               |
-| nota        | DOUBLE         |                                      |
-| comentario  | VARCHAR        |                                      |
-| data_criacao| TIMESTAMP      | Preenchido automaticamente (@PrePersist) |
-| atleta_id   | VARCHAR (FK)   | Referencia `atleta.id`               |
-| olheiro_id  | VARCHAR (FK)   | Referencia `olheiro.id`              |
-| video_id    | UUID (FK)      | Referencia `video_atleta.id_video` (nullable) |
+### `t_video_atleta`
+| Coluna     | Tipo        | Observações                          |
+|------------|-------------|--------------------------------------|
+| id         | INT (PK)    |                                      |
+| alias_id   | UUID        | ID público do vídeo na API           |
+| fk_usuario | INT (FK)    | → `t_usuario.id` (deve ser atleta)   |
+| url_video  | VARCHAR     | URL do vídeo (YouTube, etc.)         |
+| titulo     | VARCHAR     |                                      |
+| data_criacao | TIMESTAMP | Preenchido via `@PrePersist`         |
+| ativo      | BOOLEAN     |                                      |
+| criado_em  | DATE        |                                      |
+
+---
+
+### `t_avaliacao`
+| Coluna      | Tipo     | Observações                                    |
+|-------------|----------|------------------------------------------------|
+| id          | INT (PK) |                                                |
+| alias_id    | UUID     | ID público da avaliação na API                 |
+| fk_atleta   | INT (FK) | → `t_usuario.id` (deve ser atleta)             |
+| fk_olheiro  | INT (FK) | → `t_usuario.id` (deve ser olheiro)            |
+| fk_video    | INT (FK) | → `t_video_atleta.id` (nullable)               |
+| nota        | DOUBLE   | 0.0 a 10.0                                     |
+| comentario  | VARCHAR  | Máx. 500 caracteres                            |
+| ativo       | BOOLEAN  |                                                |
+| criado_em   | DATE     |                                                |
 
 ---
 
 ## Relacionamentos
 
 ```
-responsavel 1 ──────── N atleta
-                          │
-                          │ 1
-                          │
-                    N video_atleta
-                          │
-                          │ 1 (opcional)
-                          │
-olheiro N ────── N avaliacao ──── 1 atleta
+t_usuario (atleta) 1 ──── N t_video_atleta
+t_usuario (atleta) 1 ──── N t_avaliacao (fk_atleta)
+t_usuario (olheiro) 1 ─── N t_avaliacao (fk_olheiro)
+t_avaliacao N ──── 1 t_video_atleta (opcional)
+t_usuario 1 ──── 1 t_detalhes_perfil
+t_usuario N ──── N e_tipo_conta  (via xref_usuario_tipoconta)
 ```
-
-| Relacionamento              | Tipo    | Cascade          |
-|-----------------------------|---------|------------------|
-| Responsavel → Atleta        | 1:N     | ALL              |
-| Atleta → VideoAtleta        | 1:N     | ALL + orphanRemoval |
-| Avaliacao → Atleta          | N:1     | —                |
-| Avaliacao → Olheiro         | N:1     | —                |
-| Avaliacao → VideoAtleta     | N:1     | — (nullable)     |
 
 ---
 
-## Observações Importantes
+## IDs na API
 
-- **IDs não são auto-incremento numérico.** São strings com prefixo (`ATL-`, `OLH-`, `RESP-`) + UUID, gerados no construtor de `Usuario`. `VideoAtleta` e `Avaliacao` usam UUID puro via `@GeneratedValue`.
-- **`idade` é calculada em runtime** (`@Transient`) a partir de `dataNascimento` — não persiste no banco.
-- **`responsavel_id` é nullable** em `atleta`, pois atletas maiores de idade não possuem responsável.
-- **Não existe tabela `usuario`** — `@MappedSuperclass` replica as colunas nas tabelas filhas.
-- **Fotos de perfil** são armazenadas no filesystem (`uploads/fotos_perfil/`) e apenas o caminho é salvo no banco.
+Todos os IDs expostos pela API são o campo `alias_id` (UUID), não o `id` (INT) interno.
+
+- `userId` no token JWT = `alias_id` do usuário
+- `atletaId` nos endpoints = `alias_id` do atleta
+- `videoId` nos endpoints = `alias_id` do vídeo
+
+---
+
+## Endpoints disponíveis
+
+| Método | Endpoint                              | Auth   | Descrição                        |
+|--------|---------------------------------------|--------|----------------------------------|
+| POST   | /api/login                            | Não    | Login, retorna JWT               |
+| POST   | /api/atletas/registro                 | Não    | Cria atleta, retorna JWT         |
+| GET    | /api/atletas                          | Sim    | Lista atletas paginada           |
+| GET    | /api/atletas/{id}                     | Sim    | Perfil do atleta com vídeos      |
+| PUT    | /api/atletas/{id}                     | Sim    | Atualiza perfil (só dono)        |
+| POST   | /api/atletas/{id}/foto                | Sim    | Upload foto (só dono)            |
+| GET    | /api/atletas/fotos/{filename}         | Não    | Serve arquivo de foto            |
+| POST   | /api/atletas/{id}/videos              | Sim    | Adiciona vídeo (só dono)         |
+| GET    | /api/atletas/{id}/videos              | Sim    | Lista vídeos do atleta           |
+| GET    | /api/atletas/{id}/avaliacoes          | Sim    | Lista avaliações do atleta       |
+| POST   | /api/olheiros/registro                | Não    | Cria olheiro, retorna JWT        |
+| GET    | /api/olheiros                         | Sim    | Lista olheiros paginada          |
+| GET    | /api/olheiros/{id}                    | Sim    | Perfil do olheiro                |
+| PUT    | /api/olheiros/{id}                    | Sim    | Atualiza perfil (só dono)        |
+| POST   | /api/responsaveis/registro            | Não    | Cria responsável, retorna JWT    |
+| POST   | /api/avaliacoes                       | Sim    | Olheiro avalia atleta            |
+| PUT    | /api/videos/{videoId}                 | Sim    | Edita vídeo (só dono)            |
+| DELETE | /api/videos/{videoId}                 | Sim    | Remove vídeo (só dono)           |
+
+---
+
+## Padrão de resposta da API
+
+Todas as respostas seguem o envelope `ApiResponse<T>`:
+
+```json
+{
+  "success": true,
+  "data": { ... },
+  "message": "Operação realizada com sucesso",
+  "timestamp": "2026-05-20T14:30:00"
+}
+```
+
+Listas paginadas retornam `data` com a estrutura `PageResponse<T>`:
+
+```json
+{
+  "content": [ ... ],
+  "currentPage": 0,
+  "pageSize": 10,
+  "totalElements": 150,
+  "totalPages": 15,
+  "hasNext": true,
+  "hasPrevious": false
+}
+```
+
+Erros retornam `success: false` com `errorCode` e `message`.
