@@ -1,6 +1,5 @@
 package com.scoutplay.ScoutPlay.services;
 
-import java.awt.List;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Random;
@@ -108,10 +107,19 @@ public class UsuarioService {
     public void atualizarPerfil() {}
 
     @Transactional
-    public void adicionarInformacao() {}
+    public DetalhePerfil adicionarInformacao(Map <String, Object> info, Usuario usuario) {
+        return detalhePerfilService.adicionarInformacao(info, usuario);
+    }
 
     @Transactional
-    public void removerInformacao() {}
+    public DetalhePerfil adicionarInformacao(String chave, Object dado, Usuario usuario) {
+        return detalhePerfilService.adicionarInformacao(chave, dado, usuario);
+    }
+
+    @Transactional
+    public void removerInformacao(String chave, Usuario usuario) {
+        detalhePerfilService.removerInformacao(chave, usuario);
+    }
 
     @Transactional
     public void banir() {}

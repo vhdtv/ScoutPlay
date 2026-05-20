@@ -36,7 +36,8 @@ public class DetalhePerfilService {
             return this.detalhePerfilRepository.save(dado);
         };
         Map<String, Object> informacoesExistentes = dado.getData();
-        informacoesExistentes.putAll(data);
+        if(informacoesExistentes.get(chave) != null) return dado;
+        informacoesExistentes.put(chave, data);
         return dado;
     }
     @Transactional
