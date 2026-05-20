@@ -16,7 +16,8 @@ import java.time.LocalDate;
 @NoArgsConstructor
 @AllArgsConstructor
 public class OlheiroDTO {
-    private int id;
+    // Preenchido apenas na resposta (GET). Ignorado no POST.
+    private java.util.UUID id;
 
     @NotBlank(message = "Nome é obrigatório")
     @Size(min = 3, max = 150, message = "Nome deve ter entre 3 e 150 caracteres")
