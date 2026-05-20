@@ -1,0 +1,764 @@
+{
+  "info": {
+    "name": "ScoutPlay API",
+    "description": "Collection completa para testar todos os endpoints do ScoutPlay.\n\n**Como usar:**\n1. Execute '🔐 Login' ou '📝 Registro Atleta' primeiro\n2. O token é salvo automaticamente na variável {{token}}\n3. Todos os outros endpoints já usam o token automaticamente",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "variable": [
+    {
+      "key": "baseUrl",
+      "value": "http://localhost:8080",
+      "type": "string"
+    },
+    {
+      "key": "token",
+      "value": "",
+      "type": "string"
+    },
+    {
+      "key": "userId",
+      "value": "",
+      "type": "string"
+    },
+    {
+      "key": "userType",
+      "value": "",
+      "type": "string"
+    },
+    {
+      "key": "atletaId",
+      "value": "",
+      "type": "string"
+    },
+    {
+      "key": "olheiroId",
+      "value": "",
+      "type": "string"
+    },
+    {
+      "key": "videoId",
+      "value": "",
+      "type": "string"
+    }
+  ],
+  "item": [
+    {
+      "name": "🔐 Auth",
+      "item": [
+        {
+          "name": "Login (Atleta de teste)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "const res = pm.response.json();",
+                  "if (res.success && res.data) {",
+                  "  pm.collectionVariables.set('token', res.data.token);",
+                  "  pm.collectionVariables.set('userId', res.data.userId);",
+                  "  pm.collectionVariables.set('userType', res.data.userType);",
+                  "  if (res.data.userType === 'ATLETA') pm.collectionVariables.set('atletaId', res.data.userId);",
+                  "  if (res.data.userType === 'OLHEIRO') pm.collectionVariables.set('olheiroId', res.data.userId);",
+                  "  console.log('✅ Token salvo! Tipo:', res.data.userType);",
+                  "} else {",
+                  "  console.log('❌ Login falhou:', res.message);",
+                  "}",
+                  "pm.test('Status 200', () => pm.response.to.have.status(200));",
+                  "pm.test('Tem token', () => pm.expect(res.data.token).to.be.a('string'));"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"email\": \"fabio@atleta.com\",\n  \"senha\": \"12345\"\n}"
+            },
+            "url": "{{baseUrl}}/api/login",
+            "description": "Login com o atleta criado pelo DataInitializer.\nO token é salvo automaticamente em {{token}}."
+          }
+        },
+        {
+          "name": "Login (Olheiro de teste)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "const res = pm.response.json();",
+                  "if (res.success && res.data) {",
+                  "  pm.collectionVariables.set('token', res.data.token);",
+                  "  pm.collectionVariables.set('userId', res.data.userId);",
+                  "  pm.collectionVariables.set('userType', res.data.userType);",
+                  "  pm.collectionVariables.set('olheiroId', res.data.userId);",
+                  "  console.log('✅ Token de olheiro salvo!');",
+                  "}",
+                  "pm.test('Status 200', () => pm.response.to.have.status(200));"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"email\": \"ramilson@olheiro.com\",\n  \"senha\": \"12345\"\n}"
+            },
+            "url": "{{baseUrl}}/api/login"
+          }
+        },
+        {
+          "name": "Login — email errado (deve dar 400)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Status 400 ou 409', () => pm.expect(pm.response.code).to.be.oneOf([400, 409]));",
+                  "pm.test('success false', () => pm.expect(pm.response.json().success).to.be.false);"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"email\": \"naoexiste@teste.com\",\n  \"senha\": \"qualquer\"\n}"
+            },
+            "url": "{{baseUrl}}/api/login"
+          }
+        }
+      ]
+    },
+    {
+      "name": "👟 Atletas",
+      "item": [
+        {
+          "name": "Registrar novo atleta",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "const res = pm.response.json();",
+                  "if (res.success && res.data) {",
+                  "  pm.collectionVariables.set('token', res.data.token);",
+                  "  pm.collectionVariables.set('userId', res.data.userId);",
+                  "  pm.collectionVariables.set('atletaId', res.data.userId);",
+                  "  console.log('✅ Atleta criado, token salvo!');",
+                  "}",
+                  "pm.test('Status 201', () => pm.response.to.have.status(201));",
+                  "pm.test('Tem token', () => pm.expect(res.data.token).to.be.a('string'));",
+                  "pm.test('userType é ATLETA', () => pm.expect(res.data.userType).to.eql('ATLETA'));"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"nome\": \"Carlos Teste\",\n  \"email\": \"carlos.teste@atleta.com\",\n  \"senha\": \"senha123\",\n  \"cpf\": \"11122233344\",\n  \"dataNascimento\": \"2004-06-15\",\n  \"telefone\": \"(11) 99999-8888\",\n  \"posicao\": \"Atacante\",\n  \"peDominante\": \"Direito\",\n  \"altura\": 1.82,\n  \"peso\": 75.0,\n  \"cep\": \"01310-100\"\n}"
+            },
+            "url": "{{baseUrl}}/api/atletas/registro",
+            "description": "Cria um novo atleta. Retorna token JWT igual ao login.\nMude o email para não conflitar com cadastros anteriores."
+          }
+        },
+        {
+          "name": "Registrar atleta — CPF duplicado (deve dar 409)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Status 409 Conflict', () => pm.response.to.have.status(409));",
+                  "pm.test('success false', () => pm.expect(pm.response.json().success).to.be.false);"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"nome\": \"Duplicado\",\n  \"email\": \"outro@email.com\",\n  \"senha\": \"senha123\",\n  \"cpf\": \"12456\",\n  \"dataNascimento\": \"2004-06-15\"\n}"
+            },
+            "url": "{{baseUrl}}/api/atletas/registro",
+            "description": "CPF '12456' já foi cadastrado pelo DataInitializer. Deve retornar 409."
+          }
+        },
+        {
+          "name": "Listar atletas (paginado)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "const res = pm.response.json();",
+                  "pm.test('Status 200', () => pm.response.to.have.status(200));",
+                  "pm.test('Tem content array', () => pm.expect(res.data.content).to.be.an('array'));",
+                  "pm.test('Tem paginação', () => {",
+                  "  pm.expect(res.data).to.have.property('totalElements');",
+                  "  pm.expect(res.data).to.have.property('totalPages');",
+                  "});",
+                  "if (res.data.content.length > 0) {",
+                  "  pm.collectionVariables.set('atletaId', res.data.content[0].id);",
+                  "  console.log('atletaId salvo:', res.data.content[0].id);",
+                  "}"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [{ "key": "Authorization", "value": "Bearer {{token}}" }],
+            "url": {
+              "raw": "{{baseUrl}}/api/atletas?page=0&size=10",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "atletas"],
+              "query": [
+                { "key": "page", "value": "0" },
+                { "key": "size", "value": "10" }
+              ]
+            }
+          }
+        },
+        {
+          "name": "Buscar atleta por ID",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "const res = pm.response.json();",
+                  "pm.test('Status 200', () => pm.response.to.have.status(200));",
+                  "pm.test('Tem nome', () => pm.expect(res.data.nome).to.be.a('string'));",
+                  "pm.test('Tem videos array', () => pm.expect(res.data.videos).to.be.an('array'));",
+                  "pm.test('Tem idade calculada', () => pm.expect(res.data.idade).to.be.a('number'));"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [{ "key": "Authorization", "value": "Bearer {{token}}" }],
+            "url": "{{baseUrl}}/api/atletas/{{atletaId}}",
+            "description": "Usa o {{atletaId}} salvo pelo login ou pela listagem."
+          }
+        },
+        {
+          "name": "Atualizar perfil do atleta",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Status 200', () => pm.response.to.have.status(200));",
+                  "const res = pm.response.json();",
+                  "pm.test('Peso atualizado', () => pm.expect(res.data.peso).to.eql(80.5));"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "PUT",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" },
+              { "key": "Authorization", "value": "Bearer {{token}}" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"peso\": 80.5,\n  \"clubesAnteriores\": \"Corinthians, Santos\"\n}"
+            },
+            "url": "{{baseUrl}}/api/atletas/{{atletaId}}",
+            "description": "Só envia os campos que quer mudar. Token deve ser do próprio atleta."
+          }
+        },
+        {
+          "name": "Buscar atleta — ID inexistente (deve dar 404)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Status 404', () => pm.response.to.have.status(404));",
+                  "pm.test('success false', () => pm.expect(pm.response.json().success).to.be.false);"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [{ "key": "Authorization", "value": "Bearer {{token}}" }],
+            "url": "{{baseUrl}}/api/atletas/00000000-0000-0000-0000-000000000000"
+          }
+        },
+        {
+          "name": "Listar sem token (deve dar 401)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Status 401', () => pm.response.to.have.status(401));"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "url": "{{baseUrl}}/api/atletas"
+          }
+        }
+      ]
+    },
+    {
+      "name": "🕵️ Olheiros",
+      "item": [
+        {
+          "name": "Registrar novo olheiro",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "const res = pm.response.json();",
+                  "if (res.success && res.data) {",
+                  "  pm.collectionVariables.set('token', res.data.token);",
+                  "  pm.collectionVariables.set('userId', res.data.userId);",
+                  "  pm.collectionVariables.set('olheiroId', res.data.userId);",
+                  "  console.log('✅ Olheiro criado, token salvo!');",
+                  "}",
+                  "pm.test('Status 201', () => pm.response.to.have.status(201));",
+                  "pm.test('userType é OLHEIRO', () => pm.expect(res.data.userType).to.eql('OLHEIRO'));"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"nome\": \"José Olheiro\",\n  \"email\": \"jose.olheiro@clube.com\",\n  \"senha\": \"senha123\",\n  \"cpf\": \"99988877766\",\n  \"dataNascimento\": \"1985-03-20\",\n  \"telefone\": \"(11) 98888-7777\",\n  \"clube\": \"Corinthians\",\n  \"local\": \"São Paulo, SP\",\n  \"cep\": \"01310-100\"\n}"
+            },
+            "url": "{{baseUrl}}/api/olheiros/registro"
+          }
+        },
+        {
+          "name": "Listar olheiros",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Status 200', () => pm.response.to.have.status(200));",
+                  "pm.test('Tem content', () => pm.expect(pm.response.json().data.content).to.be.an('array'));"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [{ "key": "Authorization", "value": "Bearer {{token}}" }],
+            "url": {
+              "raw": "{{baseUrl}}/api/olheiros?page=0&size=10",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "olheiros"],
+              "query": [
+                { "key": "page", "value": "0" },
+                { "key": "size", "value": "10" }
+              ]
+            }
+          }
+        },
+        {
+          "name": "Buscar olheiro por ID",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Status 200', () => pm.response.to.have.status(200));",
+                  "const res = pm.response.json();",
+                  "pm.test('Tem clube', () => pm.expect(res.data).to.have.property('clube'));"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [{ "key": "Authorization", "value": "Bearer {{token}}" }],
+            "url": "{{baseUrl}}/api/olheiros/{{olheiroId}}"
+          }
+        },
+        {
+          "name": "Atualizar perfil do olheiro",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Status 200', () => pm.response.to.have.status(200));"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "PUT",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" },
+              { "key": "Authorization", "value": "Bearer {{token}}" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"clube\": \"São Paulo FC\",\n  \"local\": \"São Paulo, SP\"\n}"
+            },
+            "url": "{{baseUrl}}/api/olheiros/{{olheiroId}}"
+          }
+        }
+      ]
+    },
+    {
+      "name": "👨‍👦 Responsáveis",
+      "item": [
+        {
+          "name": "Registrar responsável",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "const res = pm.response.json();",
+                  "pm.test('Status 201', () => pm.response.to.have.status(201));",
+                  "pm.test('userType é RESPONSAVEL', () => pm.expect(res.data.userType).to.eql('RESPONSAVEL'));",
+                  "if (res.success) console.log('✅ Responsável criado:', res.data.userId);"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"nome\": \"Maria Responsável\",\n  \"email\": \"maria.resp@email.com\",\n  \"senha\": \"senha123\",\n  \"cpf\": \"55566677788\",\n  \"telefone\": \"(11) 97777-6666\",\n  \"dataNascimento\": \"1975-08-10\"\n}"
+            },
+            "url": "{{baseUrl}}/api/responsaveis/registro"
+          }
+        }
+      ]
+    },
+    {
+      "name": "🎬 Vídeos",
+      "item": [
+        {
+          "name": "Adicionar vídeo ao atleta",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "const res = pm.response.json();",
+                  "if (res.success && res.data) {",
+                  "  pm.collectionVariables.set('videoId', res.data.id);",
+                  "  console.log('✅ videoId salvo:', res.data.id);",
+                  "}",
+                  "pm.test('Status 201', () => pm.response.to.have.status(201));",
+                  "pm.test('Tem urlVideo', () => pm.expect(res.data.urlVideo).to.be.a('string'));",
+                  "pm.test('Tem dataCriacao', () => pm.expect(res.data.dataCriacao).to.be.a('string'));"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" },
+              { "key": "Authorization", "value": "Bearer {{token}}" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"urlVideo\": \"https://www.youtube.com/watch?v=dQw4w9WgXcQ\",\n  \"titulo\": \"Gol de placa contra o Flamengo\"\n}"
+            },
+            "url": "{{baseUrl}}/api/atletas/{{atletaId}}/videos",
+            "description": "Token deve ser do atleta dono do perfil."
+          }
+        },
+        {
+          "name": "Listar vídeos do atleta",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Status 200', () => pm.response.to.have.status(200));",
+                  "pm.test('Tem content', () => pm.expect(pm.response.json().data.content).to.be.an('array'));"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [{ "key": "Authorization", "value": "Bearer {{token}}" }],
+            "url": {
+              "raw": "{{baseUrl}}/api/atletas/{{atletaId}}/videos?page=0&size=5",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "atletas", "{{atletaId}}", "videos"],
+              "query": [
+                { "key": "page", "value": "0" },
+                { "key": "size", "value": "5" }
+              ]
+            }
+          }
+        },
+        {
+          "name": "Editar vídeo",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Status 200', () => pm.response.to.have.status(200));",
+                  "pm.test('Título atualizado', () => pm.expect(pm.response.json().data.titulo).to.eql('Título atualizado'));"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "PUT",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" },
+              { "key": "Authorization", "value": "Bearer {{token}}" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"titulo\": \"Título atualizado\"\n}"
+            },
+            "url": "{{baseUrl}}/api/videos/{{videoId}}"
+          }
+        },
+        {
+          "name": "Deletar vídeo",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Status 200', () => pm.response.to.have.status(200));",
+                  "pm.test('success true', () => pm.expect(pm.response.json().success).to.be.true);"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "DELETE",
+            "header": [{ "key": "Authorization", "value": "Bearer {{token}}" }],
+            "url": "{{baseUrl}}/api/videos/{{videoId}}",
+            "description": "Atenção: deleta de verdade. Rode este por último."
+          }
+        }
+      ]
+    },
+    {
+      "name": "⭐ Avaliações",
+      "item": [
+        {
+          "name": "Criar avaliação (requer token de OLHEIRO)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "const res = pm.response.json();",
+                  "pm.test('Status 201', () => pm.response.to.have.status(201));",
+                  "pm.test('Tem nota', () => pm.expect(res.data.nota).to.be.a('number'));",
+                  "pm.test('Tem nomeAtleta', () => pm.expect(res.data.nomeAtleta).to.be.a('string'));",
+                  "if (res.success) console.log('✅ Avaliação criada por', res.data.nomeOlheiro);"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" },
+              { "key": "Authorization", "value": "Bearer {{token}}" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"atletaId\": \"{{atletaId}}\",\n  \"nota\": 8.5,\n  \"comentario\": \"Atleta com bom potencial, velocidade acima da média.\"\n}"
+            },
+            "url": "{{baseUrl}}/api/avaliacoes",
+            "description": "⚠️ Faça login como OLHEIRO antes de executar este request.\nUse 'Login (Olheiro de teste)' no grupo Auth."
+          }
+        },
+        {
+          "name": "Criar avaliação com vídeo vinculado",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Status 201', () => pm.response.to.have.status(201));"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" },
+              { "key": "Authorization", "value": "Bearer {{token}}" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"atletaId\": \"{{atletaId}}\",\n  \"nota\": 9.0,\n  \"comentario\": \"Excelente jogada no vídeo.\",\n  \"videoId\": \"{{videoId}}\"\n}"
+            },
+            "url": "{{baseUrl}}/api/avaliacoes"
+          }
+        },
+        {
+          "name": "Criar avaliação como ATLETA (deve dar 403)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Status 403', () => pm.response.to.have.status(403));",
+                  "pm.test('success false', () => pm.expect(pm.response.json().success).to.be.false);"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" },
+              { "key": "Authorization", "value": "Bearer {{token}}" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"atletaId\": \"{{atletaId}}\",\n  \"nota\": 7.0,\n  \"comentario\": \"Atleta avaliando a si mesmo — deve ser bloqueado.\"\n}"
+            },
+            "url": "{{baseUrl}}/api/avaliacoes",
+            "description": "⚠️ Faça login como ATLETA antes. Deve retornar 403 Forbidden."
+          }
+        },
+        {
+          "name": "Listar avaliações do atleta",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Status 200', () => pm.response.to.have.status(200));",
+                  "pm.test('Tem content', () => pm.expect(pm.response.json().data.content).to.be.an('array'));"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [{ "key": "Authorization", "value": "Bearer {{token}}" }],
+            "url": {
+              "raw": "{{baseUrl}}/api/atletas/{{atletaId}}/avaliacoes?page=0&size=10",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "atletas", "{{atletaId}}", "avaliacoes"],
+              "query": [
+                { "key": "page", "value": "0" },
+                { "key": "size", "value": "10" }
+              ]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "🖼️ Fotos",
+      "item": [
+        {
+          "name": "Upload de foto (multipart)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Status 200', () => pm.response.to.have.status(200));",
+                  "pm.test('Tem fotoPerfil', () => pm.expect(pm.response.json().data.fotoPerfil).to.be.a('string'));"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Authorization", "value": "Bearer {{token}}" }],
+            "body": {
+              "mode": "formdata",
+              "formdata": [
+                {
+                  "key": "file",
+                  "type": "file",
+                  "src": [],
+                  "description": "Selecione um arquivo JPG ou PNG (máx 10MB)"
+                }
+              ]
+            },
+            "url": "{{baseUrl}}/api/atletas/{{atletaId}}/foto",
+            "description": "Selecione um arquivo JPG ou PNG no campo 'file'.\nToken deve ser do próprio atleta."
+          }
+        },
+        {
+          "name": "Servir foto (público)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Status 200 ou 404', () => pm.expect(pm.response.code).to.be.oneOf([200, 404]));"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "url": "{{baseUrl}}/api/atletas/fotos/NOME_DO_ARQUIVO.jpg",
+            "description": "Substitua NOME_DO_ARQUIVO.jpg pelo valor retornado no upload.\nEste endpoint é público, não precisa de token."
+          }
+        }
+      ]
+    }
+  ]
+}
