@@ -3,8 +3,6 @@ cria os services
 usuarioService
     .buscarPor([aliasId, endereco_unico, nome, cpf, email], search)
     .atualizarPerfil(Usuario)
-    .adicionarInformacao(DetalhePerfil, Usuario)
-    .removerInformacao(DetalhePerfil, Usuario)
     .banir(Usuario)
     .removerBanimento(Usuario)
     .deletar(Usuario)
