@@ -6,12 +6,12 @@
 
 ## O que existe hoje
 
-Em `src/main/resources/ia/` há um protótipo funcional de RAG (Retrieval-Augmented Generation) com:
+Em `src/main/resources/ia/` há um protótipo funcional de RAG com:
 
 - `app.py` — chatbot Streamlit chamado "Copiloto ScoutPlay"
-- `notebook/base_rag.pkl` — embeddings pré-gerados de documentos de futebol
-- `arquivos/Fundamentos-tecnicos-e-taticos-do-Futebol-FINAL.pdf` — base de conhecimento
-- CSVs de datasets: Brasileirão, Transfermarkt, SofaScore (market value, partidas, estatísticas)
+- `notebook/base_rag.pkl` — embeddings do PDF de fundamentos táticos
+- `arquivos/Fundamentos-tecnicos-e-taticos-do-Futebol-FINAL.pdf` — base de conhecimento teórico
+- CSVs (Brasileirão, Transfermarkt, SofaScore) — usados apenas como dados de teste do protótipo, **não serão usados na integração**
 
 O RAG usa **Ollama** localmente:
 - Modelo de embedding: `embeddinggemma:latest`
@@ -19,66 +19,120 @@ O RAG usa **Ollama** localmente:
 
 ---
 
-## Problema atual
+## Arquitetura de integração
 
-O `app.py` é uma aplicação Streamlit standalone — não expõe nenhuma API REST. O Spring Boot não consegue chamá-lo diretamente. Os datasets CSV e o PDF não têm nenhum pipeline de ingestão integrado ao banco de dados.
+A fonte de verdade sobre jogadores é o **banco de dados** (`t_usuario`, `t_detalhes_perfil`, `t_avaliacao`), não os CSVs.
+
+O fluxo é:
+
+```
+Frontend → POST /api/ia/copiloto
+               ↓
+         IaController (Spring Boot)
+               ↓
+         IaContextService
+         [consulta o banco: atletas, avaliações, detalhes]
+               ↓
+         Monta contexto em texto
+               ↓
+         IaService → POST http://localhost:8081/perguntar
+                     { pergunta, contexto }
+               ↓
+         Python (FastAPI)
+         [RAG do PDF + contexto do banco]
+               ↓
+         Resposta da IA → frontend
+```
+
+**Responsabilidades:**
+- **Spring Boot** — busca os dados do banco e formata o contexto; a IA nunca acessa o banco diretamente
+- **Python** — recebe `{pergunta, contexto}` e responde usando o LLM; mantém o RAG do PDF para conhecimento tático
 
 ---
 
-## Plano de integração
+## Fase 1 — Separar o módulo IA do projeto Java
 
-### Fase 1 — Separar o módulo IA do projeto Java
-
-Mover a pasta `ia/` para fora de `src/main/resources/` para evitar que o Maven tente empacotar ~36MB de dados:
+Mover a pasta `ia/` para fora de `src/main/resources/` para que o Maven não empacote ~36MB de dados no JAR:
 
 ```
 ScoutPlay/
-├── backend/            (Spring Boot — código Java atual)
-├── ia/                 (módulo Python)
-│   ├── app.py
+├── src/                (Spring Boot)
+├── ia/                 (módulo Python — novo local)
+│   ├── api.py
+│   ├── rag.py
 │   ├── requirements.txt
 │   ├── notebook/
-│   ├── brasileirao/
-│   └── safa e transfermarkt/
+│   └── arquivos/
 └── ...
 ```
 
-> Não fazer isso agora sem aprovar com o time — envolve mexer na estrutura de diretórios que o Git rastreia.
+Os CSVs podem ser removidos ou arquivados, já que não serão usados na produção.
 
 ---
 
-### Fase 2 — Converter Streamlit para FastAPI
+## Fase 2 — Converter Streamlit para FastAPI
 
-Refatorar `app.py` de Streamlit para FastAPI, expondo um endpoint REST:
+Refatorar `app.py` em dois arquivos: `rag.py` (lógica de busca) e `api.py` (servidor HTTP).
+
+O endpoint recebe a pergunta **e** o contexto já montado pelo Spring Boot:
 
 ```python
 # ia/api.py
 from fastapi import FastAPI
 from pydantic import BaseModel
+from rag import responder_com_contexto
 
 app = FastAPI()
 
 class Pergunta(BaseModel):
-    texto: str
+    pergunta: str
+    contexto: str = ""     # dados dos jogadores vindos do banco
 
 @app.post("/perguntar")
-def perguntar(pergunta: Pergunta):
-    resposta = responder_pergunta(
-        pergunta=pergunta.texto,
-        textos=textos,
-        matriz_norm=matriz_norm,
+def perguntar(body: Pergunta):
+    resposta = responder_com_contexto(
+        pergunta=body.pergunta,
+        contexto_banco=body.contexto,
         top_k=3,
         modelo_llm="phi3:mini"
     )
     return {"resposta": resposta}
 ```
 
-Rodar na porta `8081`:
-```bash
-uvicorn ia.api:app --host 0.0.0.0 --port 8081
+```python
+# ia/rag.py  (lógica principal)
+def responder_com_contexto(pergunta, contexto_banco, top_k, modelo_llm):
+    # 1. busca chunks relevantes no RAG do PDF
+    chunks_pdf = buscar_chunks_relevantes(pergunta, textos, matriz_norm, top_k)
+    contexto_pdf = "\n\n".join(chunks_pdf)
+
+    # 2. combina conhecimento tático (PDF) + dados reais (banco)
+    prompt = f"""
+Você é o Copiloto ScoutPlay, um assistente especialista em futebol e scouting.
+
+Dados reais dos jogadores cadastrados na plataforma:
+{contexto_banco}
+
+Conhecimento tático e técnico:
+{contexto_pdf}
+
+Regras:
+- Use os dados dos jogadores para responder perguntas específicas sobre atletas.
+- Use o conhecimento tático para responder perguntas teóricas sobre futebol.
+- Não invente informações. Se não souber, diga claramente.
+
+Pergunta: {pergunta}
+
+Resposta:
+"""
+    resposta = ollama.chat(
+        model=modelo_llm,
+        messages=[{"role": "user", "content": prompt}]
+    )
+    return resposta.message.content.strip()
 ```
 
-**Dependências necessárias (`ia/requirements.txt`):**
+**Dependências (`ia/requirements.txt`):**
 ```
 fastapi
 uvicorn
@@ -86,42 +140,99 @@ ollama
 numpy
 ```
 
+Rodar: `uvicorn api:app --host 0.0.0.0 --port 8081`
+
 ---
 
-### Fase 3 — Integrar ao Spring Boot
+## Fase 3 — IaContextService (Spring Boot)
 
-Criar um service Java que chama o microserviço Python:
+Este service consulta o banco e formata os dados dos jogadores como texto para o LLM:
 
 ```java
-// IaService.java
 @Service
-public class IaService {
-    private final RestTemplate restTemplate = new RestTemplate();
+@RequiredArgsConstructor
+public class IaContextService {
 
-    public String perguntar(String texto) {
-        String url = "http://localhost:8081/perguntar";
-        Map<String, String> body = Map.of("texto", texto);
-        Map<?, ?> resposta = restTemplate.postForObject(url, body, Map.class);
-        return (String) resposta.get("resposta");
+    private final UsuarioRepository usuarioRepository;
+    private final DetalhePerfilRepository detalhePerfilRepository;
+    private final AvaliacaoRepository avaliacaoRepository;
+
+    public String montarContexto(String pergunta) {
+        // Busca todos os atletas ativos
+        List<Usuario> atletas = usuarioRepository
+            .findAllAtivosByTipoContaId(TipoConta.ATLETA, Pageable.unpaged())
+            .getContent();
+
+        StringBuilder sb = new StringBuilder();
+        sb.append("Atletas cadastrados na plataforma:\n\n");
+
+        for (Usuario atleta : atletas) {
+            sb.append("- ").append(atleta.getNome()).append(" ").append(atleta.getSobrenome());
+
+            DetalhePerfil detalhe = detalhePerfilRepository.getByUsuario(atleta);
+            if (detalhe != null) {
+                Map<String, Object> data = detalhe.getData();
+                sb.append(", posição: ").append(data.getOrDefault("posicao", "N/A"));
+                sb.append(", altura: ").append(data.getOrDefault("altura", "N/A"));
+                sb.append(", peso: ").append(data.getOrDefault("peso", "N/A"));
+                sb.append(", pé dominante: ").append(data.getOrDefault("peDominante", "N/A"));
+                sb.append(", clubes anteriores: ").append(data.getOrDefault("clubesAnteriores", "N/A"));
+            }
+
+            // média de avaliações
+            List<Avaliacao> avaliacoes = avaliacaoRepository.findByAtleta(atleta);
+            if (!avaliacoes.isEmpty()) {
+                double media = avaliacoes.stream()
+                    .mapToDouble(Avaliacao::getNota).average().orElse(0);
+                sb.append(String.format(", nota média: %.1f", media));
+            }
+
+            sb.append("\n");
+        }
+
+        return sb.toString();
     }
 }
 ```
 
-Criar o controller:
+---
+
+## Fase 4 — IaController (Spring Boot)
 
 ```java
-// IaController.java
 @RestController
 @RequestMapping("/api/ia")
+@RequiredArgsConstructor
 public class IaController {
+
+    private final IaContextService iaContextService;
+    private final IaService iaService;
 
     @PostMapping("/copiloto")
     public ResponseEntity<ApiResponse<Map<String, String>>> perguntar(
             @RequestBody Map<String, String> body) {
-        String resposta = iaService.perguntar(body.get("pergunta"));
+
+        String pergunta = body.get("pergunta");
+        String contexto = iaContextService.montarContexto(pergunta);
+        String resposta = iaService.perguntar(pergunta, contexto);
+
         return ResponseEntity.ok(
             ApiResponse.success(Map.of("resposta", resposta))
         );
+    }
+}
+```
+
+```java
+@Service
+public class IaService {
+    private final RestTemplate restTemplate = new RestTemplate();
+
+    public String perguntar(String pergunta, String contexto) {
+        Map<String, String> body = Map.of("pergunta", pergunta, "contexto", contexto);
+        Map<?, ?> resposta = restTemplate.postForObject(
+            "http://localhost:8081/perguntar", body, Map.class);
+        return (String) resposta.get("resposta");
     }
 }
 ```
@@ -130,34 +241,22 @@ public class IaController {
 ```
 POST /api/ia/copiloto
 Authorization: Bearer <token>
-{ "pergunta": "O que é pressing alto no futebol?" }
+
+{ "pergunta": "Quais atletas atacantes têm nota acima de 8?" }
 ```
 
 ---
 
-### Fase 4 — Ingestão dos datasets CSV
-
-Os CSVs de Brasileirão e Transfermarkt podem ser usados de duas formas:
-
-**Opção A — Estatísticas no banco de dados**
-Criar uma tabela `t_estatistica_atleta` e importar os dados CSV. Permite que olheiros vejam métricas reais de desempenho.
-
-**Opção B — Alimentar o RAG**
-Converter os CSVs em texto estruturado e re-gerar os embeddings (`base_rag.pkl`) para incluir estatísticas dos jogadores. O copiloto poderá responder "qual a performance média de um atacante no Brasileirão 2024?"
-
-Recomendação: Opção B primeiro (menor esforço), Opção A se houver tempo.
-
----
-
-### Fase 5 — Docker Compose (produção)
+## Fase 5 — Docker Compose
 
 ```yaml
-# docker-compose.yml
 services:
   backend:
-    build: ./backend
+    build: .
     ports:
       - "8080:8080"
+    environment:
+      IA_SERVICE_URL: http://ia:8081
     depends_on:
       - db
       - ia
@@ -166,8 +265,6 @@ services:
     build: ./ia
     ports:
       - "8081:8081"
-    volumes:
-      - ./ia:/app
 
   db:
     image: postgres:16
@@ -181,17 +278,17 @@ services:
 
 ---
 
-## Pré-requisitos para rodar
+## Pré-requisitos para rodar localmente
 
-1. **Ollama instalado** com os modelos baixados:
+1. **Ollama instalado** com os modelos:
    ```bash
    ollama pull embeddinggemma:latest
    ollama pull phi3:mini
    ```
 
-2. **Python 3.10+** com as dependências do `requirements.txt`
+2. **Python 3.10+** com `pip install -r ia/requirements.txt`
 
-3. **PKL de embeddings** atualizado — se os CSVs forem alterados, re-rodar o notebook `notebook/nb.ipynb` para regenerar `base_rag.pkl`
+3. O `base_rag.pkl` já existente cobre o PDF de fundamentos táticos — **não precisa re-gerar**
 
 ---
 
@@ -201,8 +298,9 @@ services:
 |--------|-------------|---------|
 | Mover `ia/` para raiz do projeto | Backend | 30 min |
 | Criar `ia/requirements.txt` | IA | 10 min |
-| Converter `app.py` para FastAPI | IA | 2h |
+| Criar `ia/api.py` e `ia/rag.py` (FastAPI) | IA | 2h |
+| Criar `IaContextService.java` | Backend | 2h |
 | Criar `IaService.java` e `IaController.java` | Backend | 1h |
 | Testar integração local | Backend + IA | 1h |
-| Re-gerar embeddings com CSVs | IA | 2h |
 | Docker Compose | Backend | 1h |
+| Remover/arquivar CSVs de teste | Qualquer | 10 min |
