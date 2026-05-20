@@ -8,17 +8,16 @@ import lombok.NoArgsConstructor;
 import jakarta.validation.constraints.*;
 import java.time.LocalDate;
 import java.util.List;
+import java.util.UUID;
 
-/**
- * DTO para Atleta
- * Usado para transferir dados do backend para o frontend
- */
 @Data
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
 public class AtletaDTO {
-    private int id;
+
+    // Preenchido apenas na resposta (GET). Ignorado no POST.
+    private UUID id;
 
     @NotBlank(message = "Nome é obrigatório")
     @Size(min = 3, max = 150, message = "Nome deve ter entre 3 e 150 caracteres")
@@ -46,10 +45,7 @@ public class AtletaDTO {
     @Positive(message = "Peso deve ser um valor positivo")
     private Double peso;
 
-    @NotBlank(message = "Posição é obrigatória")
     private String posicao;
-
-    @NotBlank(message = "Pé dominante é obrigatório")
     private String peDominante;
 
     @Pattern(regexp = "\\d{5}-?\\d{3}", message = "CEP deve estar no formato XXXXX-XXX")
@@ -57,7 +53,10 @@ public class AtletaDTO {
 
     private String fotoPerfil;
     private String clubesAnteriores;
+
+    // Preenchido na resposta. Calculado a partir de dataNascimento.
     private Integer idade;
 
-    private List<@Pattern(regexp = "^(https?://).+", message = "Cada vídeo deve ser uma URL válida") String> videos;
+    // Preenchido na resposta (GET). Ignorado no POST.
+    private List<VideoDTO> videos;
 }
