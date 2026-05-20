@@ -1,85 +1,97 @@
 # Cronograma do Projeto - ScoutPlay
 
+**Atualizado em:** 2026-05-20
+
 ## 1. Equipe e papéis
 
-- **Backend 1 (BE1):** arquitetura, regras de negócio, services
-- **Backend 2 (BE2):** persistência/infra, integração, cobertura de testes
-- **Frontend 1 (FE1):** telas principais e fluxos centrais
-- **Frontend 2 (FE2):** validações de UI, estados de erro, UX
-- **IA 1 (IA1):** cenários BDD (Gherkin) + automação Cucumber
-- **IA 2 (IA2):** plano de testes, roteiros manuais, usabilidade e evidências
+- **Backend (BE):** arquitetura, regras de negócio, services, persistência
+- **Frontend (FE):** telas, fluxos, integração com API
+- **IA:** testes BDD (Gherkin/Cucumber), plano de testes, usabilidade
 
 ---
 
-## 2. Planejamento por Sprint (8 semanas)
+## 2. Estado atual por Sprint
 
-| Sprint | Semanas | Objetivo | Entregas |
-|---|---|---|---|
-| **Sprint 0 (Setup)** | 1-2 | Preparar base técnica e gestão | Repo GitHub com professora `rafapcmor`, Kanban (Backlog/Em Progresso/Em Revisão/Concluído), arquitetura 4 camadas, setup Maven/JUnit/Cucumber, 1 feature simples, README inicial |
-| **Sprint 1 (MVP)** | 3-4 | Entregar versão mínima utilizável | 2-3 funcionalidades, testes unitários iniciais, 2 cenários BDD automatizados, requisitos iniciais em `/docs/requisitos`, HUB (Pré-Projeto + Canvas) |
-| **Sprint 2 (Incremento)** | 5-6 | Expandir funcionalidades e qualidade | +2-3 funcionalidades (total >=6), regra de negócio não-trivial, completar 5 cenários BDD, evolução dos testes unitários, plano de teste inicial, relatório + pitch |
-| **Sprint 3 (Estabilização)** | 7-8 | Finalizar qualidade e documentação | cobertura >=80% em service/domain, 5 roteiros manuais executados com evidências, teste de usabilidade (3 participantes), README final, slides, demo e revisão final |
-
----
-
-## 3. Distribuição de trabalho por Sprint
-
-### Sprint 0
-- **BE1/BE2:** estrutura `domain/service/infra/ui`, build e testes base
-- **FE1/FE2:** base da interface e navegação inicial
-- **IA1:** setup de BDD e padrão de escrita Gherkin
-- **IA2:** estrutura de documentos de teste e pasta de evidências
-
-### Sprint 1
-- **BE1/BE2:** funcionalidades 1-3
-- **FE1/FE2:** telas de cadastro/listagem/edição (ou equivalentes)
-- **IA1:** automação de 2 cenários BDD
-- **IA2:** início do plano de teste e critérios de aceite por issue
-
-### Sprint 2
-- **BE1/BE2:** funcionalidades 4-6 + regra não-trivial
-- **FE1/FE2:** busca/filtro, validações de erro, ajustes de UX
-- **IA1:** completar 5 cenários BDD automatizados
-- **IA2:** roteiros de teste detalhados e organização de evidências
-
-### Sprint 3
-- **BE1/BE2:** refatoração, cobertura e estabilidade
-- **FE1/FE2:** ajustes finais de usabilidade e consistência visual
-- **IA1:** regressão automatizada e suporte à demo
-- **IA2:** teste de usabilidade (3 participantes), consolidação de resultados
+| Sprint | Status | Entregas |
+|--------|--------|----------|
+| **Sprint 0 (Setup)** | Concluido | Repo, arquitetura 4 camadas, Maven, estrutura base |
+| **Sprint 1 (MVP)** | Concluido | JWT auth, registro de atleta/olheiro/responsavel, login |
+| **Sprint 2 (Incremento)** | Concluido (backend) | 18 endpoints CRUD, upload de foto, videos, avaliacoes, remodel de banco |
+| **Sprint 3 (Estabilizacao)** | Em andamento | Testes unitarios, BDD, integracao frontend, modulo IA |
 
 ---
 
-## 4. Cerimônias Scrum (por sprint)
+## 3. Distribuicao de trabalho — Sprint 3 (atual)
 
-- **Planning:** definição da meta da sprint + seleção de issues
-- **Daily (assíncrona):** atualização curta no board (comentário/checklist)
-- **Review:** validação do que foi entregue
-- **Retrospectiva:** manter / parar / começar
+### Backend
+- [x] Todos os 18 endpoints implementados
+- [x] Seguranca JWT configurada (SecurityConfig, JwtAuthenticationFilter)
+- [x] Remodel de banco: modelo flat com `t_usuario`, `t_detalhes_perfil` (JSONB), `t_video_atleta`, `t_avaliacao`
+- [x] Dados de teste (DataInitializer) — 3 usuarios seed
+- [ ] Testes unitarios (meta >=80% cobertura em services)
+- [ ] Integracao do modulo IA como microservico (ver `docs/ia-integracao.md`)
+
+### Frontend
+- [ ] Conectar LoginForm ao `POST /api/login` e salvar token no localStorage
+- [ ] Implementar registro de atleta (usar `POST /api/atletas/registro`)
+- [ ] Feed de atletas (`GET /api/atletas`) com paginacao
+- [ ] Perfil de atleta (`GET /api/atletas/{id}`)
+- [ ] Upload de foto de perfil (`POST /api/atletas/{id}/foto`)
+- [ ] Adicionar e listar videos (`POST/GET /api/atletas/{id}/videos`)
+- [ ] Perfil de olheiro (`GET /api/olheiros/{id}`)
+- [ ] Criar avaliacao (`POST /api/avaliacoes`)
+- [ ] Implementar client HTTP com `Authorization: Bearer <token>` em todas as chamadas
+
+### IA / Testes
+- [ ] Minimo de 5 cenarios BDD automatizados (Cucumber)
+- [ ] `/docs/testes/plano-de-teste.md` preenchido
+- [ ] `/docs/testes/roteiros-de-teste.md` com 5 roteiros executados
+- [ ] `/docs/testes/usabilidade.md` com 3 participantes
+- [ ] Evidencias em `/docs/testes/evidencias`
+
+---
+
+## 4. Cerimônias Scrum
+
+- **Planning:** definicao da meta da sprint + selecao de issues
+- **Daily (assincrona):** atualizacao curta no board
+- **Review:** validacao do que foi entregue
+- **Retrospectiva:** manter / parar / comecar
 
 ---
 
 ## 5. Definition of Done (DoD)
 
-Uma issue só vai para **Concluído** quando tiver:
+Uma issue so vai para **Concluido** quando tiver:
 
-1. Código implementado
-2. Testes criados/atualizados (quando aplicável)
-3. Documentação e README atualizados se houver mudança de comportamento
-4. Evidência vinculada (issue/PR/print/log)
+1. Codigo implementado
+2. Testes criados/atualizados (quando aplicavel)
+3. Documentacao atualizada se houver mudanca de comportamento
+4. Evidencia vinculada (issue/PR/print/log)
 
 ---
 
 ## 6. Checklist final de entrega
 
-- [ ] Board GitHub com colunas mínimas e issues por sprint
-- [ ] Mínimo de 10 classes autorais + 4 camadas/pacotes
-- [ ] Mínimo de 6 funcionalidades
-- [ ] Testes unitários implementados (meta >=80% em regras/serviços)
-- [ ] Mínimo de 5 cenários BDD automatizados
+- [ ] Board GitHub com colunas minimas e issues por sprint
+- [x] Minimo de 10 classes autorais + 4 camadas/pacotes
+- [x] Minimo de 6 funcionalidades (18 endpoints implementados)
+- [ ] Testes unitarios (meta >=80% em regras/services)
+- [ ] Minimo de 5 cenarios BDD automatizados
 - [ ] `/docs/testes/plano-de-teste.md` preenchido
 - [ ] `/docs/testes/roteiros-de-teste.md` com 5 roteiros executados
 - [ ] `/docs/testes/usabilidade.md` com 3 participantes
-- [ ] Evidências em `/docs/testes/evidencias`
-- [ ] `/slides` com apresentação final e demo
+- [ ] Evidencias em `/docs/testes/evidencias`
+- [ ] `/slides` com apresentacao final e demo
 - [ ] README completo e atualizado
+
+---
+
+## 7. Documentacao de referencia
+
+| Documento | Conteudo |
+|-----------|----------|
+| `docs/modelagem-banco.md` | Esquema completo do banco + todos os endpoints |
+| `docs/SEMANA2_JWT.md` | Como JWT foi implementado |
+| `docs/ia-integracao.md` | Plano de integracao do modulo RAG |
+| `docs/ScoutPlay.postman_collection.json` | Colecao Postman com todos os endpoints |
