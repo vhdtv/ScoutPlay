@@ -46,9 +46,12 @@ public class SecurityConfig {
                     "/api/login",
                     "/api/atletas/registro",
                     "/api/olheiros/registro",
-                    "/api/responsaveis",
                     "/api/responsaveis/registro",
-                    "/api/atletas/fotos/**"
+                    "/api/atletas/fotos/**",
+                    "/api/auth/forgot-password",
+                    "/api/auth/reset-password",
+                    "/api/posts",
+                    "/api/posts/**"
                 ).permitAll()
                 .anyRequest().authenticated()
             )
