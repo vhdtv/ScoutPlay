@@ -86,6 +86,16 @@ public class OlheiroService {
         return toDTO(usuario);
     }
 
+    @Transactional
+    public void deletar(UUID aliasId) {
+        if (!SecurityUtils.isOwner(aliasId.toString())) {
+            throw new AccessDeniedException("Você não tem permissão para deletar este perfil");
+        }
+        Usuario usuario = resolverOlheiro(aliasId);
+        usuario.setAtivo(false);
+        usuarioRepository.save(usuario);
+    }
+
     // -------------------------------------------------------------------------
 
     private Usuario resolverOlheiro(UUID aliasId) {

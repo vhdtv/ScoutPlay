@@ -76,12 +76,45 @@ public class AtletaService {
         return toDTO(usuario);
     }
 
-    public PageResponse<AtletaDTO> listar(int page, int size) {
-        Pageable pageable = PageRequest.of(page, size);
-        Page<AtletaDTO> resultado = usuarioRepository
-                .findAllAtivosByTipoContaId(TipoConta.ATLETA, pageable)
-                .map(this::toDTO);
-        return PageResponse.fromPage(resultado);
+    public PageResponse<AtletaDTO> listar(int page, int size,
+            String posicao, Double alturaMin, Double alturaMax,
+            Double pesoMin, Double pesoMax) {
+        boolean semFiltros = posicao == null && alturaMin == null && alturaMax == null
+                && pesoMin == null && pesoMax == null;
+        if (semFiltros) {
+            Pageable pageable = PageRequest.of(page, size);
+            Page<AtletaDTO> resultado = usuarioRepository
+                    .findAllAtivosByTipoContaId(TipoConta.ATLETA, pageable)
+                    .map(this::toDTO);
+            return PageResponse.fromPage(resultado);
+        }
+
+        List<AtletaDTO> todos = usuarioRepository
+                .findAllAtivosByTipoContaId(TipoConta.ATLETA, Pageable.unpaged())
+                .stream()
+                .map(this::toDTO)
+                .filter(a -> posicao == null || posicao.equalsIgnoreCase(a.getPosicao()))
+                .filter(a -> alturaMin == null || (a.getAltura() != null && a.getAltura() >= alturaMin))
+                .filter(a -> alturaMax == null || (a.getAltura() != null && a.getAltura() <= alturaMax))
+                .filter(a -> pesoMin == null || (a.getPeso() != null && a.getPeso() >= pesoMin))
+                .filter(a -> pesoMax == null || (a.getPeso() != null && a.getPeso() <= pesoMax))
+                .toList();
+
+        int total = todos.size();
+        int fromIndex = Math.min(page * size, total);
+        int toIndex = Math.min(fromIndex + size, total);
+        List<AtletaDTO> pagina = todos.subList(fromIndex, toIndex);
+
+        int totalPages = size == 0 ? 1 : (int) Math.ceil((double) total / size);
+        return PageResponse.<AtletaDTO>builder()
+                .content(pagina)
+                .currentPage(page)
+                .pageSize(size)
+                .totalElements(total)
+                .totalPages(totalPages)
+                .hasNext(toIndex < total)
+                .hasPrevious(page > 0)
+                .build();
     }
 
     @Transactional
@@ -123,6 +156,16 @@ public class AtletaService {
         usuario.setFotoPerfil(filename);
         usuarioRepository.save(usuario);
         return filename;
+    }
+
+    @Transactional
+    public void deletar(UUID aliasId) {
+        if (!SecurityUtils.isOwner(aliasId.toString())) {
+            throw new AccessDeniedException("Você não tem permissão para deletar este perfil");
+        }
+        Usuario usuario = resolverAtleta(aliasId);
+        usuario.setAtivo(false);
+        usuarioRepository.save(usuario);
     }
 
     // -------------------------------------------------------------------------

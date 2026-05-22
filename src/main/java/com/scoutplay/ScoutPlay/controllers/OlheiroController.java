@@ -56,6 +56,12 @@ public class OlheiroController {
      * Atualiza perfil. Apenas o próprio olheiro pode atualizar.
      * Campos omitidos não são alterados.
      */
+    @DeleteMapping("/{id}")
+    public ResponseEntity<ApiResponse<Void>> deletar(@PathVariable UUID id) {
+        olheiroService.deletar(id);
+        return ResponseEntity.ok(ApiResponse.success(null, "Conta desativada com sucesso"));
+    }
+
     @PutMapping("/{id}")
     public ResponseEntity<ApiResponse<OlheiroDTO>> atualizar(
             @PathVariable UUID id,

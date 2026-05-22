@@ -52,8 +52,14 @@ public class AtletaController {
     @GetMapping
     public ResponseEntity<ApiResponse<PageResponse<AtletaDTO>>> listar(
             @RequestParam(defaultValue = "0") int page,
-            @RequestParam(defaultValue = "10") int size) {
-        return ResponseEntity.ok(ApiResponse.success(atletaService.listar(page, size)));
+            @RequestParam(defaultValue = "10") int size,
+            @RequestParam(required = false) String posicao,
+            @RequestParam(required = false) Double alturaMin,
+            @RequestParam(required = false) Double alturaMax,
+            @RequestParam(required = false) Double pesoMin,
+            @RequestParam(required = false) Double pesoMax) {
+        return ResponseEntity.ok(ApiResponse.success(
+                atletaService.listar(page, size, posicao, alturaMin, alturaMax, pesoMin, pesoMax)));
     }
 
     /**
@@ -71,6 +77,12 @@ public class AtletaController {
      * Atualiza perfil. Apenas o próprio atleta pode atualizar (valida pelo JWT).
      * Campos omitidos não são alterados.
      */
+    @DeleteMapping("/{id}")
+    public ResponseEntity<ApiResponse<Void>> deletar(@PathVariable UUID id) {
+        atletaService.deletar(id);
+        return ResponseEntity.ok(ApiResponse.success(null, "Conta desativada com sucesso"));
+    }
+
     @PutMapping("/{id}")
     public ResponseEntity<ApiResponse<AtletaDTO>> atualizar(
             @PathVariable UUID id,

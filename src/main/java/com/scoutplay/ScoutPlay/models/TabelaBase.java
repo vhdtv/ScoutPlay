@@ -18,6 +18,7 @@ public abstract class TabelaBase {
     @Getter
     private java.util.UUID aliasId;
     @Getter
+    @Setter
     private boolean ativo;
     @Getter
     private LocalDate criadoEm;
