@@ -9,20 +9,11 @@ import lombok.Setter;
 @Entity
 @Table(name="t_post")
 public class Post extends TabelaBase {
-    @Getter
-    @Setter
-    private String titulo;
-    @Getter
-    @Setter
-    private String descricao;
-    @Getter
-    @Setter
-    @ManyToOne
-    private TipoMidia tipoMidia;
-    @Getter
-    @Setter
-    private String caminhoArquivo;
+    @Getter @Setter private String titulo;
+    @Getter @Setter private String descricao;
+    @Getter @Setter @ManyToOne private TipoMidia tipoMidia;
+    @Getter @Setter private String caminhoArquivo;
+    @Getter @Setter @ManyToOne private Usuario autor;
 
     public Post() {}
-
 }
