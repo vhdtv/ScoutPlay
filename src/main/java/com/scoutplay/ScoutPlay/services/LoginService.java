@@ -13,6 +13,8 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
+import java.util.UUID;
+
 @Service
 @RequiredArgsConstructor
 public class LoginService {
@@ -41,6 +43,20 @@ public class LoginService {
                 .nome(usuario.getNome())
                 .email(usuario.getEmail())
                 .expiresIn(jwtTokenProvider.getExpirationMs())
+                .build();
+    }
+
+    public LoginResponse buscarPorUserId(String userId) {
+        UUID aliasId = UUID.fromString(userId);
+        Usuario usuario = usuarioRepository.findByAliasId(aliasId)
+                .orElseThrow(() -> new ResourceNotFoundException("Usuário não encontrado"));
+        XUsuarioTipoConta relacao = xUsuarioTipoContaRepository.getByUsuario(usuario);
+        String userType = resolverTipo(relacao);
+        return LoginResponse.builder()
+                .userId(userId)
+                .userType(userType)
+                .nome(usuario.getNome())
+                .email(usuario.getEmail())
                 .build();
     }
 
