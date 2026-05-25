@@ -1,4 +1,4 @@
-@import url('https://fonts.googleapis.com/css2?family=Lato:ital,wght@0,100;0,300;0,400;0,700;0,900;1,100;1,300;1,400;1,700;1,900&family=Yanone+Kaffeesatz:wght@200..700&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Lato:ital,wght@0,100;0,300;0,400;0,700;0,900;1,100;1,300;1,400;1,700;1,900&family=Yanone+Kaffeesatz:wght@200..700&display=swap&family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200');
 @import 'tailwindcss';
 
 @plugin "tailwindcss-animate";
@@ -142,18 +142,63 @@ code {
   @apply w-dvw h-dvh overflow-hidden;
 }
 
-.button {
-  @apply transition transition-discrete p-3 cursor-pointer font-semibold text-center transition transition-discrete focus:outline-none;
-  &.primary {
-    @apply bg-sky-700 hover:bg-sky-800 focus:bg-sky-800 text-mist-50;
+@layer components {
+  .button {
+    padding: calc(var(--spacing) * 3);
+    @apply transition transition-discrete cursor-pointer font-semibold text-center transition transition-discrete focus:outline-none;
+    &.primary {
+      @apply bg-sky-700 hover:bg-sky-800 focus:bg-sky-800 text-mist-50;
+    }
+    &.primary-outlined {
+      @apply text-sky-700 hover:text-gray-50 focus:text-gray-50 hover:bg-sky-800 focus:bg-sky-800 border-sky-700;
+    }
+    &.secondary {
+  
+    }
+    &.ghost {
+      @apply text-sky-700 hover:text-sky-700 focus:text-sky-700 hover:bg-sky-100 focus:bg-sky-100;
+    }
   }
-  &.primary-outlined {
-    @apply text-sky-700 hover:text-gray-50 focus:text-gray-50 hover:bg-sky-800 focus:bg-sky-800 border-sky-700;
-  }
-  &.secondary {
 
-  }
-  &.ghost {
-    @apply text-sky-700 hover:text-sky-700 focus:text-sky-700 hover:bg-sky-100 focus:bg-sky-100;
+  .input-toggle {
+    appearance: none;
+    position: relative;
+    display: block;
+    background: #b1b1b1;
+    outline-color: black;
+    --input-toggle-notch-size: 1.5rem;
+    --input-toggle-padding: .25rem;
+    width: calc(var(--input-toggle-notch-size) * 2 + (var(--input-toggle-padding) * 2));
+    height: calc(var(--input-toggle-notch-size) + (var(--input-toggle-padding) * 2));
+    border-radius: var(--input-toggle-notch-size);
+    padding: var(--input-toggle-padding);
+    cursor: pointer;
+    &::before {
+      content: "";
+      position: relative;
+      display: block;
+      transition: all 200ms ease;
+      border-radius: 100%;
+      top: 0;
+      left: 0;
+      width: var(--input-toggle-notch-size);
+      height: var(--input-toggle-notch-size);
+      background: white;
+    }
+
+    &:checked {
+      background: black;
+    }
+    &:checked::before {
+      transform: translateX(100%);
+      background: white;
+    }
+    
+    &:hover::before {
+      transform: translateX(10%);
+    }
+    &:checked:hover::before {
+      transform: translateX(90%);
+    }
   }
 }
