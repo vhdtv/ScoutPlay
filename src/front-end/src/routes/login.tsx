@@ -6,7 +6,7 @@ export const Route = createFileRoute('/login')({
   component: RouteComponent,
 })
 
-function RouteComponent() {
+export function RouteComponent() {
   return <div className='page-noscroll flex flex-col'>
     <section className="content grow-1 flex flex-row">
       <div className='grow-1 hidden md:flex border-e-2 border-gray-200 p-3 pt-12'>
