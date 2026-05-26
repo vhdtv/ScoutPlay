@@ -1,6 +1,8 @@
 import { createFileRoute } from '@tanstack/react-router'
 import Footer from "../../components/Footer"
 import InputToggleButton from '#/components/ui/InputToggleButton'
+import ProfilePostList from '#/components/ProfilePostList'
+import { LoggedHeader } from '#/components/Header'
 
 export const Route = createFileRoute('/user/$user')({
   component: RouteComponent,
@@ -65,8 +67,54 @@ function RouteComponent() {
       initials: "MT"
     }
   }
+  const posts = [
+    {
+      url: "/assets/videos/3560017-uhd_3840_2160_25fps.mp4",
+      id: "1",
+    },
+    {
+      url: "/assets/videos/12462341-hd_1080_1920_60fps.mp4",
+      id: "2",
+    },
+    {
+      url: "/assets/videos/14621116_1920_1080_25fps.mp4",
+      id: "3",
+    },
+    {
+      url: "/assets/videos/15390776_2160_3840_60fps.mp4",
+      id: "4",
+    },
+    {
+      url: "/assets/videos/15391407_2160_3840_60fps.mp4",
+      id: "5",
+    },
+    {
+      url: "/assets/videos/15448985-hd_1920_1080_60fps.mp4",
+      id: "6",
+    },
+    {
+      url: "/assets/videos/15449387-hd_1920_1080_60fps.mp4",
+      id: "7",
+    },
+    {
+      url: "/assets/videos/15480914_2160_3840_60fps.mp4",
+      id: "8",
+    },
+    {
+      url: "/assets/videos/15750007_2160_3840_60fps.mp4",
+      id: "9",
+    },
+    {
+      url: "/assets/videos/15750073_2160_3840_60fps.mp4",
+      id: "10",
+    },
+    {
+      url: "/assets/videos/15750079_2160_3840_60fps.mp4",
+      id: "",
+    },
+  ]
   return <div>
-    {/* Header */}
+    <LoggedHeader />
     <div className="container mx-auto grid grid-cols-12 gap-4">
       <div className="col-span-12 lg:col-span-3 p-4 relative">
          <div className="block lg:sticky top-4 pt-2">
@@ -74,7 +122,10 @@ function RouteComponent() {
          </div>
       </div>
       <div className="col-span-12 lg:col-span-6 p-4 h-[2000px]">
-        posts
+        <div>
+          <button className='px-6 py-2 text-xl border-b-4 border-slate-700 hover:bg-slate-200 cursor-pointer'>Publicações</button>
+          <ProfilePostList posts={posts} />
+        </div>
       </div>
       <div className="hidden lg:block lg:col-span-3 p-4 relative flex">
          <div className="block lg:sticky top-4 w-full pt-16">
