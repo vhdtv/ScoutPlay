@@ -121,7 +121,7 @@ function RouteComponent() {
             <UserCard user={user} />
          </div>
       </div>
-      <div className="col-span-12 lg:col-span-6 p-4 h-[2000px]">
+      <div className="col-span-12 lg:col-span-6 p-4 min-h-screen">
         <div>
           <button className='px-6 py-2 text-xl border-b-4 border-slate-700 hover:bg-slate-200 cursor-pointer'>Publicações</button>
           <ProfilePostList posts={posts} />
