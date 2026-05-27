@@ -7,16 +7,16 @@ const makeLoginAttempt = async (form: FormData) => {
   const email = form.get('E-Mail');
   const password = form.get('Senha');
   try {
-    const backendRequest = await fetch(`${BACKEND_ENDPOINT}/auth/login`, {
+    const backendRequest = await fetch(`${BACKEND_ENDPOINT}/api/login`, {
       method: 'POST',
       headers: {
         "Content-Type": "application/json"
       },
       credentials: "include",
-      body: JSON.stringify({email, password})
+      body: JSON.stringify({email, senha: password})
     })
     await backendRequest.json();
-    window.location.reload();
+    // window.location.reload();
   }
   catch(error) {
     console.error(error)
