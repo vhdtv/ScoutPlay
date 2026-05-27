@@ -1,0 +1,5 @@
+{
+    "java.project.importRoots": [
+        "./back-end"
+    ]
+}
