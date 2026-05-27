@@ -12,9 +12,9 @@ function UserCard({user}: any) {
   return (
     <div className='block'>
       <div className='h-18'></div>
-      <div className="rounded-xl shadow-xl max-w-96 mx-auto w-full flex flex-col items-center justify-start">
+      <div className="rounded-xl shadow-xl max-w-96 mx-auto w-full flex flex-col items-center justify-start bg-white">
         <div className='-translate-y-16 flex flex-col items-center w-full'>
-          <div className='flex jusitfy-center items-center w-32 h-32 overflow-hidden rounded-full border border-red-100 bg-slate-50 mb-2'>
+          <div className='flex justify-center items-center w-32 h-32 overflow-hidden rounded-full border border-red-100 bg-slate-50 mb-2'>
             {
               user.profile?.img
               ? <img src={user.profile.img} className='w-full h-full' alt="User profile" />
