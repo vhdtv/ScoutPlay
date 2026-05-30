@@ -26,7 +26,7 @@ public class LoginService {
 
     public LoginResponse autenticar(LoginRequest request) {
         Usuario usuario = usuarioRepository.findByEmail(request.getEmail());
-        if (usuario == null || !passwordEncoder.matches(passwordEncoder.encode(request.getSenha()), usuario.getSenha())) {
+        if (usuario == null || !passwordEncoder.matches(request.getSenha(), usuario.getSenha())) {
             throw new IllegalArgumentException("Email ou senha inválidos");
         }
 
