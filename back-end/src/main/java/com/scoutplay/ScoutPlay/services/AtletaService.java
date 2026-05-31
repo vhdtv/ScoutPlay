@@ -2,6 +2,7 @@ package com.scoutplay.ScoutPlay.services;
 
 import com.scoutplay.ScoutPlay.api.dto.AtletaDTO;
 import com.scoutplay.ScoutPlay.api.dto.LoginResponse;
+import com.scoutplay.ScoutPlay.api.dto.UserSummary;
 import com.scoutplay.ScoutPlay.api.dto.VideoDTO;
 import com.scoutplay.ScoutPlay.api.response.PageResponse;
 import com.scoutplay.ScoutPlay.exceptions.ResourceNotFoundException;
@@ -65,9 +66,13 @@ public class AtletaService {
         String userId = salvo.getAliasId().toString();
         String token = jwtTokenProvider.generateToken(userId, "ATLETA");
         return LoginResponse.builder()
-                .token(token).userId(userId).userType("ATLETA")
-                .nome(salvo.getNome()).email(salvo.getEmail())
-                .expiresIn(jwtTokenProvider.getExpirationMs())
+                .tokenAcesso(token)
+                .expiraEm(jwtTokenProvider.getExpirationMs())
+                .usuario(UserSummary.builder()
+                    .tipoConta("ATLETA")
+                    .nome(salvo.getNome())
+                    .build()
+                )
                 .build();
     }
 

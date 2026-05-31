@@ -1,9 +1,7 @@
 package com.scoutplay.ScoutPlay.repositories;
 
-import com.scoutplay.ScoutPlay.models.TipoConta;
 import com.scoutplay.ScoutPlay.models.Usuario;
 
-import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 

@@ -2,6 +2,7 @@ package com.scoutplay.ScoutPlay.services;
 
 import com.scoutplay.ScoutPlay.api.dto.LoginRequest;
 import com.scoutplay.ScoutPlay.api.dto.LoginResponse;
+import com.scoutplay.ScoutPlay.api.dto.UserSummary;
 import com.scoutplay.ScoutPlay.exceptions.ResourceNotFoundException;
 import com.scoutplay.ScoutPlay.models.TipoConta;
 import com.scoutplay.ScoutPlay.models.Usuario;
@@ -13,6 +14,8 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
+import java.time.LocalDate;
+import java.time.Period;
 import java.util.UUID;
 
 @Service
@@ -24,40 +27,48 @@ public class LoginService {
     private final JwtTokenProvider jwtTokenProvider;
     private final PasswordEncoder passwordEncoder;
 
-    public LoginResponse autenticar(LoginRequest request) {
+    public LoginResponse autenticarUsuario(LoginRequest request) {
         Usuario usuario = usuarioRepository.findByEmail(request.getEmail());
-        if (usuario == null || !passwordEncoder.matches(request.getSenha(), usuario.getSenha())) {
-            throw new IllegalArgumentException("Email ou senha inválidos");
-        }
-
+        if (usuario == null || !passwordEncoder.matches(request.getSenha(), usuario.getSenha())) throw new IllegalArgumentException("Email ou senha inválidos");
         XUsuarioTipoConta relacao = xUsuarioTipoContaRepository.getByUsuario(usuario);
-        String userType = resolverTipo(relacao);
+        
+        String aliasUsuario = usuario.getAliasId().toString();
+        String tipoConta = resolverTipo(relacao);
+        String authToken = jwtTokenProvider.generateToken(aliasUsuario, tipoConta);
 
-        String userId = usuario.getAliasId().toString();
-        String token = jwtTokenProvider.generateToken(userId, userType);
+        int idade = Period.between(usuario.getDataNascimento(), LocalDate.now()).getYears();
 
         return LoginResponse.builder()
-                .token(token)
-                .userId(userId)
-                .userType(userType)
+            .tokenAcesso(authToken)
+            .expiraEm(jwtTokenProvider.getExpirationMs())
+            .usuario(UserSummary.builder()
                 .nome(usuario.getNome())
+                .nomeUsuario(usuario.getEnderecoUnico())
                 .email(usuario.getEmail())
-                .expiresIn(jwtTokenProvider.getExpirationMs())
-                .build();
+                .sobrenome(usuario.getSobrenome())
+                .fotoPerfil(usuario.getFotoPerfil())
+                .tipoConta(tipoConta)
+                .idade(idade)
+                .build()
+            ).build();
     }
 
-    public LoginResponse buscarPorUserId(String userId) {
-        UUID aliasId = UUID.fromString(userId);
-        Usuario usuario = usuarioRepository.findByAliasId(aliasId)
+    public UserSummary buscarUsuarioPorAliasId(UUID aliasId) {
+        Usuario usuario = usuarioRepository
+                .findByAliasId(aliasId)
                 .orElseThrow(() -> new ResourceNotFoundException("Usuário não encontrado"));
         XUsuarioTipoConta relacao = xUsuarioTipoContaRepository.getByUsuario(usuario);
-        String userType = resolverTipo(relacao);
-        return LoginResponse.builder()
-                .userId(userId)
-                .userType(userType)
-                .nome(usuario.getNome())
-                .email(usuario.getEmail())
-                .build();
+        String tipoConta = resolverTipo(relacao);
+        int idade = Period.between(usuario.getDataNascimento(), LocalDate.now()).getYears();
+
+        return UserSummary.builder()
+            .nome(usuario.getNome())
+            .nomeUsuario(usuario.getEnderecoUnico())
+            .email(usuario.getEmail())
+            .sobrenome(usuario.getSobrenome())
+            .fotoPerfil(usuario.getFotoPerfil())
+            .tipoConta(tipoConta)
+            .idade(idade).build();
     }
 
     private String resolverTipo(XUsuarioTipoConta relacao) {

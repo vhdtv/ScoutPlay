@@ -2,6 +2,7 @@ package com.scoutplay.ScoutPlay.services;
 
 import com.scoutplay.ScoutPlay.api.dto.LoginResponse;
 import com.scoutplay.ScoutPlay.api.dto.OlheiroDTO;
+import com.scoutplay.ScoutPlay.api.dto.UserSummary;
 import com.scoutplay.ScoutPlay.api.response.PageResponse;
 import com.scoutplay.ScoutPlay.exceptions.ResourceNotFoundException;
 import com.scoutplay.ScoutPlay.models.DetalhePerfil;
@@ -51,9 +52,13 @@ public class OlheiroService {
         String userId = salvo.getAliasId().toString();
         String token = jwtTokenProvider.generateToken(userId, "OLHEIRO");
         return LoginResponse.builder()
-                .token(token).userId(userId).userType("OLHEIRO")
-                .nome(salvo.getNome()).email(salvo.getEmail())
-                .expiresIn(jwtTokenProvider.getExpirationMs())
+                .tokenAcesso(token)
+                .expiraEm(jwtTokenProvider.getExpirationMs())
+                .usuario(UserSummary.builder()
+                    .nomeUsuario(salvo.getNome())
+                    .tipoConta("OLHEIRO")
+                    .build()
+                )
                 .build();
     }
 

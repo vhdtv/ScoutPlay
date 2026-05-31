@@ -13,9 +13,13 @@ import lombok.NoArgsConstructor;
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-public class LoginResponse {
-    private String tokenAcesso;
-    private Long expiraEm;
-    UserSummary usuario;
+public class UserSummary {
+    private String nome;
+    private String nomeUsuario;
+    private String email;
+    private String sobrenome;
+    private String fotoPerfil;
+    private String tipoConta; // 'ATLETA', 'OLHEIRO', 'RESPONSAVEL'
+    private int idade;
 
 }

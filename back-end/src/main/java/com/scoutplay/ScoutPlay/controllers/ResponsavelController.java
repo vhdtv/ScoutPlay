@@ -2,6 +2,7 @@ package com.scoutplay.ScoutPlay.controllers;
 
 import com.scoutplay.ScoutPlay.api.dto.LoginResponse;
 import com.scoutplay.ScoutPlay.api.dto.ResponsavelDTO;
+import com.scoutplay.ScoutPlay.api.dto.UserSummary;
 import com.scoutplay.ScoutPlay.api.response.ApiResponse;
 import com.scoutplay.ScoutPlay.models.Usuario;
 import com.scoutplay.ScoutPlay.security.JwtTokenProvider;
@@ -50,9 +51,13 @@ public class ResponsavelController {
         String token = jwtTokenProvider.generateToken(userId, "RESPONSAVEL");
 
         LoginResponse response = LoginResponse.builder()
-                .token(token).userId(userId).userType("RESPONSAVEL")
-                .nome(salvo.getNome()).email(salvo.getEmail())
-                .expiresIn(jwtTokenProvider.getExpirationMs())
+                .tokenAcesso(token)
+                .expiraEm(jwtTokenProvider.getExpirationMs())
+                        .usuario(UserSummary.builder()
+                                .nome(usuario.getNome())
+                                .tipoConta("RESPONSAVEL")
+                                .build()
+                        )
                 .build();
 
         return ResponseEntity.status(HttpStatus.CREATED)

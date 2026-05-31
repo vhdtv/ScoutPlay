@@ -31,14 +31,14 @@ public class JwtTokenProvider {
      * @param userType Tipo de usuário (ATLETA, OLHEIRO, RESPONSAVEL)
      * @return Token JWT assinado
      */
-    public String generateToken(String userId, String userType) {
+    public String generateToken(String aliasUsuario, String tipoConta) {
         Map<String, Object> claims = new HashMap<>();
-        claims.put("userType", userType);
-        claims.put("userId", userId);
+        claims.put("aliasUsuario", aliasUsuario);
+        claims.put("tipoConta", tipoConta);
 
         return Jwts.builder()
             .setClaims(claims)
-            .setSubject(userId)
+            .setSubject(aliasUsuario)
             .setIssuedAt(new Date())
             .setExpiration(new Date(System.currentTimeMillis() + jwtProperties.getExpirationMs()))
             .signWith(getSigningKey(), SignatureAlgorithm.HS256)
