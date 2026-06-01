@@ -11,10 +11,10 @@ import jakarta.servlet.http.HttpServletResponse;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 
-import jakarta.servlet.http.Cookie;
-
 import java.util.UUID;
 
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.ResponseCookie;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -28,17 +28,20 @@ public class LoginController {
     @PostMapping("/login")
     public ResponseEntity<ApiResponse<UserSummary>> login(@Valid @RequestBody LoginRequest request, HttpServletResponse response) {
         LoginResponse loginResponse = loginService.autenticarUsuario(request);
-        Cookie cookie = new Cookie("access_token", loginResponse.getTokenAcesso());
-        cookie.setHttpOnly(true);
-        cookie.setSecure(true);
-        cookie.setPath("/");
-        cookie.setMaxAge(Math.toIntExact(loginResponse.getExpiraEm()));
-        response.addCookie(cookie);
-        return ResponseEntity.ok(ApiResponse.success(loginResponse.getUsuario(), "Login realizado com sucesso"));
+        ResponseCookie accessTokenCookie = ResponseCookie.from("access_token", loginResponse.getTokenAcesso())
+            .httpOnly(true)
+            .secure(false)
+            .path("/")
+            .maxAge(loginResponse.getExpiraEm())
+            .sameSite("Lax")
+            .build();
+        return ResponseEntity.ok()
+            .header(HttpHeaders.SET_COOKIE, accessTokenCookie.toString())
+            .body(ApiResponse.success(loginResponse.getUsuario(), "Login realizado com sucesso"));
     }
 
-    @GetMapping("/me")
-    public ResponseEntity<ApiResponse<UserSummary>> me() {
+    @GetMapping("/user")
+    public ResponseEntity<ApiResponse<UserSummary>> getUserData(@CookieValue(name = "access_token", required = false) String accessToken) {
         UUID aliasId = UUID.fromString(SecurityUtils.currentUserId());
         UserSummary response = loginService.buscarUsuarioPorAliasId(aliasId);
         return ResponseEntity.ok(ApiResponse.success(response));

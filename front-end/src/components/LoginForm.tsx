@@ -24,11 +24,12 @@ export default function LoginForm() {
         headers: {
           "Content-Type": "application/json"
         },
-        credentials: "include",
+        credentials: 'include',
         body: JSON.stringify({email, senha: password})
       })
       if(backendRequest.status !== 200) return setLoginError(true);
-      await backendRequest.json();
+      const { data } = await backendRequest.json();
+      localStorage.setItem("username", data.nomeUsuario);
       navigateHook({to: "/feed"})
     }
     catch(error) {
