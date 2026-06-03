@@ -3,12 +3,22 @@ import Footer from "../../components/Footer"
 import InputToggleButton from '#/components/ui/InputToggleButton'
 import ProfilePostList from '#/components/ProfilePostList'
 import { LoggedHeader } from '#/components/Header'
+import MockAPI from '#/api/MockAPI'
+import type { ConfigItemDTO, UserProfileDTO } from '#/api/tipos'
+import { useState, type Dispatch, type SetStateAction } from 'react'
+
+const api = new MockAPI
 
 export const Route = createFileRoute('/user/$user')({
   component: RouteComponent,
+  loader: async ({params}) => {
+    return {
+      user: await api.obterDadosDoPerfil(params.user)
+    }
+  }
 })
 
-function UserCard({user}: any) {
+function UserCard({user}: {user: UserProfileDTO}) {
   return (
     <div className='block'>
       <div className='h-18'></div>
@@ -16,37 +26,41 @@ function UserCard({user}: any) {
         <div className='-translate-y-16 flex flex-col items-center w-full'>
           <div className='flex justify-center items-center w-32 h-32 overflow-hidden rounded-full border border-red-100 bg-slate-50 mb-2'>
             {
-              user.profile?.img
-              ? <img src={user.profile.img} className='w-full h-full' alt="User profile" />
-              : <span className='w-full h-full flex items-center justify-center text-4xl font-bold bg-slate-500 text-slate-50'>{user.initials}</span>
+              user.fotoPerfil
+              ? <img src={user.fotoPerfil} className='w-full h-full' alt={`Foto de Perfil do usuario ${user.nome}`} />
+              : <span className='w-full h-full flex items-center justify-center text-4xl font-bold bg-slate-500 text-slate-50'>{user.iniciais}</span>
             }
           </div>
-          <h1 className='font-bold block text-center text-xl'>Nome Usuário</h1>
-          <h2 className='block text-center text-lg opacity-50 mb-2'>Cidade</h2>
-          <section className='flex gap-3 items-centerf'>
-            <span className='border border-slate-800 text-slate-800 px-6 leading-none text-sm py-2 rounded-full'>Teste</span>
-            <span className='border border-slate-800 text-slate-800 px-6 leading-none text-sm py-2 rounded-full'>Teste</span>
+          <div className='w-full flex flex-col gap-2 items-center justify-center leading-none mb-2'>
+            <h1 className='font-bold block text-center text-xl'>{`${user.nome} ${user.sobrenome}`}</h1>
+            {user.detalhesPerfil?.CIDADE && <h2 className='block text-center text-lg opacity-50 mb-2'>{user.detalhesPerfil.CIDADE}</h2>}
+            <span className='opacity-40 font-bold'>{user.idade}</span>
+          </div>
+          <section className='flex gap-3 items-center'>
+            {user.detalhesPerfil?.POSICOES && user.detalhesPerfil.POSICOES.map((posicao, index) => <span key={index} className='border border-slate-800 text-slate-800 px-6 leading-none text-sm py-2 rounded-full'>{posicao}</span>)}
           </section>
           {
-            user.responsible
-            && (
+            user.detalhesPerfil?.RESPONSAVEL
+            && ( 
               <>
-              <hr className='h-0.5 w-full my-4 bg-slate-200 border-0' />
-              <div className='px-6 w-full'>
-                <section className='translate-y-5 border border-slate-300 bg-slate-100 p-2 w-full rounded-md flex gap-2'>
-                  <div className='flex jusitfy-center items-center w-12 h-12 overflow-hidden rounded-full border border-red-100 bg-slate-50'>
-                    {
-                      user.responsible.profile?.img
-                      ? <img src={user.responsible.profile.img} className='w-full h-full' alt="User profile" />
-                      : <span className='w-full h-full flex items-center justify-center text-3xs font-bold bg-slate-500 text-slate-50'>{user.responsible.initials}</span>
-                    }
+                <hr className='h-0.5 w-full my-4 bg-slate-200 border-0' />
+                {user.detalhesPerfil?.RESPONSAVEL.map((responsavel, index) => 
+                  <div className='px-6 w-full pb-3' key={index}>
+                    <section className='translate-y-5 border border-slate-300 bg-slate-100 p-2 w-full rounded-md flex gap-2'>
+                      <div className='flex jusitfy-center items-center w-12 h-12 overflow-hidden rounded-full border border-red-100 bg-slate-50'>
+                        {
+                          responsavel.fotoPerfil
+                          ? <img src={responsavel.fotoPerfil } className='w-full h-full' alt={`Foto de Perfil do usuario ${responsavel.nome}`} />
+                          : <span className='w-full h-full flex items-center justify-center text-3xs font-bold bg-slate-500 text-slate-50'>{responsavel.iniciais}</span>
+                        }
+                      </div>
+                      <div className='flex flex-col justify-center'>
+                        <h3 className='leading-none'>{responsavel.nome}</h3>
+                        <h4 className='leading-none text-slate-400'>Responsável</h4>
+                      </div>
+                    </section>
                   </div>
-                  <div className='flex flex-col justify-center'>
-                    <h3 className='leading-none'>{user.responsible.name}</h3>
-                    <h4 className='leading-none text-slate-400'>Responsável</h4>
-                  </div>
-                </section>
-              </div>
+                )}
               </>
             )
           }
@@ -57,62 +71,16 @@ function UserCard({user}: any) {
 }
 
 function RouteComponent() {
-  const user = {
-    initials: "TS",
-    profile: {
-      img: "https://unsplash.it/1000"
-    },
-    responsible: {
-      name: "Marcos Teixeira",
-      initials: "MT"
-    }
+  const { user } = Route.useLoaderData();
+  const [olheirosPodemConectarPeloWhatsapp, setConfigOlheirosPodemConectar] = useState(user.configuracoes?.OLHEIROS_PODEM_CONECTAR_PELO_WHATSAPP)
+  const [deixarDadosPessoaisPublicamente, setConfigDeixarDadosPublicos] = useState(user.configuracoes?.OCULTAR_INFORMACOES_PESSOAIS_PUBLICAMENTE)
+;
+  const atualizarConfiguracao = async (key: keyof ConfigItemDTO, value: boolean, setter: Dispatch<SetStateAction<boolean | undefined>>) => {
+    const result = await api.atualizarConfiguracao({ [key]: value })
+    if(!result) setter(!value)
+    setter(value)
   }
-  const posts = [
-    {
-      url: "/assets/videos/3560017-uhd_3840_2160_25fps.mp4",
-      id: "1",
-    },
-    {
-      url: "/assets/videos/12462341-hd_1080_1920_60fps.mp4",
-      id: "2",
-    },
-    {
-      url: "/assets/videos/14621116_1920_1080_25fps.mp4",
-      id: "3",
-    },
-    {
-      url: "/assets/videos/15390776_2160_3840_60fps.mp4",
-      id: "4",
-    },
-    {
-      url: "/assets/videos/15391407_2160_3840_60fps.mp4",
-      id: "5",
-    },
-    {
-      url: "/assets/videos/15448985-hd_1920_1080_60fps.mp4",
-      id: "6",
-    },
-    {
-      url: "/assets/videos/15449387-hd_1920_1080_60fps.mp4",
-      id: "7",
-    },
-    {
-      url: "/assets/videos/15480914_2160_3840_60fps.mp4",
-      id: "8",
-    },
-    {
-      url: "/assets/videos/15750007_2160_3840_60fps.mp4",
-      id: "9",
-    },
-    {
-      url: "/assets/videos/15750073_2160_3840_60fps.mp4",
-      id: "10",
-    },
-    {
-      url: "/assets/videos/15750079_2160_3840_60fps.mp4",
-      id: "",
-    },
-  ]
+
   return <div>
     <LoggedHeader />
     <div className="container mx-auto grid grid-cols-12 gap-4">
@@ -124,22 +92,26 @@ function RouteComponent() {
       <div className="col-span-12 lg:col-span-6 p-4 min-h-screen">
         <div>
           <button className='px-6 py-2 text-xl border-b-4 border-slate-700 hover:bg-slate-200 cursor-pointer'>Publicações</button>
-          <ProfilePostList posts={posts} />
+          {user?.posts && <ProfilePostList posts={user.posts} />}
         </div>
       </div>
-      <div className="hidden lg:block lg:col-span-3 p-4 relative flex">
-         <div className="block lg:sticky top-4 w-full pt-16">
-          <h3 className='text-sky-950 font-bold text-xl mb-3'>Configurações Rápidas</h3>
-          <div className='flex gap-3 items-center w-full mb-3'>
-            <InputToggleButton fieldName='allow-whatsapp' className='shrink-0' />
-            <span>Permitir que olheiros entrem em contato pelo WhatsApp</span>
+      {
+        user.souEu && (
+          <div className="hidden lg:block lg:col-span-3 p-4 relative flex">
+              <div className="block lg:sticky top-4 w-full pt-16">
+              <h3 className='text-sky-950 font-bold text-xl mb-3'>Configurações Rápidas</h3>
+              <div className='flex gap-3 items-center w-full mb-3'>
+                <InputToggleButton onChange={(event: React.ChangeEvent<HTMLInputElement>) => atualizarConfiguracao("OLHEIROS_PODEM_CONECTAR_PELO_WHATSAPP", event.target.checked, setConfigOlheirosPodemConectar)} checked={olheirosPodemConectarPeloWhatsapp} fieldName='allow-whatsapp' className='shrink-0' />
+                <span>Permitir que olheiros entrem em contato pelo WhatsApp</span>
+              </div>
+              <div className='flex gap-3 items-center w-full'>
+                <InputToggleButton onChange={(event: React.ChangeEvent<HTMLInputElement>) => atualizarConfiguracao("OCULTAR_INFORMACOES_PESSOAIS_PUBLICAMENTE", event.target.checked, setConfigDeixarDadosPublicos)} checked={deixarDadosPessoaisPublicamente} fieldName='allow-info' className='shrink-0' />
+                <span>Ocultar informações pessoais</span>
+              </div>
+              </div>
           </div>
-          <div className='flex gap-3 items-center w-full'>
-            <InputToggleButton fieldName='allow-info' className='shrink-0' />
-            <span>Ocultar informações pessoais</span>
-          </div>
-         </div>
-      </div>
+        )
+      }
       
     </div>
     <Footer />
