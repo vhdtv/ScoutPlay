@@ -1,77 +1,125 @@
 import { createFileRoute, Link } from '@tanstack/react-router'
-import { getPostById } from '../../services/postService'
 import { LoggedHeader } from '#/components/Header';
 import Footer from '#/components/Footer';
+import MockAPI from '#/api/MockAPI';
+import { useEffect, useState } from 'react';
+import type { CommentDTO, UserSummaryDTO } from '#/api/tipos';
+import ProfilePicture from '#/components/ui/ProfilePicture';
 
-const mockText = [
-  "It is a long established fact that a reader will be distracted by the readable content of a page when looking at its layout. The point of using Lorem Ipsum is that it has a more-or-less normal distribution of letters, as opposed to using 'Content here, content here', making it look like readable English. Many desktop publishing packages and web page editors now use Lorem Ipsum as their default model text, and a search for 'lorem ipsum' will uncover many web sites still in their infancy. Various versions have evolved over the years, sometimes by accident, sometimes on purpose (injected humour and the like).",
-  "Lorem Ipsum is simply dummy text of the printing and typesetting industry. Lorem Ipsum has been the industry's standard dummy text ever since the 1500s, when an unknown printer took a galley of type and scrambled it to make a type specimen book. It has survived not only five centuries, but also the leap into electronic typesetting, remaining essentially unchanged. It was popularised in the 1960s with the release of Letraset sheets containing Lorem Ipsum passages, and more recently with desktop publishing software like Aldus PageMaker including versions of Lorem Ipsum",
-  "Só um teste",
-]
-
-const user = {
-  initials: "TS",
-  profile: {
-    img: "https://unsplash.it/1000"
-  },
-  responsible: {
-    name: "Marcos Teixeira",
-    initials: "MT"
-  }
-}
+const api = new MockAPI
 
 export const Route = createFileRoute('/post/$post_id')({
   component: RouteComponent,
   loader: async ({params}) => {
-    const postData = await getPostById(params.post_id);
-    return {
-        postId: params.post_id
-    }
+    const post = await api.obterDadosDoPost(params.post_id);
+    return { post }
   }
 })
 
-function Comment({text, user}: any) {
-  return <div className='flex gap-2 p-2'>
+function Comment({user, valor}: {user: UserSummaryDTO, valor: string}) {
+  return <div className='flex gap-2 px-2 py-1 items-center'>
     <Link to='/user/$user' params={{user: user.url}}>
-      <div className='flex justify-center items-center w-8 overflow-hidden rounded-full border border-red-100 bg-slate-50 mb-2'>
-        {
-          user.profile?.img
-          ? <img src={user.profile.img} className='w-full h-full' alt="User profile" />
-          : <span className='w-full h-full flex items-center justify-center text-4xl font-bold bg-slate-500 text-slate-50'>{user.initials}</span>
-        }
-      </div>
+      <ProfilePicture user={user} className='w-8' />
     </Link>
-    <span>{text}</span>
+    <span className='text-sm'>{valor}</span>
   </div>
 }
 
+function LikeButton({postUrl, contagemAtualDeLike, usuarioJaDeuLike}: {postUrl: string, contagemAtualDeLike: number, usuarioJaDeuLike: boolean}) {
+  const [contadorLike, definirContadorLike] = useState(contagemAtualDeLike);
+  const [likeDoUsuarioLogado, definirLikeDoUsuarioLogado] = useState(usuarioJaDeuLike);
+
+  const enviarGostei = async () => {
+    const result = await api.darLikeEmPost(postUrl)
+    if(result === true) {
+      definirContadorLike(contadorLike + 1)
+      definirLikeDoUsuarioLogado(!likeDoUsuarioLogado)
+    }
+  }
+  const enviarNaoGostei = async () => {
+    const result = await api.darDislikeEmPost(postUrl)
+    if(result === true) {
+      definirContadorLike(contadorLike - 1)
+      definirLikeDoUsuarioLogado(!likeDoUsuarioLogado)
+    }
+  }
+
+  return (
+    <>
+      { likeDoUsuarioLogado 
+        ? (
+          <button onClick={enviarGostei} className='relative transition focus:backdrop-blur-sm focus:outline-2 outline-offset-3 outline-neutral-100 border-1 border-slate-100 p-5 flex flex-col items-center justify-center rounded-full cursor-pointer text-slate-100 hover:bg-white/50 hover:border-white/0 hover:text-slate-950 hover:backdrop-blur-sm focus:bg-white/50 focus:border-white/0 focus:text-slate-950'>
+            <span className="-translate-y-1 material-symbols-outlined" style={{fontSize: "1rem", lineHeight: '1em'}}> thumb_up </span>
+            <span className='-translate-y-0.5 absolute bottom-2' style={{fontSize: ".8rem"}}> {contadorLike}</span>
+          </button>  
+        )
+        : (
+          <button onClick={enviarNaoGostei} className='relative transition focus:backdrop-blur-sm focus:outline-2 outline-offset-3 outline-neutral-100 border-1 border-slate-100 p-5 flex flex-col items-center justify-center rounded-full cursor-pointer bg-white/50 border-white/0 text-slate-950 backdrop-blur-sm hover:bg-white/20 hover:text-white focus:bg-white/20 focus:text-white'>
+            <span className="-translate-y-1 material-symbols-outlined" style={{fontSize: "1rem", lineHeight: '1em'}}> thumb_up </span>
+            <span className='-translate-y-0.5 absolute bottom-2' style={{fontSize: ".8rem"}}> {contadorLike}</span>
+          </button>  
+        )
+      }
+    </>
+  )
+}
+
 function RouteComponent() {
-  const { postId } = Route.useLoaderData();
+  const { post } = Route.useLoaderData();
+  const [comentarios, definirCommentarios] = useState([] as CommentDTO[]);
+
+  useEffect(() => {
+    api.obterComentarios(post.url)
+      .then(dados => definirCommentarios(dados))
+  }, [])
+
+  const enviarComentario = async (form: FormData) => {
+    const comentario = form.get("comentario")!.toString();
+    const result = await api.enviarComentario(comentario);
+    definirCommentarios([...comentarios, result])
+  }
+
   return (
     <div className='page-noscroll flex flex-col'>
       <LoggedHeader/>
       <div className="container grow-1 mx-auto flex items-center justify-center">
         <div className='shadow-lg grid grid-cols-12 rounded-lg overflow-hidden'>
-            <div className="col-span-8 bg-slate-900 flex items-center h-full">
-              <video className='object-fit object-center' loop src="/assets/videos/3560017-uhd_3840_2160_25fps.mp4"></video>
+            <div className="col-span-8 bg-slate-900 flex items-center h-full relative">
+              <div className="absolute w-full h-full flex justify-start items-end overflow-hidden gap-2">
+                <div className="absolute z-0 top-0 start-0 end-0 bottom-0 bg-linear-to-b from-slate-0 to-slate-950/40"></div>
+                <div className="shrink-0 bottom-16 start-4 absolute z-1">
+                  <LikeButton contagemAtualDeLike={post.interacoes?.quantidadeLike ?? 0} postUrl={post.url} usuarioJaDeuLike={post.interacoes?.deuLike ?? false} />
+                </div>
+                <div className='grow-1 overflow-hidden backdrop-blur-xs'>
+                  <div className='w-full p-3 ps-4 flex gap-4 items-center justify-start snap-x scroll-pl-6 overflow-x-auto no-scrollbar'>
+                    {post.interacoes?.destaques?.map((destaque, index) => <span key={index} className='shrink-0 p-1 rounded-full px-4 flex items-center border border-white text-white relative'>#{destaque.texto} <span className='absolute w-5 h-5 rounded-full font-bold bottom-0 translate-x-2 translate-y-1 end-0 bg-white text-black flex items-center justify-center text-xs'>{destaque.contador}</span></span>)}
+                  </div>
+                </div>
+              </div>
+              {
+                post.media.tipo.startsWith("video")
+                ? <video className='object-fit object-center' loop autoPlay={true} muted src={post.media.src}></video>
+                : <img src={post.media.src} />
+              }
             </div>
             <div className="col-span-4 bg-slate-100 overflow-hidden flex h-full flex-col">
               <div className='flex gap-2 p-2 border-b-1 border-slate-300 bg-slate-200'> 
-                <div className='w-8 h-8 text-sm rounded-full bg-white flex items-center justify-center font-bold'>T</div>
+                <ProfilePicture user={post.usuario} className="w-9" />
                 <div className='flex flex-col justify-center'>
-                  <small className='leading-4 font-bold'>Nome Usuário</small>
-                  <small className='leading-none opacity-50'>2 novas publicações</small>
+                  <small className='leading-4 font-bold'>{post.usuario.nome}</small>
+                  {/* <small className='leading-none opacity-50'>2 novas publicações</small> */}
                 </div>
               </div>
-              <div className='flex flex-col overflow-auto grow-1 md:max-h-48 lg:max-h-96'>
-                {Array(90).fill("").map((_, index) => <Comment user={user} text={mockText[index % mockText.length]} />)}
+              <div className='flex flex-col overflow-auto grow-1 md:max-h-48 lg:max-h-96 py-2'>
+                {comentarios.length == 0 && <span className='opacity-50 text-bold w-full text-center block p-4'>Sem comentários ainda</span>}
+                {comentarios.map((comentario, index) => <Comment key={index} user={comentario.por} valor={comentario.texto} />)}
               </div>
-              <div className='p-4 relative text-xs flex gap-2'>
-                <textarea placeholder='Adicione um comentário...' className='outline-none w-full p-2 border-1 border-slate-200 rounded-md hover:border-slate-400 hover:bg-slate-200 focus:border-slate-400 focus:bg-slate-200 resize-none'> </textarea>
-                <button className='flex items-center p-2 bg-white hover:bg-sky-700 m-auto hover:text-white focus:bg-sky-700 focus:text-white transition cursor-pointer rounded-full outline-none'>
+              <form action={enviarComentario} className='p-4 relative text-xs flex gap-2'>
+                <textarea name="comentario" placeholder='Adicione um comentário...' className='outline-none w-full p-2 border-1 border-slate-300 rounded-md hover:border-slate-400 hover:bg-slate-200 focus:border-slate-400 focus:bg-slate-200 resize-none'> </textarea>
+                <button type="submit" className='flex items-center p-2 bg-white hover:bg-sky-700 m-auto hover:text-white focus:bg-sky-700 focus:text-white transition cursor-pointer rounded-full outline-none'>
                   <span className="material-symbols-outlined" style={{fontSize: "1.2rem"}}> send </span>
                 </button>
-              </div>
+              </form>
             </div>
           </div>
       </div>

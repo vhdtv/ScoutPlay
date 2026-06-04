@@ -1,5 +1,5 @@
 import type { UUID } from "crypto";
-import type { ConfigItemDTO, PostDataInputDTO, PostDataOutputDTO, PostDataUpdateDTO, PostHighlightDTO, SearchParamsDTO, SearchResultsOutputDTO, UserProfileDetailDTO, UserProfileDTO, UserSummaryDTO } from "./tipos";
+import type { CommentDTO, ConfigItemDTO, PostDataInputDTO, PostDataOutputDTO, PostDataUpdateDTO, PostDetailsDTO, PostDTO, PostHighlightDTO, SearchParamsDTO, SearchResultsOutputDTO, UserProfileDetailDTO, UserProfileDTO, UserSummaryDTO } from "./tipos";
 
 export default class {
     get USER_CACHE_KEY() { return "__usuario"; }
@@ -78,7 +78,11 @@ export default class {
         } as PostDataOutputDTO;
     }
     
-    darLike = async (id: UUID): Promise<boolean> => {
+    darLikeEmPost = async (postId: string): Promise<boolean> => {
+        return true;
+    }
+    
+    darDislikeEmPost = async (postId: string): Promise<boolean> => {
         return true;
     }
     
@@ -181,6 +185,7 @@ export default class {
                     titulo: "Mais uma pra conta",
                     subtitulo: null,
                     interacoes: {
+                        deuLike: false,
                         quantidadeLike: 192,
                         destaques: [
                             { contador: 15, texto: "Boa Jogada" },
@@ -199,6 +204,7 @@ export default class {
                     titulo: "O cara não acompanhou kakaka",
                     subtitulo: "Aqui tem habilidade",
                     interacoes: {
+                        deuLike: false,
                         quantidadeLike: 75,
                         destaques: [
                             { contador: 30, texto: "Boa Jogada" },
@@ -215,6 +221,7 @@ export default class {
                     titulo: "Mais uma pra conta",
                     subtitulo: null,
                     interacoes: {
+                        deuLike: true,
                         quantidadeLike: 192,
                         destaques: [
                             { contador: 15, texto: "Boa Jogada" },
@@ -233,6 +240,7 @@ export default class {
                     titulo: "O cara não acompanhou kakaka",
                     subtitulo: "Aqui tem habilidade",
                     interacoes: {
+                        deuLike: false,
                         quantidadeLike: 75,
                         destaques: [
                             { contador: 30, texto: "Boa Jogada" },
@@ -249,6 +257,7 @@ export default class {
                     titulo: "Mais uma pra conta",
                     subtitulo: null,
                     interacoes: {
+                        deuLike: false,
                         quantidadeLike: 192,
                         destaques: [
                             { contador: 15, texto: "Boa Jogada" },
@@ -267,6 +276,7 @@ export default class {
                     titulo: "O cara não acompanhou kakaka",
                     subtitulo: "Aqui tem habilidade",
                     interacoes: {
+                        deuLike: true,
                         quantidadeLike: 75,
                         destaques: [
                             { contador: 30, texto: "Boa Jogada" },
@@ -285,6 +295,53 @@ export default class {
             output.configuracoes = {OLHEIROS_PODEM_CONECTAR_PELO_WHATSAPP: true, OCULTAR_INFORMACOES_PESSOAIS_PUBLICAMENTE: false};
         }
         return output;
+    }
+
+    obterDadosDoPost = async (postId: string): Promise<PostDetailsDTO> => {
+        return {
+            usuario: {
+                url: "user01923",
+                nome: "Nome",
+                sobrenome: "Sobrenome",
+                iniciais: "NS",
+                fotoPerfil: "https://unsplash.it/100"
+            },
+            url: "172345617823",
+            titulo: "Mais uma pra conta",
+            subtitulo: null,
+            interacoes: {
+                quantidadeLike: 192,
+                deuLike: false,
+                destaques: [
+                    { contador: 15, texto: "Boa Jogada" },
+                    { contador: 1, texto: "Mostrou Garra" },
+                    { contador: 7, texto: "Velocista" },
+                    { contador: 8, texto: "Estrategista" },
+                ]
+            },
+            media: {
+                tipo: "video/mp4",
+                src: "/assets/videos/3560017-uhd_3840_2160_25fps.mp4"
+            },
+        }
+    }
+
+    obterComentarios = async (url: string): Promise<CommentDTO[]> => {
+        return [
+            {
+                por: this.USER_MOCK,
+                quantidadeLike: 12,
+                texto: "Muito fera!!!"
+            }
+        ]
+    }
+
+    enviarComentario = async (comentario: string): Promise<CommentDTO> => {
+        return {
+            por: this.USER_MOCK,
+            quantidadeLike: 0,
+            texto: comentario
+        }
     }
 }    
 

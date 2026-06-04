@@ -67,6 +67,8 @@ export type PostHighlightDTO = {
     contador: number
 }
 
+export type PostDetailsDTO = PostDTO & {usuario: UserSummaryDTO}
+
 export type SearchParamsDTO = {
     peDominante?: "DIREITO" | "ESQUERDO",
     cidade?: string,
@@ -87,6 +89,8 @@ export type PostDTO = {
     titulo: string,
     subtitulo: string | null,
     interacoes?: {
+        /* Fala se o perfil que está logado já deu like no post */
+        deuLike: boolean,
         quantidadeLike?: number,
         destaques?: PostHighlightDTO[] 
     },
@@ -99,4 +103,10 @@ export type PostDTO = {
 export type ConfigItemDTO = {
     OLHEIROS_PODEM_CONECTAR_PELO_WHATSAPP?: boolean,
     OCULTAR_INFORMACOES_PESSOAIS_PUBLICAMENTE?: boolean
+}
+
+export type CommentDTO = {
+    por: UserSummaryDTO,
+    texto: string,
+    quantidadeLike: number
 }

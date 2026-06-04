@@ -6,6 +6,7 @@ import { LoggedHeader } from '#/components/Header'
 import MockAPI from '#/api/MockAPI'
 import type { ConfigItemDTO, UserProfileDTO } from '#/api/tipos'
 import { useState, type Dispatch, type SetStateAction } from 'react'
+import ProfilePicture from '#/components/ui/ProfilePicture'
 
 const api = new MockAPI
 
@@ -24,13 +25,7 @@ function UserCard({user}: {user: UserProfileDTO}) {
       <div className='h-18'></div>
       <div className="rounded-xl shadow-xl max-w-96 mx-auto w-full flex flex-col items-center justify-start bg-white">
         <div className='-translate-y-16 flex flex-col items-center w-full'>
-          <div className='flex justify-center items-center w-32 h-32 overflow-hidden rounded-full border border-red-100 bg-slate-50 mb-2'>
-            {
-              user.fotoPerfil
-              ? <img src={user.fotoPerfil} className='w-full h-full' alt={`Foto de Perfil do usuario ${user.nome}`} />
-              : <span className='w-full h-full flex items-center justify-center text-4xl font-bold bg-slate-500 text-slate-50'>{user.iniciais}</span>
-            }
-          </div>
+          <ProfilePicture user={user} className='w-32' />
           <div className='w-full flex flex-col gap-2 items-center justify-center leading-none mb-2'>
             <h1 className='font-bold block text-center text-xl'>{`${user.nome} ${user.sobrenome}`}</h1>
             {user.detalhesPerfil?.CIDADE && <h2 className='block text-center text-lg opacity-50 mb-2'>{user.detalhesPerfil.CIDADE}</h2>}
