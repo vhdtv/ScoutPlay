@@ -142,6 +142,16 @@ code {
   @apply w-dvw h-dvh overflow-hidden;
 }
 
+@layer utilities {
+  .no-scrollbar::-webkit-scrollbar {
+    display: none;
+  }
+  .no-scrollbar {
+    -ms-overflow-style: none;
+    scrollbar-width: none;
+  }
+}
+
 @layer components {
   .button {
     padding: calc(var(--spacing) * 3);
