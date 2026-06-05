@@ -3,7 +3,7 @@ import { LoggedHeader } from '#/components/Header';
 import Footer from '#/components/Footer';
 import MockAPI from '#/api/MockAPI';
 import { useEffect, useState } from 'react';
-import type { CommentDTO, UserSummaryDTO } from '#/api/tipos';
+import type { CommentDTO, PostDetailsDTO, UserSummaryDTO } from '#/api/tipos';
 import ProfilePicture from '#/components/ui/ProfilePicture';
 
 const api = new MockAPI
@@ -64,6 +64,29 @@ function LikeButton({postUrl, contagemAtualDeLike, usuarioJaDeuLike}: {postUrl: 
   )
 }
 
+export function PostMediaComponent({post, className}: {post: PostDetailsDTO, className?: string}) {
+  return (
+    <div className={`relative ${className}`}>
+      <div className="absolute w-full h-full flex justify-start items-end overflow-hidden gap-2">
+        <div className="absolute z-0 top-0 start-0 end-0 bottom-0 bg-linear-to-b from-slate-0 to-slate-950/40"></div>
+        <div className="shrink-0 bottom-16 start-4 absolute z-1">
+          <LikeButton contagemAtualDeLike={post.interacoes?.quantidadeLike ?? 0} postUrl={post.url} usuarioJaDeuLike={post.interacoes?.deuLike ?? false} />
+        </div>
+        <div className='grow-1 overflow-hidden backdrop-blur-xs'>
+          <div className='w-full p-3 ps-4 flex gap-4 items-center justify-start snap-x scroll-pl-6 overflow-x-auto no-scrollbar'>
+            {post.interacoes?.destaques?.map((destaque, index) => <span key={index} className='shrink-0 p-1 rounded-full px-4 flex items-center border border-white text-white relative'>#{destaque.texto} <span className='absolute w-5 h-5 aspect-square rounded-full font-bold bottom-0 translate-x-2 translate-y-1 end-0 bg-white text-black flex items-center justify-center text-xs'>{destaque.contador}</span></span>)}
+          </div>
+        </div>
+      </div>
+      {
+        post.media.tipo.startsWith("video")
+        ? <video className='object-fit object-center' loop autoPlay={true} muted src={post.media.src}></video>
+        : <img src={post.media.src} />
+      }
+    </div>
+  )
+}
+
 function RouteComponent() {
   const { post } = Route.useLoaderData();
   const [comentarios, definirCommentarios] = useState([] as CommentDTO[]);
@@ -85,28 +108,13 @@ function RouteComponent() {
       <div className="container grow-1 mx-auto flex items-center justify-center">
         <div className='shadow-lg grid grid-cols-12 rounded-lg overflow-hidden'>
             <div className="col-span-8 bg-slate-900 flex items-center h-full relative">
-              <div className="absolute w-full h-full flex justify-start items-end overflow-hidden gap-2">
-                <div className="absolute z-0 top-0 start-0 end-0 bottom-0 bg-linear-to-b from-slate-0 to-slate-950/40"></div>
-                <div className="shrink-0 bottom-16 start-4 absolute z-1">
-                  <LikeButton contagemAtualDeLike={post.interacoes?.quantidadeLike ?? 0} postUrl={post.url} usuarioJaDeuLike={post.interacoes?.deuLike ?? false} />
-                </div>
-                <div className='grow-1 overflow-hidden backdrop-blur-xs'>
-                  <div className='w-full p-3 ps-4 flex gap-4 items-center justify-start snap-x scroll-pl-6 overflow-x-auto no-scrollbar'>
-                    {post.interacoes?.destaques?.map((destaque, index) => <span key={index} className='shrink-0 p-1 rounded-full px-4 flex items-center border border-white text-white relative'>#{destaque.texto} <span className='absolute w-5 h-5 rounded-full font-bold bottom-0 translate-x-2 translate-y-1 end-0 bg-white text-black flex items-center justify-center text-xs'>{destaque.contador}</span></span>)}
-                  </div>
-                </div>
-              </div>
-              {
-                post.media.tipo.startsWith("video")
-                ? <video className='object-fit object-center' loop autoPlay={true} muted src={post.media.src}></video>
-                : <img src={post.media.src} />
-              }
+              <PostMediaComponent post={post} />
             </div>
             <div className="col-span-4 bg-slate-100 overflow-hidden flex h-full flex-col">
               <div className='flex gap-2 p-2 border-b-1 border-slate-300 bg-slate-200'> 
-                <ProfilePicture user={post.usuario} className="w-9" />
+                <ProfilePicture user={post.autor} className="w-9" />
                 <div className='flex flex-col justify-center'>
-                  <small className='leading-4 font-bold'>{post.usuario.nome}</small>
+                  <small className='leading-4 font-bold'>{post.autor.nome}</small>
                   {/* <small className='leading-none opacity-50'>2 novas publicações</small> */}
                 </div>
               </div>

@@ -67,7 +67,7 @@ export type PostHighlightDTO = {
     contador: number
 }
 
-export type PostDetailsDTO = PostDTO & {usuario: UserSummaryDTO}
+export type PostDetailsDTO = PostDTO & {autor: UserSummaryDTO, metadados: {segueConta: boolean}}
 
 export type SearchParamsDTO = {
     peDominante?: "DIREITO" | "ESQUERDO",
@@ -110,3 +110,8 @@ export type CommentDTO = {
     texto: string,
     quantidadeLike: number
 }
+
+export type MensagemDTO = {
+    autor: "IA" | "USUARIO",
+    texto: string,
+  }

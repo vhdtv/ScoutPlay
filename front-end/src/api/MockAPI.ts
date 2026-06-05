@@ -1,5 +1,5 @@
 import type { UUID } from "crypto";
-import type { CommentDTO, ConfigItemDTO, PostDataInputDTO, PostDataOutputDTO, PostDataUpdateDTO, PostDetailsDTO, PostDTO, PostHighlightDTO, SearchParamsDTO, SearchResultsOutputDTO, UserProfileDetailDTO, UserProfileDTO, UserSummaryDTO } from "./tipos";
+import type { CommentDTO, ConfigItemDTO, MensagemDTO, PostDataInputDTO, PostDataOutputDTO, PostDataUpdateDTO, PostDetailsDTO, PostHighlightDTO, SearchParamsDTO, SearchResultsOutputDTO, UserProfileDetailDTO, UserProfileDTO, UserSummaryDTO } from "./tipos";
 
 export default class {
     get USER_CACHE_KEY() { return "__usuario"; }
@@ -94,10 +94,12 @@ export default class {
     }
     
     seguir = async (nomeUsuario: string): Promise<boolean> => {
+        await new Promise((resolve, reject) => {setTimeout(() => resolve(null), 5000)})
         return true;
     }
     
     pararDeSeguir = async (nomeUsuario: string): Promise<boolean> => {
+        await new Promise((resolve, reject) => {setTimeout(() => resolve(null), 5000)})
         return true;
     }
     
@@ -120,8 +122,11 @@ export default class {
         }
     }
     
-    chatIA = async (prompt: string) => {
-    
+    chatIA = async (prompt: string): Promise<MensagemDTO> => {
+        return {
+            autor: "IA",
+            texto: "Sei lá"
+        }
     }
 
     private salvarDadosUsuarioNoNavegador = (userData: UserSummaryDTO) => {
@@ -299,7 +304,7 @@ export default class {
 
     obterDadosDoPost = async (postId: string): Promise<PostDetailsDTO> => {
         return {
-            usuario: {
+            autor: {
                 url: "user01923",
                 nome: "Nome",
                 sobrenome: "Sobrenome",
@@ -323,6 +328,9 @@ export default class {
                 tipo: "video/mp4",
                 src: "/assets/videos/3560017-uhd_3840_2160_25fps.mp4"
             },
+            metadados: {
+                segueConta: false
+            }
         }
     }
 
@@ -341,6 +349,70 @@ export default class {
             por: this.USER_MOCK,
             quantidadeLike: 0,
             texto: comentario
+        }
+    }
+
+    obaterPostsFeed = async ({page}: {page: number}): Promise<{page: number, pageSize: number, data: PostDetailsDTO[]}> => {
+        return {
+            page: page++,
+            pageSize: 2,
+            data: [
+                {
+                    metadados: {
+                        segueConta: false
+                    },
+                    autor: {
+                        url: "user01923",
+                        nome: "Nome",
+                        sobrenome: "Sobrenome",
+                        iniciais: "NS",
+                        fotoPerfil: "https://unsplash.it/100"
+                    },
+                    url: "172345617823",
+                    titulo: "Mais uma pra conta",
+                    subtitulo: null,
+                    interacoes: {
+                        quantidadeLike: 48,
+                        deuLike: false,
+                        destaques: [
+                            { contador: 8, texto: "Técnico" },
+                        ]
+                    },
+                    media: {
+                        tipo: "video/mp4",
+                        src: "/assets/videos/15449387-hd_1920_1080_60fps.mp4"
+                    },
+                },
+                {
+                    autor: {
+                        url: "user01923",
+                        nome: "Nome",
+                        sobrenome: "Sobrenome",
+                        iniciais: "NS",
+                        fotoPerfil: "https://unsplash.it/100"
+                    },
+                    url: "172345617823",
+                    titulo: "Mais uma pra conta",
+                    subtitulo: null,
+                    interacoes: {
+                        quantidadeLike: 192,
+                        deuLike: false,
+                        destaques: [
+                            { contador: 15, texto: "Boa Jogada" },
+                            { contador: 1, texto: "Mostrou Garra" },
+                            { contador: 7, texto: "Velocista" },
+                            { contador: 8, texto: "Estrategista" },
+                        ]
+                    },
+                    media: {
+                        tipo: "video/mp4",
+                        src: "/assets/videos/3560017-uhd_3840_2160_25fps.mp4"
+                    },
+                    metadados: {
+                        segueConta: true
+                    }
+                }
+            ]
         }
     }
 }    
