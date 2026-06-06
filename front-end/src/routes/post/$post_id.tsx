@@ -106,7 +106,7 @@ function RouteComponent() {
     <div className='page-noscroll flex flex-col'>
       <LoggedHeader/>
       <div className="container grow-1 mx-auto flex items-center justify-center">
-        <div className='shadow-lg grid grid-cols-12 rounded-lg overflow-hidden'>
+        <div className='shadow-lg grid grid-cols-12 rounded-lg overflow-hidden max-h-96'>
             <div className="col-span-8 bg-slate-900 flex items-center h-full relative">
               <PostMediaComponent post={post} />
             </div>
@@ -118,9 +118,28 @@ function RouteComponent() {
                   {/* <small className='leading-none opacity-50'>2 novas publicações</small> */}
                 </div>
               </div>
-              <div className='flex flex-col overflow-auto grow-1 md:max-h-48 lg:max-h-96 py-2'>
+              <div className='flex flex-col overflow-auto grow-1 py-2'>
                 {comentarios.length == 0 && <span className='opacity-50 text-bold w-full text-center block p-4'>Sem comentários ainda</span>}
-                {comentarios.map((comentario, index) => <Comment key={index} user={comentario.por} valor={comentario.texto} />)}
+                {
+                  comentarios.map(((comentario, index) => 
+                    (
+                      <>
+                        <Comment key={index} user={comentario.por} valor={comentario.texto} />
+                        <Comment key={index} user={comentario.por} valor={comentario.texto} />
+                        <Comment key={index} user={comentario.por} valor={comentario.texto} />
+                        <Comment key={index} user={comentario.por} valor={comentario.texto} />
+                        <Comment key={index} user={comentario.por} valor={comentario.texto} />
+                        <Comment key={index} user={comentario.por} valor={comentario.texto} />
+                        <Comment key={index} user={comentario.por} valor={comentario.texto} />
+                        <Comment key={index} user={comentario.por} valor={comentario.texto} />
+                        <Comment key={index} user={comentario.por} valor={comentario.texto} />
+                        <Comment key={index} user={comentario.por} valor={comentario.texto} />
+                        <Comment key={index} user={comentario.por} valor={comentario.texto} />
+                        <Comment key={index} user={comentario.por} valor={comentario.texto} />
+                      </>
+                    )
+                  ))
+                }
               </div>
               <form action={enviarComentario} className='p-4 relative text-xs flex gap-2'>
                 <textarea name="comentario" placeholder='Adicione um comentário...' className='outline-none w-full p-2 border-1 border-slate-300 rounded-md hover:border-slate-400 hover:bg-slate-200 focus:border-slate-400 focus:bg-slate-200 resize-none'> </textarea>

@@ -24,15 +24,19 @@ function UserCard({user}: {user: UserProfileDTO}) {
     <div className='block'>
       <div className='h-18'></div>
       <div className="rounded-xl shadow-xl max-w-96 mx-auto w-full flex flex-col items-center justify-start bg-white">
-        <div className='-translate-y-16 flex flex-col items-center w-full'>
-          <ProfilePicture user={user} className='w-32' />
-          <div className='w-full flex flex-col gap-2 items-center justify-center leading-none mb-2'>
-            <h1 className='font-bold block text-center text-xl'>{`${user.nome} ${user.sobrenome}`}</h1>
-            {user.detalhesPerfil?.CIDADE && <h2 className='block text-center text-lg opacity-50 mb-2'>{user.detalhesPerfil.CIDADE}</h2>}
-            <span className='opacity-40 font-bold'>{user.idade}</span>
+        <div className='bg-slate-100 flex flex-col items-center w-full rounded-xl'>
+          <div className='w-16 h-16 flex relative justify-center'>
+            <ProfilePicture user={user} className='w-32 h-32 absolute -translate-y-16 top-0' />
           </div>
-          <section className='flex gap-3 items-center'>
-            {user.detalhesPerfil?.POSICOES && user.detalhesPerfil.POSICOES.map((posicao, index) => <span key={index} className='border border-slate-800 text-slate-800 px-6 leading-none text-sm py-2 rounded-full'>{posicao}</span>)}
+          <div className='w-full flex flex-col gap-0 items-center justify-center leading-none my-2'>
+            <div className='block'>
+              <h1 className='font-bold text-xl/6 inline-block me-2 text-center'>{`${user.nome} ${user.sobrenome}`}</h1>
+              <span className='opacity-40 font-bold'>{user.idade}</span>
+            </div>
+            {user.detalhesPerfil?.CIDADE && <h2 className='inline-block text-center text-lg opacity-50'>{user.detalhesPerfil.CIDADE}</h2>}
+          </div>
+          <section className='flex flex-wrap gap-3 w-full items-center justify-center px-4'>
+            {user.detalhesPerfil?.POSICOES && user.detalhesPerfil.POSICOES.map((posicao, index) => <span key={index} className='text-nowrap border border-slate-800 text-slate-800 px-6 leading-none text-sm py-2 rounded-full'>{posicao}</span>)}
           </section>
           {
             user.detalhesPerfil?.RESPONSAVEL
@@ -40,8 +44,8 @@ function UserCard({user}: {user: UserProfileDTO}) {
               <>
                 <hr className='h-0.5 w-full my-4 bg-slate-200 border-0' />
                 {user.detalhesPerfil?.RESPONSAVEL.map((responsavel, index) => 
-                  <div className='px-6 w-full pb-3' key={index}>
-                    <section className='translate-y-5 border border-slate-300 bg-slate-100 p-2 w-full rounded-md flex gap-2'>
+                  <div className='px-3 mb-3 w-full' key={index}>
+                    <section className='bg-slate-200 border border-slate-300 bg-slate-100 p-2 w-full rounded-md flex gap-2'>
                       <div className='flex jusitfy-center items-center w-12 h-12 overflow-hidden rounded-full border border-red-100 bg-slate-50'>
                         {
                           responsavel.fotoPerfil

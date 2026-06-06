@@ -137,7 +137,7 @@ export default class {
         localStorage.removeItem(this.USER_CACHE_KEY)
     }
     
-    obterDadosDoPerfil = async (perfil: string): Promise<UserProfileDTO> => {
+    obterDadosDoPerfil = async (perfil?: string): Promise<UserProfileDTO> => {
         let output: UserProfileDTO = {
             url: "user01923",
             nome: "Nome",
