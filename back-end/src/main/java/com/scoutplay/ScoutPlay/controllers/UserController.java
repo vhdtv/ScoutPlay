@@ -4,6 +4,7 @@ import java.util.UUID;
 
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.CookieValue;
+import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -13,6 +14,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 import com.scoutplay.ScoutPlay.api.dto.DetalhePerfilOutputDTO;
 import com.scoutplay.ScoutPlay.api.dto.ProfileDetailInputDTO;
+import com.scoutplay.ScoutPlay.api.dto.ProfileDetailRemoveInputDTO;
 import com.scoutplay.ScoutPlay.api.dto.UserProfileSummary;
 import com.scoutplay.ScoutPlay.api.response.ApiResponse;
 import com.scoutplay.ScoutPlay.models.DetalhePerfil;
@@ -33,6 +35,19 @@ public class UserController {
     public ResponseEntity<ApiResponse<DetalhePerfilOutputDTO>> registrarNovoDetalhePerfil(@Valid @RequestBody ProfileDetailInputDTO body, @CookieValue(name = "access_token", required = true) String accessToken) {
         UUID aliasId = UUID.fromString(jwtTokenProvider.extractUserId(accessToken));
         DetalhePerfil registro = this.usuarioService.adicionarInformacao(body.getChave(), body.getValor(), this.usuarioService.buscarPor(aliasId));
+        return ResponseEntity.ok(ApiResponse.success(
+            DetalhePerfilOutputDTO.builder()
+                .data(registro.getData())
+                .id(registro.getAliasId())
+                .userId(registro.getUsuario().getAliasId())
+                .build()
+        ));
+    }
+
+    @DeleteMapping("/profile-detail")
+    public ResponseEntity<ApiResponse<DetalhePerfilOutputDTO>> deletarDetalhePerfil(@Valid @RequestBody ProfileDetailRemoveInputDTO body, @CookieValue(name = "access_token", required = true) String accessToken) {
+        UUID aliasId = UUID.fromString(jwtTokenProvider.extractUserId(accessToken));
+        DetalhePerfil registro = this.usuarioService.removerInformacao(body.getChave(), this.usuarioService.buscarPor(aliasId));
         return ResponseEntity.ok(ApiResponse.success(
             DetalhePerfilOutputDTO.builder()
                 .data(registro.getData())

@@ -140,8 +140,8 @@ public class UsuarioService {
     }
 
     @Transactional
-    public void removerInformacao(String chave, Usuario usuario) {
-        detalhePerfilService.removerInformacao(chave, usuario);
+    public DetalhePerfil removerInformacao(String chave, Usuario usuario) {
+        return detalhePerfilService.removerInformacao(chave, usuario);
     }
 
     @Transactional

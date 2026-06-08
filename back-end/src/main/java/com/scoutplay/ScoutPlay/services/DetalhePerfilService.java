@@ -40,9 +40,10 @@ public class DetalhePerfilService {
         return dado;
     }
     @Transactional
-    public void removerInformacao(String chave, Usuario usuario) {
+    public DetalhePerfil removerInformacao(String chave, Usuario usuario) {
         DetalhePerfil dado = this.detalhePerfilRepository.getByUsuario(usuario);
-        if(dado == null) return;
+        if(dado == null) return dado;
         dado.getData().remove(chave);
+        return dado;
     }
 }
