@@ -1,8 +1,10 @@
 import Input from "#/components/ui/Input"
 import { useFormStatus } from "react-dom";
 import { Link, useNavigate } from "@tanstack/react-router"
-import { BACKEND_ENDPOINT } from "./variables"
 import { useState } from "react";
+import API from "#/api/API";
+
+const api = new API
 
 function LoginButton() {
   const status = useFormStatus();
@@ -15,25 +17,18 @@ export default function LoginForm() {
   const navigateHook = useNavigate();
   const [loginError, setLoginError] = useState(false);
   const makeLoginAttempt = async (form: FormData) => {
-    const email = form.get('E-Mail');
-    const password = form.get('Senha');
+    const email = form.get('E-Mail')?.toString();
+    const senha = form.get('Senha')?.toString();
+    if(!email) throw new Error(); // para forçar a cair no catch()
+    if(!senha) throw new Error(); // para forçar a cair no catch()
     try {
       setLoginError(false)
-      const backendRequest = await fetch(`${BACKEND_ENDPOINT}/api/login`, {
-        method: 'POST',
-        headers: {
-          "Content-Type": "application/json"
-        },
-        credentials: 'include',
-        body: JSON.stringify({email, senha: password})
-      })
-      if(backendRequest.status !== 200) return setLoginError(true);
-      const { data } = await backendRequest.json();
-      localStorage.setItem("username", data.nomeUsuario);
+      const data = await api.fazerLogin(email, senha);
       navigateHook({to: "/feed"})
     }
     catch(error) {
-      console.error(error)
+      console.error(error);
+      setLoginError(true);
     }
   }
   return (

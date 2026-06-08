@@ -103,7 +103,7 @@ export function RouteComponent() {
   const [postsInView, setPostsInView] = useState([] as PostDetailsDTO[]);
 
   const obterPostsParaFeed = async (page = 0) => {
-    const { data } = await api.obaterPostsFeed({page});
+    const { data } = await api.obterPostsFeed({page});
     setPostsInView(data);
     postsCache.push(...data);
   }
