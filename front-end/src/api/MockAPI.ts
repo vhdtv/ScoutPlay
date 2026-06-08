@@ -352,7 +352,7 @@ export default class {
         }
     }
 
-    obaterPostsFeed = async ({page}: {page: number}): Promise<{page: number, pageSize: number, data: PostDetailsDTO[]}> => {
+    obterPostsFeed = async ({page}: {page: number}): Promise<{page: number, pageSize: number, data: PostDetailsDTO[]}> => {
         return {
             page: page++,
             pageSize: 2,
