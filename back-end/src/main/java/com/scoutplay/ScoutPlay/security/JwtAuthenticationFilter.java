@@ -3,6 +3,7 @@ package com.scoutplay.ScoutPlay.security;
 import io.jsonwebtoken.JwtException;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
+import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
@@ -36,16 +37,12 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
      */
     private static final String[] PUBLIC_API_ENDPOINTS = {
         "/api/login",
-        "/api/atletas/registro",
-        "/api/olheiros/registro",
-        "/api/responsaveis"
+        "/api/signup",
+        "/api/forgot-password",
     };
 
     @Override
-    protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain)
-            throws ServletException, IOException {
-
-        // Pula validação para endpoints públicos
+    protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain) throws ServletException, IOException {
         String requestUri = request.getRequestURI();
         if (isPublicEndpoint(requestUri)) {
             filterChain.doFilter(request, response);
@@ -54,7 +51,6 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
         try {
             String token = extractTokenFromRequest(request);
-
             if (token == null) {
                 filterChain.doFilter(request, response);
                 return;
@@ -64,12 +60,12 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
                 String userId = jwtTokenProvider.extractUserId(token);
                 String userType = jwtTokenProvider.extractUserType(token);
 
-                request.setAttribute("userId", userId);
-                request.setAttribute("userType", userType);
+                request.setAttribute("aliasUsuario", userId);
+                request.setAttribute("tipoConta", userType);
                 UsernamePasswordAuthenticationToken authentication = new UsernamePasswordAuthenticationToken(
                     userId,
                     null,
-                    List.of(new SimpleGrantedAuthority("ROLE_" + userType))
+                    List.of(new SimpleGrantedAuthority(userType))
                 );
                 SecurityContextHolder.getContext().setAuthentication(authentication);
 
@@ -94,8 +90,15 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
      * Formato esperado: "Bearer <token>"
      */
     private String extractTokenFromRequest(HttpServletRequest request) {
+        if (request.getCookies() != null) {
+            for (Cookie cookie : request.getCookies()) {
+                if ("access_token".equals(cookie.getName())) {
+                    return cookie.getValue();
+                }
+            }
+        }
+        
         String authHeader = request.getHeader(HttpHeaders.AUTHORIZATION);
-
         if (authHeader != null && authHeader.startsWith("Bearer ")) {
             return authHeader.substring(7); // Remove "Bearer "
         }

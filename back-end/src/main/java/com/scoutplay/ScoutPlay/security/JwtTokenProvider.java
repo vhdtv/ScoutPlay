@@ -56,7 +56,7 @@ public class JwtTokenProvider {
      * Extrai o userType do token
      */
     public String extractUserType(String token) {
-        return (String) getClaimsFromToken(token).get("userType");
+        return (String) getClaimsFromToken(token).get("tipoConta");
     }
 
     /**
@@ -70,7 +70,7 @@ public class JwtTokenProvider {
                 .parseClaimsJws(token);
             return true;
         } catch (Exception ex) {
-            log.error("Erro ao validar JWT token: {}", ex.getMessage());
+            log.error("Erro ao validar JWT token: ", ex.getMessage());
             return false;
         }
     }
