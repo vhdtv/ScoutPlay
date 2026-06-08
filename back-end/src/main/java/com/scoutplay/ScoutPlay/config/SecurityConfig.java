@@ -37,22 +37,7 @@ public class SecurityConfig {
             .formLogin(AbstractHttpConfigurer::disable)
             .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
             .authorizeHttpRequests(auth -> auth
-                .requestMatchers(request -> !request.getRequestURI().startsWith("/api/")).permitAll()
-                .requestMatchers(
-                    "/",
-                    "/index.html",
-                    "/error",
-                    "/favicon.ico",
-                    "/api/login",
-                    "/api/atletas/registro",
-                    "/api/olheiros/registro",
-                    "/api/responsaveis/registro",
-                    "/api/atletas/fotos/**",
-                    "/api/auth/forgot-password",
-                    "/api/auth/reset-password",
-                    "/api/posts",
-                    "/api/posts/**"
-                ).permitAll()
+                .requestMatchers("/api/**").permitAll()
                 .anyRequest().authenticated()
             )
             .exceptionHandling(exception -> exception
