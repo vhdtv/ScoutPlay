@@ -1,7 +1,7 @@
 import type { UUID } from "crypto";
 
 export type UserSummaryDTO = {
-    url: string,
+    username: string,
     nome: string,
     iniciais: string,
     fotoPerfil: string | null,

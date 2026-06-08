@@ -5,7 +5,7 @@ export default class {
     get USER_CACHE_KEY() { return "__usuario"; }
     get USER_MOCK(): UserSummaryDTO {
         return {
-            url: "nome_sobrenome_11",
+            username: "nome_sobrenome_11",
             nome: "Nome",
             sobrenome: "Sobrenome",
             iniciais: "NS",
@@ -130,7 +130,7 @@ export default class {
     }
 
     private salvarDadosUsuarioNoNavegador = (userData: UserSummaryDTO) => {
-        localStorage.setItem(this.USER_CACHE_KEY, userData.url);
+        localStorage.setItem(this.USER_CACHE_KEY, userData.username);
     }
     
     private deletarDadosUsuarioNoNavegador = () => {
@@ -139,7 +139,7 @@ export default class {
     
     obterDadosDoPerfil = async (perfil?: string): Promise<UserProfileDTO> => {
         let output: UserProfileDTO = {
-            url: "user01923",
+            username: "user01923",
             nome: "Nome",
             sobrenome: "Sobrenome",
             iniciais: "NS",
@@ -156,14 +156,14 @@ export default class {
                         sobrenome: null,
                         fotoPerfil: null,
                         iniciais: "R",
-                        url: "_respo1"
+                        username: "_respo1"
                     },
                     {
                         nome: "Responsavel",
                         sobrenome: null,
                         fotoPerfil: null,
                         iniciais: "R",
-                        url: "_respo1"
+                        username: "_respo1"
                     }
                 ],
                 CLUBES: [
@@ -305,7 +305,7 @@ export default class {
     obterDadosDoPost = async (postId: string): Promise<PostDetailsDTO> => {
         return {
             autor: {
-                url: "user01923",
+                username: "user01923",
                 nome: "Nome",
                 sobrenome: "Sobrenome",
                 iniciais: "NS",
@@ -362,7 +362,7 @@ export default class {
                         segueConta: false
                     },
                     autor: {
-                        url: "user01923",
+                        username: "user01923",
                         nome: "Nome",
                         sobrenome: "Sobrenome",
                         iniciais: "NS",
@@ -385,7 +385,7 @@ export default class {
                 },
                 {
                     autor: {
-                        url: "user01923",
+                        username: "user01923",
                         nome: "Nome",
                         sobrenome: "Sobrenome",
                         iniciais: "NS",
