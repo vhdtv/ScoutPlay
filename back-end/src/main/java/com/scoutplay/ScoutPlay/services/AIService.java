@@ -11,16 +11,16 @@ import java.util.Map;
 
 @Service
 @RequiredArgsConstructor
-public class IaService {
+public class AIService {
 
     private final RestTemplate restTemplate;
-    private final IaContextService iaContextService;
+    private final AIContextService aiContextService;
 
     @Value("${app.ia.url}")
     private String iaUrl;
 
     public String perguntar(String pergunta) {
-        String contexto = iaContextService.montarContexto();
+        String contexto = aiContextService.montarContexto();
 
         Map<String, String> body = Map.of(
                 "pergunta", pergunta,

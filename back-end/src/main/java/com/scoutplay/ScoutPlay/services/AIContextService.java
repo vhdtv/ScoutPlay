@@ -18,7 +18,7 @@ import java.util.OptionalDouble;
 
 @Service
 @RequiredArgsConstructor
-public class IaContextService {
+public class AIContextService {
 
     private final UsuarioRepository usuarioRepository;
     private final DetalhePerfilRepository detalhePerfilRepository;
