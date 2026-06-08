@@ -1,5 +1,8 @@
 package com.scoutplay.ScoutPlay.api.dto;
 
+import java.util.Map;
+import java.util.UUID;
+
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -13,9 +16,8 @@ import lombok.NoArgsConstructor;
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-public class LoginResponse {
-    private String tokenAcesso;
-    private Long expiraEm;
-    UserSummary usuario;
-
+public class DetalhePerfilOutputDTO {
+    private UUID id;
+    private Map<String, Object> data;
+    private UUID userId;
 }

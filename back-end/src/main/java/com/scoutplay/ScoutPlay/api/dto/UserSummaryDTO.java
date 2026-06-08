@@ -13,13 +13,11 @@ import lombok.NoArgsConstructor;
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-public class UserSummary {
+public class UserSummaryDTO {
     private String nome;
-    private String nomeUsuario;
-    private String email;
     private String sobrenome;
+    private String username;
+    private String iniciais;
     private String fotoPerfil;
-    private String tipoConta; // 'ATLETA', 'OLHEIRO', 'RESPONSAVEL'
-    private int idade;
 
 }
