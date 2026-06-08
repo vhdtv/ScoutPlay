@@ -13,6 +13,8 @@ import java.time.Period;
 import java.util.ArrayList;
 import java.util.List;
 
+import com.fasterxml.jackson.annotation.JsonManagedReference;
+
 @Entity
 @Table(name="t_usuario")
 @Getter
@@ -30,6 +32,7 @@ public class Usuario extends TabelaBase {
     private String fotoPerfil;
     @OneToMany(mappedBy = "usuario", cascade = CascadeType.ALL)
     @Setter(AccessLevel.NONE)
+    @JsonManagedReference
     private List<DetalhePerfil> detalhePerfil = new ArrayList<>();
 
     protected Usuario() {}

@@ -10,6 +10,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
+import com.scoutplay.ScoutPlay.api.dto.UserProfileFieldsDTO;
 import com.scoutplay.ScoutPlay.api.dto.UserProfileSummary;
 import com.scoutplay.ScoutPlay.exceptions.ConflictException;
 import com.scoutplay.ScoutPlay.models.DetalhePerfil;
@@ -88,10 +89,7 @@ public class UsuarioService {
         if(!tipoContaService.verificarTipoConta(atleta, TipoConta.ATLETA)) throw new ConflictException("A conta informada não é do tipo válido (Tipo A)");
         Map<String, Object> detalhePerfilDoAtleta = detalhePerfilRepository.getByUsuario(atleta).getData();
         // valida se esse responsavel realmente é o RESPONSAVEL de atleta
-        System.out.println(detalhePerfilDoAtleta.get("RESPONSAVEL"));
-        System.out.println(responsavel.getAliasId());
         if(detalhePerfilDoAtleta.get("RESPONSAVEL").equals(responsavel.getAliasId().toString()) == false) throw new ConflictException("Usuario não autorizado a realizar esta ação");
-        // remove
         detalhePerfilDoAtleta.remove("RESPONSAVEL");
     }
     
@@ -127,7 +125,27 @@ public class UsuarioService {
     }
 
     @Transactional
-    public void atualizarPerfil() {}
+    public DetalhePerfil atualizarConfiguracoesPerfilParcialmente(Map<String, Object> config, Usuario usuario) {
+        DetalhePerfil informacoesNoBanco = detalhePerfilRepository.getByUsuario(usuario);
+        informacoesNoBanco.getData().putAll(config);
+        return informacoesNoBanco;
+    }   
+
+    @Transactional
+    public UserProfileSummary atualizarPerfilParcialmente(UserProfileFieldsDTO novaInformacao, Usuario usuario) {
+        if(novaInformacao.getNome().isPresent()) usuario.setNome(novaInformacao.getNome().get());
+        Set<XUsuarioTipoConta> poderesQueContaPossui = this.xUsuarioTipoContaRepository.getByUsuario(usuario);
+        String[] poderesConta = poderesQueContaPossui.stream().map(poder -> resolverTipo(poder)).distinct().toArray(String[]::new);
+        
+        return UserProfileSummary.builder()
+            .nome(usuario.getNome())
+            .username(usuario.getUsername())
+            .sobrenome(usuario.getSobrenome())
+            .fotoPerfil(usuario.getFotoPerfil())
+            .tipoConta(poderesConta)
+            .idade(usuario.obterIdade())
+            .build();
+    }
 
     @Transactional
     public DetalhePerfil adicionarInformacao(Map <String, Object> info, Usuario usuario) {

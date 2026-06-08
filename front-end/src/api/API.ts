@@ -66,8 +66,11 @@ export default class {
             tipoConta: data.tipoConta,
             detalhesPerfil: data.detalhesPerfil,
             posts: data.posts,
-            souEu: data.souEu
+            souEu: data.username === this.obterDadosUsuarioNoNavegador()
         }
+    }
+    atualizarPerfil = async (data: any) => {
+        throw new Error("Not implemented")
     }
 
     definirDetalhePerfil = async (chave: string, valor: string): Promise<UserProfileDetailDTO> => {
@@ -93,9 +96,25 @@ export default class {
         })
         const {data} = await request.json();
         return data as UserProfileDetailDTO;
-     }
+    }
 
-    atualizarConfiguracao = async (config: ConfigItemDTO): Promise<boolean> => { throw new Error("Not implemented") }
+    atualizarConfiguracao = async (config: ConfigItemDTO): Promise<boolean> => {
+        try {
+            const request = await fetch(`${this.BACKEND_ENDPOINT}/user`, {
+                method: "PATCH",
+                credentials: "include",
+                headers: {
+                    "Content-Type": "application/json"
+                },
+                body: JSON.stringify({config}),
+            })
+            const {data} = await request.json();
+            return true;
+        }
+        catch(e) {
+            return false;
+        }
+    }
     vincularComoResponsavelAConta = async (nomeUsuario: string): Promise<boolean> => { throw new Error("Not implemented") }
     desvincularComoResponsavelAConta = async (nomeUsuario: string): Promise<boolean> => { throw new Error("Not implemented") }
     

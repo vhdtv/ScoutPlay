@@ -3,12 +3,12 @@ import Footer from "../../components/Footer"
 import InputToggleButton from '#/components/ui/InputToggleButton'
 import ProfilePostList from '#/components/ProfilePostList'
 import { LoggedHeader } from '#/components/Header'
-import MockAPI from '#/api/MockAPI'
+import API from '#/api/API'
 import type { ConfigItemDTO, UserProfileDTO } from '#/api/tipos'
 import { useState, type Dispatch, type SetStateAction } from 'react'
 import ProfilePicture from '#/components/ui/ProfilePicture'
 
-const api = new MockAPI
+const api = new API
 
 export const Route = createFileRoute('/user/$user')({
   component: RouteComponent,

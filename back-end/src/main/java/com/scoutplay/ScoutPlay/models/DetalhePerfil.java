@@ -14,6 +14,8 @@ import java.util.Map;
 import org.hibernate.annotations.JdbcTypeCode;
 import org.hibernate.type.SqlTypes;
 
+import com.fasterxml.jackson.annotation.JsonBackReference;
+
 @Entity
 @Table(name="t_detalhes_perfil")
 @Getter
@@ -22,6 +24,7 @@ public class DetalhePerfil extends TabelaBase {
     @Setter(AccessLevel.NONE)
     @ManyToOne
     @JoinColumn(name = "fk_usuario")
+    @JsonBackReference
     private Usuario usuario;
     @JdbcTypeCode(SqlTypes.JSON)
     @Column(name = "data", columnDefinition = "jsonb")
