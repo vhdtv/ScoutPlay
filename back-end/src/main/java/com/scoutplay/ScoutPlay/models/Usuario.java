@@ -24,7 +24,7 @@ public class Usuario extends TabelaBase {
     private String email;
     private String nome;
     private String sobrenome;
-    private String enderecoUnico; // é o arroba dele
+    private String username;
     private String senha;
     private String telefone;
     private String fotoPerfil;
@@ -57,7 +57,7 @@ public class Usuario extends TabelaBase {
     
     @Override
     public String toString() {
-        return String.format("%s(@%s) - %d anos", this.nome, this.enderecoUnico, this.obterIdade());
+        return String.format("%s(@%s) - %d anos", this.nome, this.username, this.obterIdade());
     }
     
     public void setCpf(String _cpf) {
@@ -69,6 +69,12 @@ public class Usuario extends TabelaBase {
     public Integer obterIdade() {
         if(this.dataNascimento == null) return null;
         return Period.between(this.dataNascimento, LocalDate.now()).getYears();
+    }
+    public String getNomeCompleto() {
+        return this.getNome() + " " + this.getSobrenome();
+    }
+    public String getIniciais() {
+        return this.nome.charAt(0) + "" + this.sobrenome.charAt(0);
     }
 
 }
