@@ -1,6 +1,7 @@
 package com.scoutplay.ScoutPlay.services;
 
 import java.util.ArrayList;
+import java.util.Set;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -34,9 +35,8 @@ public class TipoContaService {
 
     @Transactional
     public boolean verificarTipoConta(Usuario usuario, int TIPO_CONTA) {
-        XUsuarioTipoConta tipoConta = xUsuarioTipoContaRepository.getByUsuario(usuario);
-        System.out.println(tipoConta);
-        return tipoConta.getTipoConta().getId() == TIPO_CONTA;
+        Set<XUsuarioTipoConta> tipoConta = xUsuarioTipoContaRepository.getByUsuario(usuario);
+        return tipoConta.stream().anyMatch(e -> e.getTipoConta().getId() == TIPO_CONTA);
     }
     
     @Transactional
