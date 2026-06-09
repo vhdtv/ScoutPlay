@@ -21,6 +21,7 @@ import lombok.NoArgsConstructor;
 public class UserProfileSummary {
     private String nome;
     private String sobrenome;
+    private String iniciais;
     private String username;
     private String fotoPerfil;
     private String[] tipoConta;

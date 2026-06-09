@@ -16,6 +16,7 @@ public abstract class TabelaBase {
     @GeneratedValue(strategy=GenerationType.IDENTITY)
     private int id;
     @Getter
+    @Setter
     private java.util.UUID aliasId;
     @Getter
     @Setter
@@ -29,7 +30,7 @@ public abstract class TabelaBase {
 
     @PrePersist
     public void __beforeCreation() {
-        this.aliasId = java.util.UUID.randomUUID();
+        if(this.aliasId == null) this.aliasId = java.util.UUID.randomUUID();
         this.criadoEm = LocalDate.now();
         this.atualizadoEm = this.criadoEm;
         this.ativo = true;

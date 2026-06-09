@@ -137,7 +137,24 @@ export default class {
             criadoEm: data.criadoEm,
         };
     }
-    obterPost = async (postId: string): Promise<PostDetailsDTO> => { throw new Error("Not implemented") }
+    obterPost = async (postId: string): Promise<PostDetailsDTO> => {
+        const backendRequest = await fetch(`${this.BACKEND_ENDPOINT}/post/${postId}`, {
+            method: 'GET',
+            credentials: "include"
+        });
+        const { data } = await backendRequest.json();
+        return {
+            autor: data.autor,
+            criadoEm: data.criadoEm,
+            descricao: data.descricao,
+            interacoes: data.interacoes,
+            media: data.media,
+            metadados: data.metadados,
+            titulo: data.titulo,
+            url: data.url,
+        }
+
+    }
     deletarPost = async (id: PostDataOutputDTO["url"]): Promise<boolean> => { throw new Error("Not implemented") }
     atualizarPost = async (id: PostDataOutputDTO["url"], data: PostDataOutputDTO): Promise<PostDataOutputDTO> => { throw new Error("Not implemented") }
     darLikeEmPost = async (postId: string): Promise<boolean> => { throw new Error("Not implemented") }
@@ -145,6 +162,9 @@ export default class {
     darDestaque = async (postId: UUID, data: string | number): Promise<PostHighlightDTO> => { throw new Error("Not implemented") }
     obterComentarios = async (url: string): Promise<CommentDTO[]> => { throw new Error("Not implemented") }
     enviarComentario = async (comentario: string): Promise<CommentDTO> => { throw new Error("Not implemented") }
+    obterMidia = (mediaPath: string): string => {
+        return `${this.BACKEND_ENDPOINT}/media/${mediaPath}`;
+    }
     
     seguir = async (nomeUsuario: string): Promise<boolean> => { throw new Error("Not implemented") }
     pararDeSeguir = async (nomeUsuario: string): Promise<boolean> => { throw new Error("Not implemented") }

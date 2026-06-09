@@ -74,6 +74,29 @@ public class PostService {
         }
     }
 
+    @Transactional
+    public PostDataOutputDTO criar(Post novoPost) {
+        Post post = postRepository.saveAndFlush(novoPost);
+        return PostDataOutputDTO.builder()
+            .url(post.getAliasId())
+            .titulo(post.getTitulo())
+            .descricao(Optional.of(post.getDescricao()))
+            .src(post.getCaminhoArquivo())
+            .poster(null)
+            .criadoEm(post.getCriadoEm())
+            .tipoMidia(post.getTipoMidia())
+            .autor(
+                PostAuthorSummary.builder()
+                    .fotoPerfil(post.getAutor().getFotoPerfil())
+                    .iniciais(post.getAutor().getIniciais())
+                    .nome(post.getAutor().getNome())
+                    .sobrenome(post.getAutor().getSobrenome())
+                    .username(post.getAutor().getUsername())
+                    .build()
+            )
+            .build();
+    }
+
     // public PageResponse<PostDTO> listar(int page, int size) {
     //     Pageable pageable = PageRequest.of(page, size, Sort.by("criadoEm").descending());
     //     Page<PostDTO> resultado = postRepository.findByAtivoTrue(pageable).map(this::toDTO);
@@ -88,10 +111,10 @@ public class PostService {
     //     return PageResponse.fromPage(resultado);
     // }
 
-    // public PostDTO buscar(UUID id) {
-    //     Post post = resolverPost(id);
-    //     return toDTO(post);
-    // }
+    public Optional<Post> buscarPor(UUID postId) {
+        Optional<Post> post = this.postRepository.findByAliasIdAndAtivoTrue(postId);
+        return post;
+    }
 
     // @Transactional
     // public PostDTO atualizar(UUID id, PostDTO dto) {

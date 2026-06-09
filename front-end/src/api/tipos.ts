@@ -74,20 +74,22 @@ export type SearchResultsOutputDTO = {
 
 export type SearchedItem = 
       { tipo: "PERFIL", dado: UserSummaryDTO } 
-    | { tipo: "POST", dado: PostDataOutputDTO}
+    | { tipo: "POST", dado: PostDataOutputDTO }
 
 export type PostDTO = {
     url: string,
     titulo: string,
-    subtitulo: string | null,
-    interacoes?: {
+    descricao: string | null,
+    interacoes: {
         /* Fala se o perfil que está logado já deu like no post */
         deuLike: boolean,
-        quantidadeLike?: number,
+        quantidadeLike: number,
         destaques?: PostHighlightDTO[] 
     },
+    criadoEm: Date,
     media: {
-        tipo: HTMLSourceElement['type'],
+        poster?: string,
+        mimeType: HTMLSourceElement['type'],
         src: string,
     }
 }

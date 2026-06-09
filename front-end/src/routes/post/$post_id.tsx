@@ -1,24 +1,25 @@
 import { createFileRoute, Link } from '@tanstack/react-router'
 import { LoggedHeader } from '#/components/Header';
 import Footer from '#/components/Footer';
-import MockAPI from '#/api/MockAPI';
+import API from '#/api/API';
 import { useEffect, useState } from 'react';
 import type { CommentDTO, PostDetailsDTO, UserSummaryDTO } from '#/api/tipos';
 import ProfilePicture from '#/components/ui/ProfilePicture';
 
-const api = new MockAPI
+const api = new API
 
 export const Route = createFileRoute('/post/$post_id')({
   component: RouteComponent,
   loader: async ({params}) => {
-    const post = await api.obterDadosDoPost(params.post_id);
+    const post = await api.obterPost(params.post_id);
+    console.log({post})
     return { post }
   }
 })
 
 function Comment({user, valor}: {user: UserSummaryDTO, valor: string}) {
   return <div className='flex gap-2 px-2 py-1 items-center'>
-    <Link to='/user/$user' params={{user: user.url}}>
+    <Link to='/user/$user' params={{user: user.username}}>
       <ProfilePicture user={user} className='w-8' />
     </Link>
     <span className='text-sm'>{valor}</span>
@@ -79,8 +80,8 @@ export function PostMediaComponent({post, className}: {post: PostDetailsDTO, cla
         </div>
       </div>
       {
-        post.media.tipo.startsWith("video")
-        ? <video className='object-fit object-center' loop autoPlay={true} muted src={post.media.src}></video>
+        post.media.mimeType.startsWith("video")
+        ? <video className='object-fit object-center' loop autoPlay={true} muted src={api.obterMidia(post.media.src)}></video>
         : <img src={post.media.src} />
       }
     </div>
@@ -120,26 +121,7 @@ function RouteComponent() {
               </div>
               <div className='flex flex-col overflow-auto grow-1 py-2'>
                 {comentarios.length == 0 && <span className='opacity-50 text-bold w-full text-center block p-4'>Sem comentários ainda</span>}
-                {
-                  comentarios.map(((comentario, index) => 
-                    (
-                      <>
-                        <Comment key={index} user={comentario.por} valor={comentario.texto} />
-                        <Comment key={index} user={comentario.por} valor={comentario.texto} />
-                        <Comment key={index} user={comentario.por} valor={comentario.texto} />
-                        <Comment key={index} user={comentario.por} valor={comentario.texto} />
-                        <Comment key={index} user={comentario.por} valor={comentario.texto} />
-                        <Comment key={index} user={comentario.por} valor={comentario.texto} />
-                        <Comment key={index} user={comentario.por} valor={comentario.texto} />
-                        <Comment key={index} user={comentario.por} valor={comentario.texto} />
-                        <Comment key={index} user={comentario.por} valor={comentario.texto} />
-                        <Comment key={index} user={comentario.por} valor={comentario.texto} />
-                        <Comment key={index} user={comentario.por} valor={comentario.texto} />
-                        <Comment key={index} user={comentario.por} valor={comentario.texto} />
-                      </>
-                    )
-                  ))
-                }
+                {comentarios.map(((comentario, index) => <Comment key={index} user={comentario.por} valor={comentario.texto} /> ))}
               </div>
               <form action={enviarComentario} className='p-4 relative text-xs flex gap-2'>
                 <textarea name="comentario" placeholder='Adicione um comentário...' className='outline-none w-full p-2 border-1 border-slate-300 rounded-md hover:border-slate-400 hover:bg-slate-200 focus:border-slate-400 focus:bg-slate-200 resize-none'> </textarea>

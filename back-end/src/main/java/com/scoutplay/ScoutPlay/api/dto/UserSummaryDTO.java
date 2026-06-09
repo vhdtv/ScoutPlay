@@ -19,5 +19,4 @@ public class UserSummaryDTO {
     private String username;
     private String iniciais;
     private String fotoPerfil;
-
 }

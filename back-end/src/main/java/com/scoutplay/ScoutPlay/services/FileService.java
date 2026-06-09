@@ -17,12 +17,12 @@ public class FileService {
         String filetype = FileService.getFileExtension(file);
         String filename = UUID.randomUUID().toString();
         Path path = Paths.get(saveDirectory);
-        System.out.println("Looking in: " + path.toAbsolutePath());
         Path completePath = path.resolve(String.format("%s.%s", filename, filetype));
         Files.copy(stream, completePath);
 
-        return completePath.toString();
+        return filename.toString();
     }
+
     static public String getFileExtension(MultipartFile file) {
         String originalFilename = file.getOriginalFilename();
         if (originalFilename == null || !originalFilename.contains(".")) return "";

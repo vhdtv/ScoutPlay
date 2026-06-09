@@ -2,24 +2,31 @@ package com.scoutplay.ScoutPlay.config;
 import java.time.LocalDate;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.UUID;
 
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.web.multipart.MultipartFile;
 
 import com.scoutplay.ScoutPlay.services.TipoContaService;
 import com.scoutplay.ScoutPlay.services.TipoDetalhePerfilService;
 import com.scoutplay.ScoutPlay.services.DetalhePerfilService;
+import com.scoutplay.ScoutPlay.services.FileService;
+import com.scoutplay.ScoutPlay.services.PostService;
 import com.scoutplay.ScoutPlay.services.TipoInteracaoService;
 import com.scoutplay.ScoutPlay.services.TipoMidiaService;
 import com.scoutplay.ScoutPlay.services.UsuarioService;
+import com.scoutplay.ScoutPlay.api.dto.PostDataInputDTO;
+import com.scoutplay.ScoutPlay.api.dto.PostDataOutputDTO;
+import com.scoutplay.ScoutPlay.models.Post;
 import com.scoutplay.ScoutPlay.models.Usuario;
 
 
 @Configuration
 public class DataInitializer {
     @Bean
-    CommandLineRunner initDatabase(UsuarioService usuarioService, TipoContaService tipoContaService, TipoMidiaService tipoMidiaService, TipoInteracaoService tipoInteracaoService, TipoDetalhePerfilService tipoDetalhePerfil, DetalhePerfilService detalhePerfilService) {
+    CommandLineRunner initDatabase(UsuarioService usuarioService, TipoContaService tipoContaService, TipoMidiaService tipoMidiaService, TipoInteracaoService tipoInteracaoService, TipoDetalhePerfilService tipoDetalhePerfil, DetalhePerfilService detalhePerfilService, PostService postService) {
         return args -> {
             tipoContaService.injetarValores();
             tipoMidiaService.injetarValores();
@@ -46,6 +53,11 @@ public class DataInitializer {
                 // Ações de Olheiro
                 Usuario olheiroRamilson = new Usuario("Ramilson", "Neto", "ramilson@olheiro.com", "1245678", "12345", LocalDate.of(1978, 07, 8));
                 usuarioService.cadastrarOlheiro(olheiroRamilson);
+
+                // Criação de Post
+                Post post1 = new Post("Titulo", "descricao", "3560017-uhd_3840_2160_25fps.mp4", tipoMidiaService.categorizarComoVideo(), atletaFabio);
+                post1.setAliasId(UUID.fromString("ec51b202-c0f0-43ec-9f39-0cc86d48d6ee"));
+                postService.criar(post1);
             }
             catch (Throwable t) {
                 System.err.println("Erro fatal: " + t.getClass().getName());

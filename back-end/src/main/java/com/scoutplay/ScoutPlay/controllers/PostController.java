@@ -2,15 +2,18 @@ package com.scoutplay.ScoutPlay.controllers;
 
 import com.scoutplay.ScoutPlay.api.dto.PostDataInputDTO;
 import com.scoutplay.ScoutPlay.api.dto.PostDataOutputDTO;
+import com.scoutplay.ScoutPlay.api.dto.PostDetailsDTO;
+import com.scoutplay.ScoutPlay.api.dto.PostMediaData;
+import com.scoutplay.ScoutPlay.api.dto.UserSummaryDTO;
 import com.scoutplay.ScoutPlay.api.response.ApiResponse;
-import com.scoutplay.ScoutPlay.api.response.PageResponse;
+import com.scoutplay.ScoutPlay.models.Post;
 import com.scoutplay.ScoutPlay.services.PostService;
-import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.Optional;
 import java.util.UUID;
 
 @RestController
@@ -42,10 +45,29 @@ public class PostController {
     //     return ResponseEntity.ok(ApiResponse.success(postService.listarPorAutor(autorId, page, size)));
     // }
 
-    // @GetMapping("/{id}")
-    // public ResponseEntity<ApiResponse<PostDataInputDTO>> buscar(@PathVariable UUID id) {
-    //     return ResponseEntity.ok(ApiResponse.success(postService.buscar(id)));
-    // }
+    @GetMapping("post/{id}")
+    public ResponseEntity<ApiResponse<PostDetailsDTO>> buscar(@PathVariable UUID id) {
+        Optional<Post> post = postService.buscarPor(id);
+        if(post.isEmpty()) return ResponseEntity.status(HttpStatus.NOT_FOUND).body(ApiResponse.error("404", "Not Found"));
+        return ResponseEntity.ok(ApiResponse.success(PostDetailsDTO.builder()
+            .url(post.get().getAliasId())
+            .titulo(post.get().getTitulo())
+            .descricao(Optional.of(post.get().getDescricao()))
+            .media(PostMediaData.builder()
+                .src(post.get().getCaminhoArquivo())
+                .mimeType(post.get().obterMimeType())
+                .poster(null)
+                .build())
+            .criadoEm(post.get().getCriadoEm())
+            .autor(UserSummaryDTO.builder()
+                .nome(post.get().getAutor().getNome())
+                .sobrenome(post.get().getAutor().getSobrenome())
+                .iniciais(post.get().getAutor().getIniciais())
+                .username(post.get().getAutor().getUsername())
+                .fotoPerfil(post.get().getAutor().getFotoPerfil())
+                .build())
+            .build()));
+    }
 
     // @PutMapping("/{id}")
     // public ResponseEntity<ApiResponse<PostDataInputDTO>> atualizar(
