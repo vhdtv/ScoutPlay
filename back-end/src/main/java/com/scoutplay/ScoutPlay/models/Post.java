@@ -16,4 +16,8 @@ public class Post extends TabelaBase {
     @Getter @Setter @ManyToOne private Usuario autor;
 
     public Post() {}
+    public String obterExtensaoDaMidia() {
+        if (caminhoArquivo == null || !caminhoArquivo.contains(".")) return "";
+        return caminhoArquivo.substring(caminhoArquivo.lastIndexOf(".") + 1);
+    }
 }

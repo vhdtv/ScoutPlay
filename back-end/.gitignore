@@ -1,5 +1,6 @@
 HELP.md
 target/
+uploads/
 
 ### Secrets ###
 src/main/resources/application-dev.properties

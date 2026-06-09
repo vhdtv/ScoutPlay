@@ -23,4 +23,8 @@ public class TipoMidia {
         this.id = _id;
         this.nome = _nome;
     }
+
+    public String toString() {
+        return this.nome;
+    }
 }

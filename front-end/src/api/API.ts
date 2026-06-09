@@ -1,5 +1,5 @@
 import type { UUID } from "crypto";
-import type { CommentDTO, ConfigItemDTO, MensagemDTO, PostDataInputDTO, PostDataOutputDTO, PostDataUpdateDTO, PostDetailsDTO, PostHighlightDTO, SearchParamsDTO, SearchResultsOutputDTO, UserProfileDetailDTO, UserProfileDTO, UserSummaryDTO } from "./tipos";
+import type { CommentDTO, ConfigItemDTO, MensagemDTO, PostDataInputDTO, PostDataOutputDTO, PostDetailsDTO, PostHighlightDTO, SearchParamsDTO, SearchResultsOutputDTO, UserProfileDetailDTO, UserProfileDTO, UserSummaryDTO } from "./tipos";
 
 export default class {
     get USER_CACHE_KEY() { return "__usuario"; }
@@ -69,10 +69,7 @@ export default class {
             souEu: data.username === this.obterDadosUsuarioNoNavegador()
         }
     }
-    atualizarPerfil = async (data: any) => {
-        throw new Error("Not implemented")
-    }
-
+    atualizarPerfil = async (data: any) => { throw new Error("Not implemented") }
     definirDetalhePerfil = async (chave: string, valor: string): Promise<UserProfileDetailDTO> => {
         const request = await fetch(`${this.BACKEND_ENDPOINT}/profile-detail`, {
             method: "POST",
@@ -118,10 +115,31 @@ export default class {
     vincularComoResponsavelAConta = async (nomeUsuario: string): Promise<boolean> => { throw new Error("Not implemented") }
     desvincularComoResponsavelAConta = async (nomeUsuario: string): Promise<boolean> => { throw new Error("Not implemented") }
     
-    criarPost = async (data: PostDataInputDTO): Promise<PostDataOutputDTO> => { throw new Error("Not implemented") }
+    criarPost = async ({titulo, arquivo, descricao}: PostDataInputDTO): Promise<PostDataOutputDTO> => {
+        const formData = new FormData();
+        formData.append("arquivo", arquivo);
+        formData.append("titulo", titulo);
+        formData.append("descricao", descricao ?? "");
+        const request = await fetch(`${this.BACKEND_ENDPOINT}/post`, {
+            method: "POST",
+            credentials: "include",
+            body: formData,
+        })
+        const { data } = await request.json();
+        return {
+            url: data.url,
+            titulo: data.titulo,
+            descricao: data.descricao,
+            tipoMidia: data.tipoMidia,
+            src: data.src,
+            poster: data.poster,
+            autor: data.autor,
+            criadoEm: data.criadoEm,
+        };
+    }
     obterPost = async (postId: string): Promise<PostDetailsDTO> => { throw new Error("Not implemented") }
-    deletarPost = async (id: PostDataOutputDTO["enderecoUnico"]): Promise<boolean> => { throw new Error("Not implemented") }
-    atualizarPost = async (id: PostDataOutputDTO["enderecoUnico"], data: PostDataUpdateDTO): Promise<PostDataOutputDTO> => { throw new Error("Not implemented") }
+    deletarPost = async (id: PostDataOutputDTO["url"]): Promise<boolean> => { throw new Error("Not implemented") }
+    atualizarPost = async (id: PostDataOutputDTO["url"], data: PostDataOutputDTO): Promise<PostDataOutputDTO> => { throw new Error("Not implemented") }
     darLikeEmPost = async (postId: string): Promise<boolean> => { throw new Error("Not implemented") }
     darDislikeEmPost = async (postId: string): Promise<boolean> => { throw new Error("Not implemented") }
     darDestaque = async (postId: UUID, data: string | number): Promise<PostHighlightDTO> => { throw new Error("Not implemented") }

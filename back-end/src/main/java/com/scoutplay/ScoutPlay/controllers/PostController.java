@@ -1,6 +1,7 @@
 package com.scoutplay.ScoutPlay.controllers;
 
-import com.scoutplay.ScoutPlay.api.dto.PostDTO;
+import com.scoutplay.ScoutPlay.api.dto.PostDataInputDTO;
+import com.scoutplay.ScoutPlay.api.dto.PostDataOutputDTO;
 import com.scoutplay.ScoutPlay.api.response.ApiResponse;
 import com.scoutplay.ScoutPlay.api.response.PageResponse;
 import com.scoutplay.ScoutPlay.services.PostService;
@@ -13,49 +14,49 @@ import org.springframework.web.bind.annotation.*;
 import java.util.UUID;
 
 @RestController
-@RequestMapping("/api/posts")
+@RequestMapping("/api")
 @RequiredArgsConstructor
 public class PostController {
 
     private final PostService postService;
 
-    @PostMapping
-    public ResponseEntity<ApiResponse<PostDTO>> criar(@Valid @RequestBody PostDTO dto) {
-        PostDTO criado = postService.criar(dto);
-        return ResponseEntity.status(HttpStatus.CREATED)
-                .body(ApiResponse.success(criado, "Post criado com sucesso"));
+    @PostMapping("/post")
+    public ResponseEntity<ApiResponse<PostDataOutputDTO>> criar(@ModelAttribute PostDataInputDTO dto) {
+        PostDataOutputDTO criado = this.postService.criar(dto);
+        if(criado == null) return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(ApiResponse.error("400", "Erro ao criar post"));
+        return ResponseEntity.status(HttpStatus.OK).body(ApiResponse.success(criado, "Post criado com sucesso"));
     }
 
-    @GetMapping
-    public ResponseEntity<ApiResponse<PageResponse<PostDTO>>> listar(
-            @RequestParam(defaultValue = "0") int page,
-            @RequestParam(defaultValue = "10") int size) {
-        return ResponseEntity.ok(ApiResponse.success(postService.listar(page, size)));
-    }
+    // @GetMapping
+    // public ResponseEntity<ApiResponse<PageResponse<PostDataInputDTO>>> listar(
+    //         @RequestParam(defaultValue = "0") int page,
+    //         @RequestParam(defaultValue = "10") int size) {
+    //     return ResponseEntity.ok(ApiResponse.success(postService.listar(page, size)));
+    // }
 
-    @GetMapping("/usuario/{autorId}")
-    public ResponseEntity<ApiResponse<PageResponse<PostDTO>>> listarPorAutor(
-            @PathVariable UUID autorId,
-            @RequestParam(defaultValue = "0") int page,
-            @RequestParam(defaultValue = "10") int size) {
-        return ResponseEntity.ok(ApiResponse.success(postService.listarPorAutor(autorId, page, size)));
-    }
+    // @GetMapping("/usuario/{autorId}")
+    // public ResponseEntity<ApiResponse<PageResponse<PostDataInputDTO>>> listarPorAutor(
+    //         @PathVariable UUID autorId,
+    //         @RequestParam(defaultValue = "0") int page,
+    //         @RequestParam(defaultValue = "10") int size) {
+    //     return ResponseEntity.ok(ApiResponse.success(postService.listarPorAutor(autorId, page, size)));
+    // }
 
-    @GetMapping("/{id}")
-    public ResponseEntity<ApiResponse<PostDTO>> buscar(@PathVariable UUID id) {
-        return ResponseEntity.ok(ApiResponse.success(postService.buscar(id)));
-    }
+    // @GetMapping("/{id}")
+    // public ResponseEntity<ApiResponse<PostDataInputDTO>> buscar(@PathVariable UUID id) {
+    //     return ResponseEntity.ok(ApiResponse.success(postService.buscar(id)));
+    // }
 
-    @PutMapping("/{id}")
-    public ResponseEntity<ApiResponse<PostDTO>> atualizar(
-            @PathVariable UUID id,
-            @RequestBody PostDTO dto) {
-        return ResponseEntity.ok(ApiResponse.success(postService.atualizar(id, dto)));
-    }
+    // @PutMapping("/{id}")
+    // public ResponseEntity<ApiResponse<PostDataInputDTO>> atualizar(
+    //         @PathVariable UUID id,
+    //         @RequestBody PostDataInputDTO dto) {
+    //     return ResponseEntity.ok(ApiResponse.success(postService.atualizar(id, dto)));
+    // }
 
-    @DeleteMapping("/{id}")
-    public ResponseEntity<ApiResponse<Void>> deletar(@PathVariable UUID id) {
-        postService.deletar(id);
-        return ResponseEntity.ok(ApiResponse.success(null, "Post deletado com sucesso"));
-    }
+    // @DeleteMapping("/{id}")
+    // public ResponseEntity<ApiResponse<Void>> deletar(@PathVariable UUID id) {
+    //     postService.deletar(id);
+    //     return ResponseEntity.ok(ApiResponse.success(null, "Post deletado com sucesso"));
+    // }
 }

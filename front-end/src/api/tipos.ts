@@ -40,26 +40,18 @@ export type PassagemUsuarioEmClubeDTO = {
 export type PostDataInputDTO = {
     titulo: string,
     descricao?: string,
-    arquivo: FileList,
+    arquivo: File,
 }
 
 export type PostDataOutputDTO = {
-    enderecoUnico: string,
+    url: string,
     titulo: string,
     descricao?: string,
     src: string,
     poster: string,
+    criadoEm: Date,
     tipoMidia: "VIDEO" | "IMAGE",
-}
-
-export type PostDataSummaryDTO = {
-    enderecoUnico: string,
-    titulo: string,
-    poster: string,
-}
-
-export type PostDataUpdateDTO = {
-    descricao?: string,
+    autor: UserSummaryDTO,
 }
 
 export type PostHighlightDTO = {
@@ -82,7 +74,7 @@ export type SearchResultsOutputDTO = {
 
 export type SearchedItem = 
       { tipo: "PERFIL", dado: UserSummaryDTO } 
-    | { tipo: "POST", dado: PostDataSummaryDTO}
+    | { tipo: "POST", dado: PostDataOutputDTO}
 
 export type PostDTO = {
     url: string,

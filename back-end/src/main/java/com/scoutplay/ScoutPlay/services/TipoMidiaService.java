@@ -24,4 +24,12 @@ public class TipoMidiaService {
         tipos.add(new TipoMidia(2, "video"));
         tipoMidiaRepository.saveAllAndFlush(tipos);
     }
+
+    public TipoMidia categorizarComoVideo() {
+        return this.tipoMidiaRepository.findById(2).get();
+    }
+
+    public TipoMidia categorizarComoImagem() {
+        return this.tipoMidiaRepository.findById(1).get();
+    }
 }
