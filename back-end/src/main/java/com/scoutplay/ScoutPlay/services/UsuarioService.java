@@ -47,7 +47,7 @@ public class UsuarioService {
             final int MIN_VALUE = 1000;
             final int MAX_VALUE = 99999;
             enderecoGerado += rand.nextInt(MAX_VALUE - MIN_VALUE) + MIN_VALUE;
-            enderecoGeradoJaExisteNoBanco = usuarioRepository.findByUsername(enderecoGerado) != null;
+            enderecoGeradoJaExisteNoBanco = usuarioRepository.findByUsernameIgnoreCase(enderecoGerado) != null;
         } while(enderecoGeradoJaExisteNoBanco);
         
         return enderecoGerado;
@@ -110,7 +110,23 @@ public class UsuarioService {
     }
 
     public UserProfileSummary buscarDadosPerfil(String idDoUsuarioAProcurar, UUID idDoUsuarioAutenticado) {
-        Usuario usuario = usuarioRepository.findByUsername(idDoUsuarioAProcurar);
+        Usuario usuario = usuarioRepository.findByUsernameIgnoreCase(idDoUsuarioAProcurar);
+        Set<XUsuarioTipoConta> poderesQueContaPossui = this.xUsuarioTipoContaRepository.getByUsuario(usuario);
+        String[] poderesConta = poderesQueContaPossui.stream().map(poder -> resolverTipo(poder)).distinct().toArray(String[]::new);
+
+        return UserProfileSummary.builder()
+            .nome(usuario.getNome())
+            .username(usuario.getUsername())
+            .sobrenome(usuario.getSobrenome())
+            .fotoPerfil(usuario.getFotoPerfil())
+            .tipoConta(poderesConta)
+            .idade(usuario.obterIdade())
+            .build();
+    }
+
+    public UserProfileSummary buscarDadosPerfil(String idDoUsuarioAProcurar) {
+        Usuario usuario = usuarioRepository.findByUsernameIgnoreCase(idDoUsuarioAProcurar);
+        if(usuario == null) throw new Error("Usuario não encontrado");
         Set<XUsuarioTipoConta> poderesQueContaPossui = this.xUsuarioTipoContaRepository.getByUsuario(usuario);
         String[] poderesConta = poderesQueContaPossui.stream().map(poder -> resolverTipo(poder)).distinct().toArray(String[]::new);
 

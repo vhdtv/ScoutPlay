@@ -56,6 +56,7 @@ export default class {
             credentials: "include"
         });
         const { data } = await backendRequest.json()
+        if(!data) throw new Error("obterDadosDoPerfil veio com data = null")
         return {
             username: data.username,
             nome: data.nome,
@@ -167,7 +168,13 @@ export default class {
     darLikeEmPost = async (postId: string): Promise<boolean> => { throw new Error("Not implemented") }
     darDislikeEmPost = async (postId: string): Promise<boolean> => { throw new Error("Not implemented") }
     darDestaque = async (postId: UUID, data: string | number): Promise<PostHighlightDTO> => { throw new Error("Not implemented") }
-    obterComentarios = async (url: string): Promise<CommentDTO[]> => { throw new Error("Not implemented") }
+    obterComentarios = async (postId: UUID): Promise<CommentDTO[]> => {
+        const request = await fetch(`${this.BACKEND_ENDPOINT}/post/${postId}/comments`, {
+            headers: { "Content-Type": "application/json" }
+        })
+        const { data } = await request.json();
+        return [];
+    }
     enviarComentario = async (postId: UUID, comentario: string): Promise<CommentDTO> => {
         const request = await fetch(`${this.BACKEND_ENDPOINT}/comment`, {
             method: "POST",

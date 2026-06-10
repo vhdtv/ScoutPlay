@@ -36,6 +36,7 @@ public class DataInitializer {
             try {
                 // Ações de Atleta
                 Usuario atletaFabio = new Usuario("Fabio", "Braga", "fabio@atleta.com", "12456", "12345", LocalDate.of(2006, 12, 4));
+                atletaFabio.setUsername("fabin_123");
                 usuarioService.cadastrarAtleta(atletaFabio);
                 Map<String, Object> info = new HashMap<>();
                 info.put("PE_DOMINANTE", "Direito");

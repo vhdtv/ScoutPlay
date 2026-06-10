@@ -13,7 +13,7 @@ public interface UsuarioRepository extends JpaRepository<Usuario, UUID> {
     boolean existsByCpf(String cpf);
     boolean existsByEmail(String email);
     Usuario findByEmail(String email);
-    Usuario findByUsername(String enderecoGerado);
+    Usuario findByUsernameIgnoreCase(String username);
     Optional<Usuario> findByAliasId(UUID aliasId);
 
     @Query("SELECT x.usuario FROM XUsuarioTipoConta x WHERE x.tipoConta.id = :tipoContaId")

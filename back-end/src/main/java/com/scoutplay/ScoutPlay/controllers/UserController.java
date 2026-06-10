@@ -61,8 +61,14 @@ public class UserController {
     
     @GetMapping("/user")
     public ResponseEntity<ApiResponse<UserProfileSummary>> getUserData(@RequestParam String user, @CookieValue(name = "access_token", required = false) String accessToken) throws IllegalArgumentException {
-        UUID aliasId = UUID.fromString(jwtTokenProvider.extractUserId(accessToken));
-        UserProfileSummary userData = usuarioService.buscarDadosPerfil(user, aliasId);
+        UserProfileSummary userData;
+        if(accessToken == null || accessToken.isEmpty() || accessToken.isBlank()) {
+            userData = usuarioService.buscarDadosPerfil(user);
+        }
+        else {
+            UUID aliasId = UUID.fromString(jwtTokenProvider.extractUserId(accessToken));
+            userData = usuarioService.buscarDadosPerfil(user, aliasId);
+        }
         return ResponseEntity.ok(ApiResponse.success(userData));
     }
 

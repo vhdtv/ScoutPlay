@@ -39,6 +39,7 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
         "/api/login",
         "/api/signup",
         "/api/forgot-password",
+        "/api/user",
     };
 
     @Override
@@ -51,7 +52,7 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
         try {
             String token = extractTokenFromRequest(request);
-            if (token == null) {
+            if (token == null || token.isBlank()) {
                 filterChain.doFilter(request, response);
                 return;
             }
