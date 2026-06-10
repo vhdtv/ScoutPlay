@@ -7,18 +7,12 @@ import java.util.UUID;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.web.multipart.MultipartFile;
-
 import com.scoutplay.ScoutPlay.services.TipoContaService;
 import com.scoutplay.ScoutPlay.services.TipoDetalhePerfilService;
 import com.scoutplay.ScoutPlay.services.DetalhePerfilService;
-import com.scoutplay.ScoutPlay.services.FileService;
 import com.scoutplay.ScoutPlay.services.PostService;
-import com.scoutplay.ScoutPlay.services.TipoInteracaoService;
 import com.scoutplay.ScoutPlay.services.TipoMidiaService;
 import com.scoutplay.ScoutPlay.services.UsuarioService;
-import com.scoutplay.ScoutPlay.api.dto.PostDataInputDTO;
-import com.scoutplay.ScoutPlay.api.dto.PostDataOutputDTO;
 import com.scoutplay.ScoutPlay.models.Post;
 import com.scoutplay.ScoutPlay.models.Usuario;
 
@@ -26,16 +20,16 @@ import com.scoutplay.ScoutPlay.models.Usuario;
 @Configuration
 public class DataInitializer {
     @Bean
-    CommandLineRunner initDatabase(UsuarioService usuarioService, TipoContaService tipoContaService, TipoMidiaService tipoMidiaService, TipoInteracaoService tipoInteracaoService, TipoDetalhePerfilService tipoDetalhePerfil, DetalhePerfilService detalhePerfilService, PostService postService) {
+    CommandLineRunner initDatabase(UsuarioService usuarioService, TipoContaService tipoContaService, TipoMidiaService tipoMidiaService, TipoDetalhePerfilService tipoDetalhePerfil, DetalhePerfilService detalhePerfilService, PostService postService) {
         return args -> {
             tipoContaService.injetarValores();
             tipoMidiaService.injetarValores();
-            tipoInteracaoService.injetarValores();
             tipoDetalhePerfil.injetarValores();
             
             try {
                 // Ações de Atleta
                 Usuario atletaFabio = new Usuario("Fabio", "Braga", "fabio@atleta.com", "12456", "12345", LocalDate.of(2006, 12, 4));
+                atletaFabio.setUsername("fabin_123");
                 usuarioService.cadastrarAtleta(atletaFabio);
                 Map<String, Object> info = new HashMap<>();
                 info.put("PE_DOMINANTE", "Direito");

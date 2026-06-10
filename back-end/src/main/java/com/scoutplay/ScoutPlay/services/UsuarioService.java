@@ -47,7 +47,7 @@ public class UsuarioService {
             final int MIN_VALUE = 1000;
             final int MAX_VALUE = 99999;
             enderecoGerado += rand.nextInt(MAX_VALUE - MIN_VALUE) + MIN_VALUE;
-            enderecoGeradoJaExisteNoBanco = usuarioRepository.findByUsername(enderecoGerado) != null;
+            enderecoGeradoJaExisteNoBanco = usuarioRepository.findByUsernameIgnoreCase(enderecoGerado) != null;
         } while(enderecoGeradoJaExisteNoBanco);
         
         return enderecoGerado;
@@ -57,7 +57,7 @@ public class UsuarioService {
     public Usuario cadastrarAtleta(Usuario usuario) {
         if(usuarioRepository.existsByCpf(usuario.getCpf())) throw new ConflictException("Um atleta com este CPF já existe.");
         if(usuarioRepository.existsByEmail(usuario.getEmail())) throw new ConflictException("Este e-mail já está em uso. Por favor, utilize outro.");
-        usuario.setUsername(gerarUsername(usuario.getNome()));
+        if(usuario.getUsername().isBlank()) usuario.setUsername(gerarUsername(usuario.getNome()));
         usuario.setSenha(passwordEncoder.encode(usuario.getSenha()));
         usuario = usuarioRepository.saveAndFlush(usuario);
         tipoContaService.categorizarContaComoAtleta(usuario);
@@ -110,7 +110,23 @@ public class UsuarioService {
     }
 
     public UserProfileSummary buscarDadosPerfil(String idDoUsuarioAProcurar, UUID idDoUsuarioAutenticado) {
-        Usuario usuario = usuarioRepository.findByUsername(idDoUsuarioAProcurar);
+        Usuario usuario = usuarioRepository.findByUsernameIgnoreCase(idDoUsuarioAProcurar);
+        Set<XUsuarioTipoConta> poderesQueContaPossui = this.xUsuarioTipoContaRepository.getByUsuario(usuario);
+        String[] poderesConta = poderesQueContaPossui.stream().map(poder -> resolverTipo(poder)).distinct().toArray(String[]::new);
+
+        return UserProfileSummary.builder()
+            .nome(usuario.getNome())
+            .username(usuario.getUsername())
+            .sobrenome(usuario.getSobrenome())
+            .fotoPerfil(usuario.getFotoPerfil())
+            .tipoConta(poderesConta)
+            .idade(usuario.obterIdade())
+            .build();
+    }
+
+    public UserProfileSummary buscarDadosPerfil(String idDoUsuarioAProcurar) {
+        Usuario usuario = usuarioRepository.findByUsernameIgnoreCase(idDoUsuarioAProcurar);
+        if(usuario == null) throw new Error("Usuario não encontrado");
         Set<XUsuarioTipoConta> poderesQueContaPossui = this.xUsuarioTipoContaRepository.getByUsuario(usuario);
         String[] poderesConta = poderesQueContaPossui.stream().map(poder -> resolverTipo(poder)).distinct().toArray(String[]::new);
 
@@ -195,6 +211,11 @@ public class UsuarioService {
             case TipoConta.REPRESENTANTE_CLUBE -> "REPRESENTANTE_CLUBE";
             default -> "USUARIO";
         };
+    }
+
+    @Transactional
+    public Usuario buscarPorComLike(UUID aliasId) {
+        return this.usuarioRepository.findByIdWithPostsCurtidos(aliasId).orElse(null);
     }
 
 }

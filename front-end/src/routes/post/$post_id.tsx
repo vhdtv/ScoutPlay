@@ -12,7 +12,6 @@ export const Route = createFileRoute('/post/$post_id')({
   component: RouteComponent,
   loader: async ({params}) => {
     const post = await api.obterPost(params.post_id);
-    console.log({post})
     return { post }
   }
 })
@@ -47,7 +46,7 @@ function LikeButton({postUrl, contagemAtualDeLike, usuarioJaDeuLike}: {postUrl: 
 
   return (
     <>
-      { likeDoUsuarioLogado 
+      { !likeDoUsuarioLogado 
         ? (
           <button onClick={enviarGostei} className='relative transition focus:backdrop-blur-sm focus:outline-2 outline-offset-3 outline-neutral-100 border-1 border-slate-100 p-5 flex flex-col items-center justify-center rounded-full cursor-pointer text-slate-100 hover:bg-white/50 hover:border-white/0 hover:text-slate-950 hover:backdrop-blur-sm focus:bg-white/50 focus:border-white/0 focus:text-slate-950'>
             <span className="-translate-y-1 material-symbols-outlined" style={{fontSize: "1rem", lineHeight: '1em'}}> thumb_up </span>
@@ -99,7 +98,7 @@ function RouteComponent() {
 
   const enviarComentario = async (form: FormData) => {
     const comentario = form.get("comentario")!.toString();
-    const result = await api.enviarComentario(comentario);
+    const result = await api.enviarComentario(post.url, comentario);
     definirCommentarios([...comentarios, result])
   }
 

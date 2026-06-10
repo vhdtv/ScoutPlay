@@ -77,7 +77,7 @@ export type SearchedItem =
     | { tipo: "POST", dado: PostDataOutputDTO }
 
 export type PostDTO = {
-    url: string,
+    url: UUID,
     titulo: string,
     descricao: string | null,
     interacoes: {

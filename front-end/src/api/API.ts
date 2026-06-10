@@ -56,6 +56,7 @@ export default class {
             credentials: "include"
         });
         const { data } = await backendRequest.json()
+        if(!data) throw new Error("obterDadosDoPerfil veio com data = null")
         return {
             username: data.username,
             nome: data.nome,
@@ -155,13 +156,61 @@ export default class {
         }
 
     }
-    deletarPost = async (id: PostDataOutputDTO["url"]): Promise<boolean> => { throw new Error("Not implemented") }
+    deletarPost = async (id: PostDataOutputDTO["url"]): Promise<boolean> => {
+        const request = await fetch(`${this.BACKEND_ENDPOINT}/post/${id}`, {
+            method: "DELETE",
+            credentials: "include",
+        })
+        await request.json();
+        return true;
+    }
     atualizarPost = async (id: PostDataOutputDTO["url"], data: PostDataOutputDTO): Promise<PostDataOutputDTO> => { throw new Error("Not implemented") }
-    darLikeEmPost = async (postId: string): Promise<boolean> => { throw new Error("Not implemented") }
-    darDislikeEmPost = async (postId: string): Promise<boolean> => { throw new Error("Not implemented") }
+    darLikeEmPost = async (postId: string): Promise<boolean> => {
+        const request = await fetch(`${this.BACKEND_ENDPOINT}/post/${postId}/like`, {
+            method: "POST",
+            credentials: "include",
+            headers: {
+                "Content-Type": "application/json"
+            }
+        });
+        if(request.status != 200) return false;
+        return true;
+    }
+    darDislikeEmPost = async (postId: string): Promise<boolean> => {
+        const request = await fetch(`${this.BACKEND_ENDPOINT}/post/${postId}/dislike`, {
+            method: "POST",
+            credentials: "include",
+            headers: {
+                "Content-Type": "application/json"
+            }
+        });
+        if(request.status != 200) return false;
+        return true;
+    }
     darDestaque = async (postId: UUID, data: string | number): Promise<PostHighlightDTO> => { throw new Error("Not implemented") }
-    obterComentarios = async (url: string): Promise<CommentDTO[]> => { throw new Error("Not implemented") }
-    enviarComentario = async (comentario: string): Promise<CommentDTO> => { throw new Error("Not implemented") }
+    obterComentarios = async (postId: UUID): Promise<CommentDTO[]> => {
+        const request = await fetch(`${this.BACKEND_ENDPOINT}/post/${postId}/comments`, {
+            headers: { "Content-Type": "application/json" }
+        })
+        const { data } = await request.json();
+        return data as CommentDTO[];
+    }
+    enviarComentario = async (postId: UUID, comentario: string): Promise<CommentDTO> => {
+        const request = await fetch(`${this.BACKEND_ENDPOINT}/post/${postId}/comment`, {
+            method: "POST",
+            credentials: "include",
+            headers: {
+                "Content-Type": "application/json"
+            },
+            body: JSON.stringify({ texto: comentario })
+        });
+        const { data } = await request.json();
+        return {
+            por: data.por,
+            texto: data.texto,
+            quantidadeLike: data.quantidadeLike ?? 0,
+        }
+    }
     obterMidia = (mediaPath: string): string => {
         return `${this.BACKEND_ENDPOINT}/media/${mediaPath}`;
     }

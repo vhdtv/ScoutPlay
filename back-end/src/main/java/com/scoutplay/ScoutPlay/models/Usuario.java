@@ -2,6 +2,10 @@ package com.scoutplay.ScoutPlay.models;
 
 import jakarta.persistence.CascadeType;
 import jakarta.persistence.Entity;
+import jakarta.persistence.FetchType;
+import jakarta.persistence.JoinColumn;
+import jakarta.persistence.JoinTable;
+import jakarta.persistence.ManyToMany;
 import jakarta.persistence.OneToMany;
 import jakarta.persistence.Table;
 import lombok.Getter;
@@ -11,7 +15,10 @@ import lombok.AccessLevel;
 import java.time.LocalDate;
 import java.time.Period;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
+import java.util.UUID;
 
 import com.fasterxml.jackson.annotation.JsonManagedReference;
 
@@ -34,6 +41,13 @@ public class Usuario extends TabelaBase {
     @Setter(AccessLevel.NONE)
     @JsonManagedReference
     private List<DetalhePerfil> detalhePerfil = new ArrayList<>();
+    @ManyToMany
+    @JoinTable(
+      name = "t_like",
+      joinColumns = @JoinColumn(name = "fk_usuario"),
+      inverseJoinColumns = @JoinColumn(name = "fk_post")
+    )
+    private Map<UUID, Post> postsCurtidos = new HashMap<UUID, Post>();
 
     protected Usuario() {}
     public Usuario(String _nome, String _email, String _senha, LocalDate _dataNascimento) {
@@ -73,11 +87,27 @@ public class Usuario extends TabelaBase {
         if(this.dataNascimento == null) return null;
         return Period.between(this.dataNascimento, LocalDate.now()).getYears();
     }
+    
     public String getNomeCompleto() {
         return this.getNome() + " " + this.getSobrenome();
     }
+    
     public String getIniciais() {
         return this.nome.charAt(0) + "" + this.sobrenome.charAt(0);
+    }
+
+    public void curtirPost(Post post) {
+        Boolean jaDeuLike = this.postsCurtidos.get(post.getAliasId()) != null;
+        if (jaDeuLike) return;
+        this.postsCurtidos.put(post.getAliasId(), post);
+        post.getUsuariosQueCurtiram().add(this);
+    }
+
+    public void descurtirPost(Post post) {
+        Boolean naoDeuLike = this.postsCurtidos.get(post.getAliasId()) == null;
+        if (naoDeuLike) return;
+        this.postsCurtidos.remove(post.getAliasId());
+        post.getUsuariosQueCurtiram().remove(this);
     }
 
 }

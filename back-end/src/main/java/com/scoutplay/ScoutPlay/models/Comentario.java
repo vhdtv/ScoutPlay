@@ -9,6 +9,8 @@ import lombok.Setter;
 
 @Entity
 @Table(name="t_comentario")
+@Getter
+@Setter
 public class Comentario extends TabelaBase {
     @ManyToOne
     @JoinColumn(name = "fk_usuario")
@@ -23,5 +25,9 @@ public class Comentario extends TabelaBase {
     private String texto;
     
     public Comentario() {}
-    public Comentario(String _texto, Post _post, Usuario _autor) {}
+    public Comentario(String texto, Post post, Usuario autor) {
+        this.texto = texto;
+        this.post = post;
+        this.autor = autor;
+    }
 }
