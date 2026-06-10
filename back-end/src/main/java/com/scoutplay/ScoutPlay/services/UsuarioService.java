@@ -213,4 +213,9 @@ public class UsuarioService {
         };
     }
 
+    @Transactional
+    public Usuario buscarPorComLike(UUID aliasId) {
+        return this.usuarioRepository.findByIdWithPostsCurtidos(aliasId).orElse(null);
+    }
+
 }

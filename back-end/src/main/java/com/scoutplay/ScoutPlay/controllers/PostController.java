@@ -2,6 +2,7 @@ package com.scoutplay.ScoutPlay.controllers;
 
 import com.scoutplay.ScoutPlay.api.dto.CommentDataInputDTO;
 import com.scoutplay.ScoutPlay.api.dto.CommentDataOutputDTO;
+import com.scoutplay.ScoutPlay.api.dto.InteracoesDTO;
 import com.scoutplay.ScoutPlay.api.dto.PostDataInputDTO;
 import com.scoutplay.ScoutPlay.api.dto.PostDataOutputDTO;
 import com.scoutplay.ScoutPlay.api.dto.PostDetailsDTO;
@@ -13,9 +14,11 @@ import com.scoutplay.ScoutPlay.models.Post;
 import com.scoutplay.ScoutPlay.models.Usuario;
 import com.scoutplay.ScoutPlay.security.JwtTokenProvider;
 import com.scoutplay.ScoutPlay.services.ComentarioService;
+import com.scoutplay.ScoutPlay.services.InteractionsService;
 import com.scoutplay.ScoutPlay.services.PostService;
 import com.scoutplay.ScoutPlay.services.UsuarioService;
 
+import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -34,6 +37,7 @@ public class PostController {
     private final JwtTokenProvider jwtTokenProvider;
     private final UsuarioService usuarioService;
     private final ComentarioService comentarioService;
+    private final InteractionsService interactionsService;
 
     @PostMapping("/")
     public ResponseEntity<ApiResponse<PostDataOutputDTO>> criar(@ModelAttribute PostDataInputDTO dto) {
@@ -60,6 +64,22 @@ public class PostController {
                 .fotoPerfil(autor.getFotoPerfil())
                 .build())
             .build()));
+    }
+    
+    @PostMapping("/{postId}/like")
+    public ResponseEntity<ApiResponse<Boolean>> darLike(@PathVariable UUID postId, @CookieValue(name = "access_token", required = true) String accessToken) {
+        Usuario usuario = usuarioService.buscarPorComLike(UUID.fromString(jwtTokenProvider.extractUserId(accessToken)));
+        interactionsService.darLike(postId, usuario);
+
+        return ResponseEntity.ok().body(ApiResponse.success(true));
+    }
+    
+    @PostMapping("/{postId}/dislike")
+    public ResponseEntity<ApiResponse<Boolean>> darDislike(@PathVariable UUID postId, @CookieValue(name = "access_token", required = true) String accessToken) {
+        Usuario usuario = usuarioService.buscarPorComLike(UUID.fromString(jwtTokenProvider.extractUserId(accessToken)));
+        interactionsService.darDislike(postId, usuario);
+
+        return ResponseEntity.ok().body(ApiResponse.success(true));
     }
 
     @GetMapping("/{postId}/comments")
@@ -101,11 +121,22 @@ public class PostController {
     // }
 
     @GetMapping("/{postId}")
-    public ResponseEntity<ApiResponse<PostDetailsDTO>> buscar(@PathVariable UUID postId) {
-        Optional<Post> post = postService.buscarPor(postId);
+    public ResponseEntity<ApiResponse<PostDetailsDTO>> buscar(@PathVariable UUID postId, @CookieValue(name = "access_token", required = false) String accessToken) {
+        Optional<Post> post = postService.buscarPorComLike(postId);
         if(post.isEmpty()) return ResponseEntity.status(HttpStatus.NOT_FOUND).body(ApiResponse.error("404", "Not Found"));
+
+        Usuario usuario;
+        Boolean deuLike = false;
+        if(accessToken != null) {
+            usuario = usuarioService.buscarPor(UUID.fromString(accessToken));
+            deuLike = post.get().getUsuariosQueCurtiram().contains(usuario);
+        }
         return ResponseEntity.ok(ApiResponse.success(PostDetailsDTO.builder()
             .url(post.get().getAliasId())
+            .interacoes(Optional.of(InteracoesDTO.builder()
+                .quantidadeLike(post.get().getUsuariosQueCurtiram().size())
+                .deuLike(deuLike)
+                .build()))
             .titulo(post.get().getTitulo())
             .descricao(Optional.of(post.get().getDescricao()))
             .media(PostMediaData.builder()
