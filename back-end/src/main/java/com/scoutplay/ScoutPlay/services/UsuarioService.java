@@ -55,6 +55,7 @@ public class UsuarioService {
     
     @Transactional
     public Usuario cadastrarAtleta(Usuario usuario) {
+        if(usuario.getSenha() == null || usuario.getSenha().isBlank()) throw new IllegalArgumentException("Senha é obrigatória");
         if(usuarioRepository.existsByCpf(usuario.getCpf())) throw new ConflictException("Um atleta com este CPF já existe.");
         if(usuarioRepository.existsByEmail(usuario.getEmail())) throw new ConflictException("Este e-mail já está em uso. Por favor, utilize outro.");
         if(usuario.getUsername().isBlank()) usuario.setUsername(gerarUsername(usuario.getNome()));

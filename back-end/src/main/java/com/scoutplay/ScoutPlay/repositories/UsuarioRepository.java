@@ -13,6 +13,7 @@ import org.springframework.data.repository.query.Param;
 public interface UsuarioRepository extends JpaRepository<Usuario, UUID> {
     boolean existsByCpf(String cpf);
     boolean existsByEmail(String email);
+    Optional<Usuario> findByCpf(String cpf);
     Usuario findByEmail(String email);
     Usuario findByUsernameIgnoreCase(String username);
     Optional<Usuario> findByAliasId(UUID aliasId);

@@ -128,7 +128,7 @@ public class PostController {
         Usuario usuario;
         Boolean deuLike = false;
         if(accessToken != null) {
-            usuario = usuarioService.buscarPor(UUID.fromString(accessToken));
+            usuario = usuarioService.buscarPor(UUID.fromString(jwtTokenProvider.extractUserId(accessToken)));
             deuLike = post.get().getUsuariosQueCurtiram().contains(usuario);
         }
         return ResponseEntity.ok(ApiResponse.success(PostDetailsDTO.builder()
