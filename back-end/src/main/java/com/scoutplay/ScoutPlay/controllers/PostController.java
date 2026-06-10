@@ -21,11 +21,12 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.ArrayList;
 import java.util.Optional;
 import java.util.UUID;
 
 @RestController
-@RequestMapping("/api")
+@RequestMapping("/api/post")
 @RequiredArgsConstructor
 public class PostController {
 
@@ -34,18 +35,18 @@ public class PostController {
     private final UsuarioService usuarioService;
     private final ComentarioService comentarioService;
 
-    @PostMapping("/post")
+    @PostMapping("/")
     public ResponseEntity<ApiResponse<PostDataOutputDTO>> criar(@ModelAttribute PostDataInputDTO dto) {
         PostDataOutputDTO criado = this.postService.criar(dto);
         if(criado == null) return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(ApiResponse.error("400", "Erro ao criar post"));
         return ResponseEntity.status(HttpStatus.OK).body(ApiResponse.success(criado, "Post criado com sucesso"));
     }
     
-    @PostMapping("/comment")
-    public ResponseEntity<ApiResponse<CommentDataOutputDTO>> comentar(@RequestBody CommentDataInputDTO request, @CookieValue(name = "access_token", required = true) String accessToken) {
+    @PostMapping("/{postId}/comment")
+    public ResponseEntity<ApiResponse<CommentDataOutputDTO>> comentar(@PathVariable UUID postId, @RequestBody CommentDataInputDTO request, @CookieValue(name = "access_token", required = true) String accessToken) {
         UUID aliasIdDoAutor = UUID.fromString(jwtTokenProvider.extractUserId(accessToken));
         Usuario autor = usuarioService.buscarPor(aliasIdDoAutor);
-        Post post = postService.buscarPor(request.getPostId()).get();
+        Post post = postService.buscarPor(postId).get();
         Comentario comentario = new Comentario(request.getTexto(), post, autor);
         comentario = comentarioService.criar(comentario);
         return ResponseEntity.status(HttpStatus.OK).body(ApiResponse.success(CommentDataOutputDTO.builder()
@@ -59,6 +60,29 @@ public class PostController {
                 .fotoPerfil(autor.getFotoPerfil())
                 .build())
             .build()));
+    }
+
+    @GetMapping("/{postId}/comments")
+    public ResponseEntity<ApiResponse<ArrayList<CommentDataOutputDTO>>> obterComentarios(@PathVariable UUID postId) {
+        Optional<Post> item = postService.buscarPor(postId);
+        if(item.isEmpty()) throw new Error("Post não encontrado");
+        Post post = item.get();
+        ArrayList<Comentario> comentarios = comentarioService.buscarTodosPorPost(post);
+        ArrayList<CommentDataOutputDTO> output = comentarios.stream().map(comentario -> {
+            Usuario autor = comentario.getAutor();
+            return CommentDataOutputDTO.builder()
+                .postId(postId)
+                .texto(comentario.getTexto())
+                .por(UserSummaryDTO.builder()
+                    .nome(autor.getNome())
+                    .sobrenome(autor.getSobrenome())
+                    .username(autor.getUsername())
+                    .iniciais(autor.getIniciais())
+                    .fotoPerfil(autor.getFotoPerfil())
+                    .build())
+                .build();
+        }).collect(java.util.stream.Collectors.toCollection(ArrayList::new));
+        return ResponseEntity.status(HttpStatus.OK).body(ApiResponse.success(output));
     }
 
     // @GetMapping
@@ -76,9 +100,9 @@ public class PostController {
     //     return ResponseEntity.ok(ApiResponse.success(postService.listarPorAutor(autorId, page, size)));
     // }
 
-    @GetMapping("post/{id}")
-    public ResponseEntity<ApiResponse<PostDetailsDTO>> buscar(@PathVariable UUID id) {
-        Optional<Post> post = postService.buscarPor(id);
+    @GetMapping("/{postId}")
+    public ResponseEntity<ApiResponse<PostDetailsDTO>> buscar(@PathVariable UUID postId) {
+        Optional<Post> post = postService.buscarPor(postId);
         if(post.isEmpty()) return ResponseEntity.status(HttpStatus.NOT_FOUND).body(ApiResponse.error("404", "Not Found"));
         return ResponseEntity.ok(ApiResponse.success(PostDetailsDTO.builder()
             .url(post.get().getAliasId())

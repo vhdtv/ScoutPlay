@@ -57,7 +57,7 @@ public class UsuarioService {
     public Usuario cadastrarAtleta(Usuario usuario) {
         if(usuarioRepository.existsByCpf(usuario.getCpf())) throw new ConflictException("Um atleta com este CPF já existe.");
         if(usuarioRepository.existsByEmail(usuario.getEmail())) throw new ConflictException("Este e-mail já está em uso. Por favor, utilize outro.");
-        usuario.setUsername(gerarUsername(usuario.getNome()));
+        if(usuario.getUsername().isBlank()) usuario.setUsername(gerarUsername(usuario.getNome()));
         usuario.setSenha(passwordEncoder.encode(usuario.getSenha()));
         usuario = usuarioRepository.saveAndFlush(usuario);
         tipoContaService.categorizarContaComoAtleta(usuario);

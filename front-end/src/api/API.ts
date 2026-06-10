@@ -173,16 +173,16 @@ export default class {
             headers: { "Content-Type": "application/json" }
         })
         const { data } = await request.json();
-        return [];
+        return data as CommentDTO[];
     }
     enviarComentario = async (postId: UUID, comentario: string): Promise<CommentDTO> => {
-        const request = await fetch(`${this.BACKEND_ENDPOINT}/comment`, {
+        const request = await fetch(`${this.BACKEND_ENDPOINT}/post/${postId}/comment`, {
             method: "POST",
             credentials: "include",
             headers: {
                 "Content-Type": "application/json"
             },
-            body: JSON.stringify({ postId, texto: comentario })
+            body: JSON.stringify({ texto: comentario })
         });
         const { data } = await request.json();
         return {

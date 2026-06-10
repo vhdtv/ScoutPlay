@@ -12,6 +12,5 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 @AllArgsConstructor
 public class CommentDataInputDTO {
-    private UUID postId;
     private String texto;
 }
