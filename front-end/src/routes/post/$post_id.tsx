@@ -12,7 +12,6 @@ export const Route = createFileRoute('/post/$post_id')({
   component: RouteComponent,
   loader: async ({params}) => {
     const post = await api.obterPost(params.post_id);
-    console.log({post})
     return { post }
   }
 })
@@ -99,7 +98,7 @@ function RouteComponent() {
 
   const enviarComentario = async (form: FormData) => {
     const comentario = form.get("comentario")!.toString();
-    const result = await api.enviarComentario(comentario);
+    const result = await api.enviarComentario(post.url, comentario);
     definirCommentarios([...comentarios, result])
   }
 

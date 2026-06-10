@@ -1,5 +1,5 @@
 import type { UUID } from "crypto";
-import type { CommentDTO, ConfigItemDTO, MensagemDTO, PostDataInputDTO, PostDataOutputDTO, PostDataUpdateDTO, PostDetailsDTO, PostHighlightDTO, SearchParamsDTO, SearchResultsOutputDTO, UserProfileDetailDTO, UserProfileDTO, UserSummaryDTO } from "./tipos";
+import type { CommentDTO, ConfigItemDTO, MensagemDTO, PostDataInputDTO, PostDataOutputDTO, PostDetailsDTO, PostHighlightDTO, SearchParamsDTO, SearchResultsOutputDTO, UserProfileDetailDTO, UserProfileDTO, UserSummaryDTO } from "./tipos";
 
 export default class {
     get USER_CACHE_KEY() { return "__usuario"; }
@@ -14,7 +14,15 @@ export default class {
     }
     get POST_MOCK(): PostDataOutputDTO {
         return {
-            enderecoUnico: "9126357153",
+            autor: {
+                fotoPerfil: "https://unsplash.it/100",
+                iniciais: "gg",
+                nome: "Geraldo",
+                sobrenome: "Geral",
+                username: "gg_ultra"
+            },
+            criadoEm: new Date("17/12/2000"),
+            url: "9126357153",
             poster: "/assets/posters/mock.jpg",
             src: "/assets/imgs/mock.jpg",
             tipoMidia: "IMAGE",
@@ -23,6 +31,8 @@ export default class {
     }
 
 
+    
+    obterMidia = (src: string) => src
     fazerLogin = async (usuario: string, senha: string): Promise<UserSummaryDTO> => {
         this.salvarDadosUsuarioNoNavegador(this.USER_MOCK)
         return this.USER_MOCK;
@@ -63,18 +73,25 @@ export default class {
         return this.POST_MOCK;
     }
     
-    deletarPost = async (id: PostDataOutputDTO["enderecoUnico"]): Promise<boolean> => {
+    deletarPost = async (id: PostDataOutputDTO["url"]): Promise<boolean> => {
         return true;
     }
     
-    atualizarPost = async (id: PostDataOutputDTO["enderecoUnico"], data: PostDataUpdateDTO): Promise<PostDataOutputDTO> => {
+    atualizarPost = async (id: PostDataOutputDTO["url"], data: PostDataOutputDTO): Promise<PostDataOutputDTO> => {
         return {
-            enderecoUnico: "9126357153",
+            autor: {
+                fotoPerfil: "https://unsplash.it/100",
+                iniciais: "gg",
+                nome: "Geraldo",
+                sobrenome: "Geral",
+                username: "gg_ultra"
+            },
+            criadoEm: new Date("17/12/2000"),
+            url: "9126357153",
             poster: "/assets/posters/mock.jpg",
             src: "/assets/imgs/mock.jpg",
             tipoMidia: "IMAGE",
-            titulo: "+ uma",
-            descricao: data.descricao,
+            titulo: "+ uma"
         } as PostDataOutputDTO;
     }
     
@@ -186,9 +203,10 @@ export default class {
             },
             posts: [
                 {
+                    criadoEm: new Date(),
                     url: "172345617823",
                     titulo: "Mais uma pra conta",
-                    subtitulo: null,
+                    descricao: null,
                     interacoes: {
                         deuLike: false,
                         quantidadeLike: 192,
@@ -200,14 +218,15 @@ export default class {
                         ]
                     },
                     media: {
-                        tipo: "video/mp4",
+                        mimeType: "video/mp4",
                         src: "/assets/videos/3560017-uhd_3840_2160_25fps.mp4"
                     },
                 },
                 {
                     url: "172345617822",
                     titulo: "O cara não acompanhou kakaka",
-                    subtitulo: "Aqui tem habilidade",
+                    descricao: "Aqui tem habilidade",
+                    criadoEm: new Date(),
                     interacoes: {
                         deuLike: false,
                         quantidadeLike: 75,
@@ -217,14 +236,15 @@ export default class {
                         ]
                     },
                     media: {
-                        tipo: "video/mp4",
+                        mimeType: "video/mp4",
                         src: "/assets/videos/12462341-hd_1080_1920_60fps.mp4"
                     },
                 },
                 {
                     url: "172345617823",
                     titulo: "Mais uma pra conta",
-                    subtitulo: null,
+                    descricao: null,
+                    criadoEm: new Date(),
                     interacoes: {
                         deuLike: true,
                         quantidadeLike: 192,
@@ -236,14 +256,15 @@ export default class {
                         ]
                     },
                     media: {
-                        tipo: "video/mp4",
+                        mimeType: "video/mp4",
                         src: "/assets/videos/14621116_1920_1080_25fps.mp4"
                     },
                 },
                 {
                     url: "172345617822",
                     titulo: "O cara não acompanhou kakaka",
-                    subtitulo: "Aqui tem habilidade",
+                    descricao: "Aqui tem habilidade",
+                    criadoEm: new Date(),
                     interacoes: {
                         deuLike: false,
                         quantidadeLike: 75,
@@ -253,14 +274,15 @@ export default class {
                         ]
                     },
                     media: {
-                        tipo: "video/mp4",
+                        mimeType: "video/mp4",
                         src: "/assets/videos/15390776_2160_3840_60fps.mp4"
                     },
                 },
                 {
                     url: "172345617823",
                     titulo: "Mais uma pra conta",
-                    subtitulo: null,
+                    descricao: null,
+                    criadoEm: new Date(),
                     interacoes: {
                         deuLike: false,
                         quantidadeLike: 192,
@@ -272,14 +294,15 @@ export default class {
                         ]
                     },
                     media: {
-                        tipo: "video/mp4",
+                        mimeType: "video/mp4",
                         src: "/assets/videos/15391407_2160_3840_60fps.mp4"
                     },
                 },
                 {
                     url: "172345617822",
                     titulo: "O cara não acompanhou kakaka",
-                    subtitulo: "Aqui tem habilidade",
+                    descricao: "Aqui tem habilidade",
+                    criadoEm: new Date(),
                     interacoes: {
                         deuLike: true,
                         quantidadeLike: 75,
@@ -289,7 +312,7 @@ export default class {
                         ]
                     },
                     media: {
-                        tipo: "video/mp4",
+                        mimeType: "video/mp4",
                         src: "/assets/videos/15448985-hd_1920_1080_60fps.mp4"
                     },
                 },
@@ -304,6 +327,7 @@ export default class {
 
     obterDadosDoPost = async (postId: string): Promise<PostDetailsDTO> => {
         return {
+            criadoEm: new Date(),
             autor: {
                 username: "user01923",
                 nome: "Nome",
@@ -313,7 +337,7 @@ export default class {
             },
             url: "172345617823",
             titulo: "Mais uma pra conta",
-            subtitulo: null,
+            descricao: null,
             interacoes: {
                 quantidadeLike: 192,
                 deuLike: false,
@@ -325,7 +349,7 @@ export default class {
                 ]
             },
             media: {
-                tipo: "video/mp4",
+                mimeType: "video/mp4",
                 src: "/assets/videos/3560017-uhd_3840_2160_25fps.mp4"
             },
             metadados: {
@@ -370,7 +394,8 @@ export default class {
                     },
                     url: "172345617823",
                     titulo: "Mais uma pra conta",
-                    subtitulo: null,
+                    descricao: null,
+                    criadoEm: new Date(),
                     interacoes: {
                         quantidadeLike: 48,
                         deuLike: false,
@@ -379,7 +404,7 @@ export default class {
                         ]
                     },
                     media: {
-                        tipo: "video/mp4",
+                        mimeType: "video/mp4",
                         src: "/assets/videos/15449387-hd_1920_1080_60fps.mp4"
                     },
                 },
@@ -393,7 +418,7 @@ export default class {
                     },
                     url: "172345617823",
                     titulo: "Mais uma pra conta",
-                    subtitulo: null,
+                    descricao: null,
                     interacoes: {
                         quantidadeLike: 192,
                         deuLike: false,
@@ -404,8 +429,9 @@ export default class {
                             { contador: 8, texto: "Estrategista" },
                         ]
                     },
+                    criadoEm: new Date(),
                     media: {
-                        tipo: "video/mp4",
+                        mimeType: "video/mp4",
                         src: "/assets/videos/3560017-uhd_3840_2160_25fps.mp4"
                     },
                     metadados: {

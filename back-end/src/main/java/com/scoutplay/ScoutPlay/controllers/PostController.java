@@ -1,13 +1,21 @@
 package com.scoutplay.ScoutPlay.controllers;
 
+import com.scoutplay.ScoutPlay.api.dto.CommentDataInputDTO;
+import com.scoutplay.ScoutPlay.api.dto.CommentDataOutputDTO;
 import com.scoutplay.ScoutPlay.api.dto.PostDataInputDTO;
 import com.scoutplay.ScoutPlay.api.dto.PostDataOutputDTO;
 import com.scoutplay.ScoutPlay.api.dto.PostDetailsDTO;
 import com.scoutplay.ScoutPlay.api.dto.PostMediaData;
 import com.scoutplay.ScoutPlay.api.dto.UserSummaryDTO;
 import com.scoutplay.ScoutPlay.api.response.ApiResponse;
+import com.scoutplay.ScoutPlay.models.Comentario;
 import com.scoutplay.ScoutPlay.models.Post;
+import com.scoutplay.ScoutPlay.models.Usuario;
+import com.scoutplay.ScoutPlay.security.JwtTokenProvider;
+import com.scoutplay.ScoutPlay.services.ComentarioService;
 import com.scoutplay.ScoutPlay.services.PostService;
+import com.scoutplay.ScoutPlay.services.UsuarioService;
+
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -22,12 +30,35 @@ import java.util.UUID;
 public class PostController {
 
     private final PostService postService;
+    private final JwtTokenProvider jwtTokenProvider;
+    private final UsuarioService usuarioService;
+    private final ComentarioService comentarioService;
 
     @PostMapping("/post")
     public ResponseEntity<ApiResponse<PostDataOutputDTO>> criar(@ModelAttribute PostDataInputDTO dto) {
         PostDataOutputDTO criado = this.postService.criar(dto);
         if(criado == null) return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(ApiResponse.error("400", "Erro ao criar post"));
         return ResponseEntity.status(HttpStatus.OK).body(ApiResponse.success(criado, "Post criado com sucesso"));
+    }
+    
+    @PostMapping("/comment")
+    public ResponseEntity<ApiResponse<CommentDataOutputDTO>> comentar(@RequestBody CommentDataInputDTO request, @CookieValue(name = "access_token", required = true) String accessToken) {
+        UUID aliasIdDoAutor = UUID.fromString(jwtTokenProvider.extractUserId(accessToken));
+        Usuario autor = usuarioService.buscarPor(aliasIdDoAutor);
+        Post post = postService.buscarPor(request.getPostId()).get();
+        Comentario comentario = new Comentario(request.getTexto(), post, autor);
+        comentario = comentarioService.criar(comentario);
+        return ResponseEntity.status(HttpStatus.OK).body(ApiResponse.success(CommentDataOutputDTO.builder()
+            .postId(post.getAliasId())
+            .texto(comentario.getTexto())
+            .por(UserSummaryDTO.builder()
+                .nome(autor.getNome())
+                .sobrenome(autor.getSobrenome())
+                .username(autor.getUsername())
+                .iniciais(autor.getIniciais())
+                .fotoPerfil(autor.getFotoPerfil())
+                .build())
+            .build()));
     }
 
     // @GetMapping
