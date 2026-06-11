@@ -11,7 +11,6 @@ import lombok.experimental.SuperBuilder;
 @SuperBuilder
 @NoArgsConstructor
 @AllArgsConstructor
-public class PostDetailsDTO extends PostDTO {
-    private UserSummaryDTO autor;
-    private MetadataDTO metadados;
+public class MetadataDTO {
+    protected Boolean segueConta;
 }

@@ -1,8 +1,13 @@
 package com.scoutplay.ScoutPlay.services;
 
+import com.scoutplay.ScoutPlay.api.dto.InteracoesDTO;
+import com.scoutplay.ScoutPlay.api.dto.MetadataDTO;
 import com.scoutplay.ScoutPlay.api.dto.PostAuthorSummary;
 import com.scoutplay.ScoutPlay.api.dto.PostDataInputDTO;
 import com.scoutplay.ScoutPlay.api.dto.PostDataOutputDTO;
+import com.scoutplay.ScoutPlay.api.dto.PostDetailsDTO;
+import com.scoutplay.ScoutPlay.api.dto.PostMediaData;
+import com.scoutplay.ScoutPlay.api.dto.UserSummaryDTO;
 import com.scoutplay.ScoutPlay.exceptions.ResourceNotFoundException;
 import com.scoutplay.ScoutPlay.models.Post;
 import com.scoutplay.ScoutPlay.models.Usuario;
@@ -11,6 +16,9 @@ import com.scoutplay.ScoutPlay.repositories.UsuarioRepository;
 import com.scoutplay.ScoutPlay.security.SecurityUtils;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
+
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
 import java.io.IOException;
@@ -99,6 +107,79 @@ public class PostService {
         Optional<Post> postOpt = this.buscarPor(postId);
         postOpt.ifPresent(post -> post.getUsuariosQueCurtiram().size());
         return postOpt;
+    }
+
+    @Transactional
+    public PostDetailsDTO obterPostComDetalhes(UUID postId, UUID aliasIdDoUsuarioLogado) throws Exception {
+        
+        Usuario usuarioLogado = usuarioRepository.findByAliasIdWithContasQueSegue(aliasIdDoUsuarioLogado).get();
+        Optional<Post> linha = postRepository.findByAliasIdAndAtivoTrue(postId);
+        if(linha.isEmpty()) throw new Exception(String.format("Post não encontrado: %s", postId.toString()));
+        
+        Post post = linha.get();
+        return PostDetailsDTO.builder()
+            .url(post.getAliasId())
+            .titulo(post.getTitulo())
+            .descricao(Optional.of(post.getDescricao()))
+            .interacoes(Optional.of(InteracoesDTO.builder()
+                .quantidadeLike(post.getUsuariosQueCurtiram().size())
+                .deuLike(post.getUsuariosQueCurtiram().stream().anyMatch(usuarioQueCurtiu -> usuarioQueCurtiu.getAliasId().equals(usuarioLogado.getAliasId())))
+                .build()))
+            .media(PostMediaData.builder()
+                .src(post.getCaminhoArquivo())
+                .mimeType(post.obterMimeType())
+                .poster(null)
+                .build())
+            .criadoEm(post.getCriadoEm())
+            .autor(UserSummaryDTO.builder()
+                .nome(post.getAutor().getNome())
+                .sobrenome(post.getAutor().getSobrenome())
+                .iniciais(post.getAutor().getIniciais())
+                .username(post.getAutor().getUsername())
+                .fotoPerfil(post.getAutor().getFotoPerfil())
+                .build())
+            .metadados(MetadataDTO.builder()
+                .segueConta(usuarioLogado.getContasQueSegue().contains(post.getAutor()))
+                .build())
+            .build();
+    }
+
+    @Transactional
+    public PostDetailsDTO obterPostComDetalhes(UUID postId) throws Exception {
+        
+        Optional<Post> linha = postRepository.findByAliasIdAndAtivoTrue(postId);
+        if(linha.isEmpty()) throw new Exception(String.format("Post não encontrado: %s", postId.toString()));
+
+        Post post = linha.get();
+
+        boolean deuLike = false;
+        boolean segueConta = false;
+
+        return PostDetailsDTO.builder()
+            .url(post.getAliasId())
+            .titulo(post.getTitulo())
+            .descricao(Optional.of(post.getDescricao()))
+            .interacoes(Optional.of(InteracoesDTO.builder()
+                .quantidadeLike(post.getUsuariosQueCurtiram().size())
+                .deuLike(deuLike)
+                .build()))
+            .media(PostMediaData.builder()
+                .src(post.getCaminhoArquivo())
+                .mimeType(post.obterMimeType())
+                .poster(null)
+                .build())
+            .criadoEm(post.getCriadoEm())
+            .autor(UserSummaryDTO.builder()
+                .nome(post.getAutor().getNome())
+                .sobrenome(post.getAutor().getSobrenome())
+                .iniciais(post.getAutor().getIniciais())
+                .username(post.getAutor().getUsername())
+                .fotoPerfil(post.getAutor().getFotoPerfil())
+                .build())
+            .metadados(MetadataDTO.builder()
+                .segueConta(segueConta)
+                .build())
+            .build();
     }
 
 }

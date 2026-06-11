@@ -107,6 +107,28 @@ function RouteComponent() {
     definirCommentarios([...comentarios, result])
   }
 
+  const seguir = async () => {
+    if(!post) return;
+    const result = await api.seguir(post.autor.username);
+    definirPost((_old): any => ({
+        ..._old,
+        metadados: {
+          segueConta: true
+        }
+      }))
+  }
+
+  const deixarDeSeguir = async () => {
+    if(!post) return;
+    const result = await api.pararDeSeguir(post.autor.username);
+    definirPost((_old): any => ({
+        ..._old,
+        metadados: {
+          segueConta: false
+        }
+      }))
+  }
+
   return (
     <div className='page-noscroll flex flex-col'>
       <LoggedHeader/>
@@ -122,7 +144,10 @@ function RouteComponent() {
                   <ProfilePicture user={post.autor} className="w-9" />
                   <div className='flex flex-col justify-center'>
                     <small className='leading-4 font-bold'>{post.autor.nome}</small>
-                    {/* <small className='leading-none opacity-50'>2 novas publicações</small> */}
+                    { post.metadados?.segueConta
+                       ? <button onClick={deixarDeSeguir} className='text-xs/3 cursor-pointer opacity-50 hover:opacity-75'>Deixar de seguir</button>
+                       : <button onClick={seguir} className='text-xs/3 cursor-pointer opacity-50 hover:opacity-75'>Seguir</button>
+                    }
                   </div>
                 </div>
                 <div className='flex flex-col overflow-auto grow-1 py-2'>

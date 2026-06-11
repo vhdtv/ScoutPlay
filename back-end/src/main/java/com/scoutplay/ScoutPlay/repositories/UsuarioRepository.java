@@ -15,11 +15,15 @@ public interface UsuarioRepository extends JpaRepository<Usuario, UUID> {
     boolean existsByEmail(String email);
     Optional<Usuario> findByCpf(String cpf);
     Usuario findByEmail(String email);
-    Usuario findByUsernameIgnoreCase(String username);
+    @Query("SELECT u FROM Usuario u LEFT JOIN FETCH u.contasQueSegue WHERE LOWER(u.username) = LOWER(:username)")
+    Usuario findByUsernameIgnoreCase(@Param("username") String username);
     Optional<Usuario> findByAliasId(UUID aliasId);
+
+    @Query("SELECT u FROM Usuario u LEFT JOIN FETCH u.contasQueSegue WHERE u.aliasId = :aliasId")
+    Optional<Usuario> findByAliasIdWithContasQueSegue(@Param("aliasId") UUID aliasId);
     
-    @Query("SELECT u FROM Usuario u LEFT JOIN FETCH u.postsCurtidos WHERE u.aliasId = :id")
-    Optional<Usuario> findByIdWithPostsCurtidos(@Param("id") UUID aliasId);
+    @Query("SELECT u FROM Usuario u LEFT JOIN FETCH u.postsCurtidos WHERE u.aliasId = :aliasId")
+    Optional<Usuario> findByIdWithPostsCurtidos(@Param("aliasId") UUID aliasId);
 
     @Query("SELECT x.usuario FROM XUsuarioTipoConta x WHERE x.tipoConta.id = :tipoContaId")
     Page<Usuario> findAllByTipoContaId(int tipoContaId, Pageable pageable);

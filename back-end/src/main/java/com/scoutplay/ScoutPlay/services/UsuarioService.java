@@ -9,6 +9,7 @@ import java.util.UUID;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import com.scoutplay.ScoutPlay.api.dto.UserProfileFieldsDTO;
 import com.scoutplay.ScoutPlay.api.dto.UserProfileSummary;
@@ -21,7 +22,6 @@ import com.scoutplay.ScoutPlay.repositories.UsuarioRepository;
 import com.scoutplay.ScoutPlay.repositories.XUsuarioTipoContaRepository;
 import com.scoutplay.ScoutPlay.repositories.DetalhePerfilRepository;
 
-import jakarta.transaction.Transactional;
 
 @Service
 public class UsuarioService {
@@ -220,6 +220,41 @@ public class UsuarioService {
     @Transactional
     public Usuario buscarPorComLike(UUID aliasId) {
         return this.usuarioRepository.findByIdWithPostsCurtidos(aliasId).orElse(null);
+    }
+
+    @Transactional(readOnly = true)
+    public Usuario buscarPorUsername(String username) {
+        return this.usuarioRepository.findByUsernameIgnoreCase(username);
+    }
+    
+    @Transactional
+    public boolean seguir(String username, UUID aliasIdDoUsuarioLogado) {
+        try {
+            Usuario usuarioLogado = this.usuarioRepository.findByAliasId(aliasIdDoUsuarioLogado).get();
+            Usuario contaASeguir = this.buscarPorUsername(username);
+    
+            usuarioLogado.seguir(contaASeguir);
+            contaASeguir.getContasQueMeSeguem().add(usuarioLogado);
+            return true;
+        }
+        catch(Exception e) {
+            return false;
+        }
+    }
+    
+    @Transactional
+    public boolean deixarDeSeguir(String username, UUID aliasIdDoUsuarioLogado) {
+        try {
+            Usuario usuarioLogado = this.usuarioRepository.findByAliasId(aliasIdDoUsuarioLogado).get();
+            Usuario contaASeguir = this.buscarPorUsername(username);
+    
+            usuarioLogado.pararDeSeguir(contaASeguir);
+            contaASeguir.getContasQueMeSeguem().remove(usuarioLogado);
+            return true;
+        }
+        catch(Exception e) {
+            return false;
+        }
     }
 
 }
