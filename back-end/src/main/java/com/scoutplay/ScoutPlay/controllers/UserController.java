@@ -66,7 +66,7 @@ public class UserController {
     }
     
     @GetMapping("/user/{username}")
-    public ResponseEntity<ApiResponse<UserProfileSummary>> getUserData(@RequestParam String username, @CookieValue(name = "access_token", required = false) String accessToken) throws IllegalArgumentException {
+    public ResponseEntity<ApiResponse<UserProfileSummary>> getUserData(@PathVariable String username, @CookieValue(name = "access_token", required = false) String accessToken) throws IllegalArgumentException {
         UserProfileSummary userData;
         if(accessToken == null || accessToken.isEmpty() || accessToken.isBlank()) {
             userData = usuarioService.buscarDadosPerfil(username);
