@@ -113,8 +113,8 @@ export default class {
             return false;
         }
     }
-    vincularComoResponsavelAConta = async (nomeUsuario: string): Promise<boolean> => { throw new Error("Not implemented") }
-    desvincularComoResponsavelAConta = async (nomeUsuario: string): Promise<boolean> => { throw new Error("Not implemented") }
+    vincularComoResponsavelAConta = async (username: UserSummaryDTO["username"]): Promise<boolean> => { throw new Error("Not implemented") }
+    desvincularComoResponsavelAConta = async (username: UserSummaryDTO["username"]): Promise<boolean> => { throw new Error("Not implemented") }
     
     criarPost = async ({titulo, arquivo, descricao}: PostDataInputDTO): Promise<PostDataOutputDTO> => {
         const formData = new FormData();
@@ -215,9 +215,24 @@ export default class {
         return `${this.BACKEND_ENDPOINT}/media/${mediaPath}`;
     }
     
-    seguir = async (nomeUsuario: string): Promise<boolean> => { throw new Error("Not implemented") }
-    pararDeSeguir = async (nomeUsuario: string): Promise<boolean> => { throw new Error("Not implemented") }
-    mandarConvite = async (nomeUsuario: string, texto: string): Promise<boolean> => { throw new Error("Not implemented") }
+    seguir = async (username: UserSummaryDTO["username"]): Promise<boolean> => {
+        const request = await fetch(`${this.BACKEND_ENDPOINT}/user/${username}/follow`, {
+            method: "POST",
+            credentials: "include"
+        });
+        if(request.status != 200) return false;
+        return true;
+    }
+
+    pararDeSeguir = async (username: UserSummaryDTO["username"]): Promise<boolean> => {
+        const request = await fetch(`${this.BACKEND_ENDPOINT}/user/${username}/unfollow`, {
+            method: "POST",
+            credentials: "include"
+        });
+        if(request.status != 200) return false;
+        return true;
+    }
+    mandarConvite = async (username: UserSummaryDTO["username"], texto: string): Promise<boolean> => { throw new Error("Not implemented") }
     
     buscar = async (texto: string, filtros: SearchParamsDTO): Promise<SearchResultsOutputDTO> => { throw new Error("Not implemented") }
     chatIA = async (prompt: string): Promise<MensagemDTO> => { throw new Error("Not implemented") }

@@ -2,11 +2,9 @@ package com.scoutplay.ScoutPlay.controllers;
 
 import com.scoutplay.ScoutPlay.api.dto.CommentDataInputDTO;
 import com.scoutplay.ScoutPlay.api.dto.CommentDataOutputDTO;
-import com.scoutplay.ScoutPlay.api.dto.InteracoesDTO;
 import com.scoutplay.ScoutPlay.api.dto.PostDataInputDTO;
 import com.scoutplay.ScoutPlay.api.dto.PostDataOutputDTO;
 import com.scoutplay.ScoutPlay.api.dto.PostDetailsDTO;
-import com.scoutplay.ScoutPlay.api.dto.PostMediaData;
 import com.scoutplay.ScoutPlay.api.dto.UserSummaryDTO;
 import com.scoutplay.ScoutPlay.api.response.ApiResponse;
 import com.scoutplay.ScoutPlay.models.Comentario;
@@ -18,7 +16,6 @@ import com.scoutplay.ScoutPlay.services.InteractionsService;
 import com.scoutplay.ScoutPlay.services.PostService;
 import com.scoutplay.ScoutPlay.services.UsuarioService;
 
-import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -42,37 +39,17 @@ public class PostController {
 
     @GetMapping("/post/{postId}")
     public ResponseEntity<ApiResponse<PostDetailsDTO>> buscar(@PathVariable UUID postId, @CookieValue(name = "access_token", required = false) String accessToken) {
-        Optional<Post> post = postService.buscarPorComLike(postId);
-        if(post.isEmpty()) return ResponseEntity.status(HttpStatus.NOT_FOUND).body(ApiResponse.error("404", "Not Found"));
-
-        Usuario usuarioLogado;
-        boolean deuLike = false;
-        if(accessToken != null) {
-            usuarioLogado = usuarioService.buscarPor(UUID.fromString(jwtTokenProvider.extractUserId(accessToken)));
-            deuLike = post.get().getUsuariosQueCurtiram().stream().anyMatch(usuarioQueCurtiu -> usuarioQueCurtiu.getAliasId().equals(usuarioLogado.getAliasId()));
+        try {
+            PostDetailsDTO result;
+            if(accessToken != null) {
+                result = postService.obterPostComDetalhes(postId, UUID.fromString(jwtTokenProvider.extractUserId(accessToken)));
+            }
+            else result = postService.obterPostComDetalhes(postId);
+            return ResponseEntity.ok(ApiResponse.success(result));
         }
-        return ResponseEntity.ok(ApiResponse.success(PostDetailsDTO.builder()
-            .url(post.get().getAliasId())
-            .titulo(post.get().getTitulo())
-            .descricao(Optional.of(post.get().getDescricao()))
-            .interacoes(Optional.of(InteracoesDTO.builder()
-                .quantidadeLike(post.get().getUsuariosQueCurtiram().size())
-                .deuLike(deuLike)
-                .build()))
-            .media(PostMediaData.builder()
-                .src(post.get().getCaminhoArquivo())
-                .mimeType(post.get().obterMimeType())
-                .poster(null)
-                .build())
-            .criadoEm(post.get().getCriadoEm())
-            .autor(UserSummaryDTO.builder()
-                .nome(post.get().getAutor().getNome())
-                .sobrenome(post.get().getAutor().getSobrenome())
-                .iniciais(post.get().getAutor().getIniciais())
-                .username(post.get().getAutor().getUsername())
-                .fotoPerfil(post.get().getAutor().getFotoPerfil())
-                .build())
-            .build()));
+        catch(Exception e) {
+            return ResponseEntity.ok(ApiResponse.error("404", ""));
+        }
     }
 
     @PostMapping("/post/")
