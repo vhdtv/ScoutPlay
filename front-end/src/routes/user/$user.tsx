@@ -5,7 +5,7 @@ import ProfilePostList from '#/components/ProfilePostList'
 import { LoggedHeader } from '#/components/Header'
 import API from '#/api/API'
 import type { ConfigItemDTO, UserProfileDTO } from '#/api/tipos'
-import { useState, type Dispatch, type SetStateAction } from 'react'
+import { useEffect, useState, type Dispatch, type SetStateAction } from 'react'
 import ProfilePicture from '#/components/ui/ProfilePicture'
 
 const api = new API
@@ -14,7 +14,7 @@ export const Route = createFileRoute('/user/$user')({
   component: RouteComponent,
   loader: async ({params}) => {
     return {
-      user: await api.obterDadosDoPerfil(params.user)
+      params_user: params.user
     }
   }
 })
@@ -70,15 +70,20 @@ function UserCard({user}: {user: UserProfileDTO}) {
 }
 
 function RouteComponent() {
-  const { user } = Route.useLoaderData();
+  const {params_user} = Route.useLoaderData();
+  const [user, setUser] = useState({} as UserProfileDTO);
   const [olheirosPodemConectarPeloWhatsapp, setConfigOlheirosPodemConectar] = useState(user.configuracoes?.OLHEIROS_PODEM_CONECTAR_PELO_WHATSAPP)
   const [deixarDadosPessoaisPublicamente, setConfigDeixarDadosPublicos] = useState(user.configuracoes?.OCULTAR_INFORMACOES_PESSOAIS_PUBLICAMENTE)
-;
+
   const atualizarConfiguracao = async (key: keyof ConfigItemDTO, value: boolean, setter: Dispatch<SetStateAction<boolean | undefined>>) => {
     const result = await api.atualizarConfiguracao({ [key]: value })
     if(!result) setter(!value)
     setter(value)
   }
+
+  useEffect(() => {
+    api.obterDadosDoPerfil(params_user).then(data => setUser(data))
+  }, [])
 
   return <div>
     <LoggedHeader />
