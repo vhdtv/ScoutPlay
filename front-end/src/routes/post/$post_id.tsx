@@ -123,7 +123,7 @@ function RouteComponent() {
                 {comentarios.map(((comentario, index) => <Comment key={index} user={comentario.por} valor={comentario.texto} /> ))}
               </div>
               <form action={enviarComentario} className='p-4 relative text-xs flex gap-2'>
-                <textarea name="comentario" placeholder='Adicione um comentário...' className='outline-none w-full p-2 border-1 border-slate-300 rounded-md hover:border-slate-400 hover:bg-slate-200 focus:border-slate-400 focus:bg-slate-200 resize-none'> </textarea>
+                <textarea name="comentario" placeholder='Adicione um comentário...' className='outline-none w-full p-2 border-1 border-slate-300 rounded-md hover:border-slate-400 hover:bg-slate-200 focus:border-slate-400 focus:bg-slate-200 resize-none'></textarea>
                 <button type="submit" className='flex items-center p-2 bg-white hover:bg-sky-700 m-auto hover:text-white focus:bg-sky-700 focus:text-white transition cursor-pointer rounded-full outline-none'>
                   <span className="material-symbols-outlined" style={{fontSize: "1.2rem"}}> send </span>
                 </button>
