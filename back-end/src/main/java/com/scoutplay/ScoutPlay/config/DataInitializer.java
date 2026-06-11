@@ -30,6 +30,7 @@ public class DataInitializer {
                 // Ações de Atleta
                 Usuario atletaFabio = new Usuario("Fabio", "Braga", "fabio@atleta.com", "12456", "12345", LocalDate.of(2006, 12, 4));
                 atletaFabio.setUsername("fabin_123");
+                atletaFabio.setAliasId(UUID.fromString("296e861f-6697-4f74-99a1-f016e6b3de1e"));
                 usuarioService.cadastrarAtleta(atletaFabio);
                 Map<String, Object> info = new HashMap<>();
                 info.put("PE_DOMINANTE", "Direito");
