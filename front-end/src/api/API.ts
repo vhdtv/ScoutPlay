@@ -43,13 +43,12 @@ export default class {
         return true;
     }
 
-    obterDadosDoPerfil = async (perfil?: string): Promise<UserProfileDTO> => {
-        const urlEndpoint = new URL(`${this.BACKEND_ENDPOINT}/user`);
-        if(perfil) urlEndpoint.searchParams.append("user", perfil);
-        else {
+    obterDadosDoPerfil = async (username?: UserSummaryDTO["username"]): Promise<UserProfileDTO> => {
+        let urlEndpoint = `${this.BACKEND_ENDPOINT}/user/`;
+        urlEndpoint += username ?? ""
+        if(!username) {
             const loggedUsername = this.obterDadosUsuarioNoNavegador();
-            if(!loggedUsername) throw new Error(`User is not authenticated`);
-            urlEndpoint.searchParams.append("user", loggedUsername.toString());
+            urlEndpoint += loggedUsername;
         }
         const backendRequest = await fetch(urlEndpoint, {
             method: 'GET',

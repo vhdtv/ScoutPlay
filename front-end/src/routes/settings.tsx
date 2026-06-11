@@ -11,19 +11,9 @@ const api = new API;
 
 export const Route = createFileRoute('/settings')({
   component: RouteComponent,
-  loader: async ({params}) => {
-    try {
-      const perfil = await api.obterDadosDoPerfil();
-      return { perfil }
-    }
-    catch(e) {
-      return { perfil: {} }
-    }
-  }
 })
 
 function RouteComponent() {
-  // const { perfil } = Route.useLoaderData();
   const [usuario, definirUsuario] = useState({} as UserProfileDTO);
   useEffect(() => {
     api.obterDadosDoPerfil()
