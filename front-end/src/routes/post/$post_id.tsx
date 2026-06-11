@@ -11,8 +11,7 @@ const api = new API
 export const Route = createFileRoute('/post/$post_id')({
   component: RouteComponent,
   loader: async ({params}) => {
-    const post = await api.obterPost(params.post_id);
-    return { post }
+    return { post_id: params.post_id }
   }
 })
 
@@ -88,15 +87,21 @@ export function PostMediaComponent({post, className}: {post: PostDetailsDTO, cla
 }
 
 function RouteComponent() {
-  const { post } = Route.useLoaderData();
+  const { post_id } = Route.useLoaderData();
+  const [post, definirPost] = useState<PostDetailsDTO>();
   const [comentarios, definirCommentarios] = useState([] as CommentDTO[]);
 
   useEffect(() => {
-    api.obterComentarios(post.url)
-      .then(dados => definirCommentarios(dados))
+    api.obterPost(post_id)
+      .then((data) => {
+        definirPost(data)
+        api.obterComentarios(data.url)
+          .then(dados => definirCommentarios(dados))
+      })
   }, [])
 
   const enviarComentario = async (form: FormData) => {
+    if(!post) return;
     const comentario = form.get("comentario")!.toString();
     const result = await api.enviarComentario(post.url, comentario);
     definirCommentarios([...comentarios, result])
@@ -105,32 +110,36 @@ function RouteComponent() {
   return (
     <div className='page-noscroll flex flex-col'>
       <LoggedHeader/>
-      <div className="container grow-1 mx-auto flex items-center justify-center">
-        <div className='shadow-lg grid grid-cols-12 rounded-lg overflow-hidden max-h-96'>
-            <div className="col-span-8 bg-slate-900 flex items-center h-full relative">
-              <PostMediaComponent post={post} />
-            </div>
-            <div className="col-span-4 bg-slate-100 overflow-hidden flex h-full flex-col">
-              <div className='flex gap-2 p-2 border-b-1 border-slate-300 bg-slate-200'> 
-                <ProfilePicture user={post.autor} className="w-9" />
-                <div className='flex flex-col justify-center'>
-                  <small className='leading-4 font-bold'>{post.autor.nome}</small>
-                  {/* <small className='leading-none opacity-50'>2 novas publicações</small> */}
+      {
+        post && (
+        <div className="container grow-1 mx-auto flex items-center justify-center">
+          <div className='shadow-lg grid grid-cols-12 rounded-lg overflow-hidden max-h-96'>
+              <div className="col-span-8 bg-slate-900 flex items-center h-full relative">
+                <PostMediaComponent post={post} />
+              </div>
+              <div className="col-span-4 bg-slate-100 overflow-hidden flex h-full flex-col">
+                <div className='flex gap-2 p-2 border-b-1 border-slate-300 bg-slate-200'> 
+                  <ProfilePicture user={post.autor} className="w-9" />
+                  <div className='flex flex-col justify-center'>
+                    <small className='leading-4 font-bold'>{post.autor.nome}</small>
+                    {/* <small className='leading-none opacity-50'>2 novas publicações</small> */}
+                  </div>
                 </div>
+                <div className='flex flex-col overflow-auto grow-1 py-2'>
+                  {comentarios.length == 0 && <span className='opacity-50 text-bold w-full text-center block p-4'>Sem comentários ainda</span>}
+                  {comentarios.map(((comentario, index) => <Comment key={index} user={comentario.por} valor={comentario.texto} /> ))}
+                </div>
+                <form action={enviarComentario} className='p-4 relative text-xs flex gap-2'>
+                  <textarea name="comentario" placeholder='Adicione um comentário...' className='outline-none w-full p-2 border-1 border-slate-300 rounded-md hover:border-slate-400 hover:bg-slate-200 focus:border-slate-400 focus:bg-slate-200 resize-none'></textarea>
+                  <button type="submit" className='flex items-center p-2 bg-white hover:bg-sky-700 m-auto hover:text-white focus:bg-sky-700 focus:text-white transition cursor-pointer rounded-full outline-none'>
+                    <span className="material-symbols-outlined" style={{fontSize: "1.2rem"}}> send </span>
+                  </button>
+                </form>
               </div>
-              <div className='flex flex-col overflow-auto grow-1 py-2'>
-                {comentarios.length == 0 && <span className='opacity-50 text-bold w-full text-center block p-4'>Sem comentários ainda</span>}
-                {comentarios.map(((comentario, index) => <Comment key={index} user={comentario.por} valor={comentario.texto} /> ))}
-              </div>
-              <form action={enviarComentario} className='p-4 relative text-xs flex gap-2'>
-                <textarea name="comentario" placeholder='Adicione um comentário...' className='outline-none w-full p-2 border-1 border-slate-300 rounded-md hover:border-slate-400 hover:bg-slate-200 focus:border-slate-400 focus:bg-slate-200 resize-none'></textarea>
-                <button type="submit" className='flex items-center p-2 bg-white hover:bg-sky-700 m-auto hover:text-white focus:bg-sky-700 focus:text-white transition cursor-pointer rounded-full outline-none'>
-                  <span className="material-symbols-outlined" style={{fontSize: "1.2rem"}}> send </span>
-                </button>
-              </form>
             </div>
-          </div>
-      </div>
+        </div>
+        )
+      }
       <Footer/>
     </div>
   )
