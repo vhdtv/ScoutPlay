@@ -1,6 +1,7 @@
 HELP.md
 target/
-uploads/
+uploads/*
+!uploads/media/.gitkeep
 
 ### Secrets ###
 src/main/resources/application-dev.properties
