@@ -67,7 +67,7 @@ export default class {
             tipoConta: data.tipoConta,
             detalhesPerfil: data.detalhesPerfil,
             posts: data.posts,
-            souEu: data.username === this.obterDadosUsuarioNoNavegador()
+            souEu: data.souEu
         }
     }
     atualizarPerfil = async (data: any) => { throw new Error("Not implemented") }

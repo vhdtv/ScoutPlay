@@ -114,6 +114,8 @@ public class UsuarioService {
         Usuario usuario = usuarioRepository.findByUsernameIgnoreCase(idDoUsuarioAProcurar);
         Set<XUsuarioTipoConta> poderesQueContaPossui = this.xUsuarioTipoContaRepository.getByUsuario(usuario);
         String[] poderesConta = poderesQueContaPossui.stream().map(poder -> resolverTipo(poder)).distinct().toArray(String[]::new);
+        boolean souEu = false;
+        if(usuario.getAliasId().equals(idDoUsuarioAutenticado)) souEu = true;
 
         return UserProfileSummary.builder()
             .nome(usuario.getNome())
@@ -121,6 +123,7 @@ public class UsuarioService {
             .sobrenome(usuario.getSobrenome())
             .fotoPerfil(usuario.getFotoPerfil())
             .tipoConta(poderesConta)
+            .souEu(souEu)
             .idade(usuario.obterIdade())
             .build();
     }

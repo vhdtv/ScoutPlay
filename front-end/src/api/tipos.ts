@@ -13,7 +13,7 @@ export type UserProfileDTO = UserSummaryDTO & {
     tipoConta: TipoContaDTO[]
     detalhesPerfil: UserProfileDetailDTO
     posts: PostDTO[],
-    souEu?: boolean,
+    souEu: boolean,
     configuracoes?: ConfigItemDTO
 }
 
