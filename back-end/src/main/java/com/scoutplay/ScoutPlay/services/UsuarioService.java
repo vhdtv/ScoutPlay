@@ -66,13 +66,12 @@ public class UsuarioService {
     public Usuario cadastrarResponsavel(Usuario usuario) {
         if(usuarioRepository.existsByCpf(usuario.getCpf())) throw new ConflictException("Um cadastro com este CPF já existe.");
         if(usuarioRepository.existsByEmail(usuario.getEmail())) throw new ConflictException("Este e-mail já está em uso. Por favor, utilize outro.");
-        usuario.setUsername(gerarUsername(usuario.getNome()));
+        if(usuario.getUsername().isBlank()) usuario.setUsername(gerarUsername(usuario.getNome()));
         usuario.setSenha(passwordEncoder.encode(usuario.getSenha()));
         usuario = usuarioRepository.saveAndFlush(usuario);
         tipoContaService.categorizarContaComoResponsavel(usuario.getAliasId());
         return usuario;
     }
-
     
     @Transactional
     public DetalhePerfil vincularResponsavel(String username, UUID aliasId) {
@@ -90,7 +89,7 @@ public class UsuarioService {
         }
 
         Map<String, Object> info = new HashMap<>();
-        Object data = responsavel.getAliasId();
+        UUID data = responsavel.getAliasId();
         info.put("RESPONSAVEL", data);
         return detalhePerfilService.adicionarInformacao("RESPONSAVEL", responsavel.getAliasId(), atleta);
     }
@@ -121,7 +120,7 @@ public class UsuarioService {
     public Usuario cadastrarOlheiro(Usuario usuario) {
         if(usuarioRepository.existsByCpf(usuario.getCpf())) throw new ConflictException("Um cadastro com este CPF já existe.");
         if(usuarioRepository.existsByEmail(usuario.getEmail())) throw new ConflictException("Este e-mail já está em uso. Por favor, utilize outro.");
-        usuario.setUsername(gerarUsername(usuario.getNome()));
+        if(usuario.getUsername().isBlank()) usuario.setUsername(gerarUsername(usuario.getNome()));
         usuario.setSenha(passwordEncoder.encode(usuario.getSenha()));
         usuario = usuarioRepository.saveAndFlush(usuario);
         tipoContaService.categorizarContaComoOlheiro(usuario.getAliasId());
