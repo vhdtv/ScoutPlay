@@ -41,9 +41,11 @@ public class DataInitializer {
                 
                 // Ações de Responsavel
                 Usuario responsavelArthur = new Usuario("Arthur", "Braga", "arthur@responsavel.com", "124567", "12345", LocalDate.of(1980, 6, 26));
+                responsavelArthur.setUsername("o_arthur_olha");
+                responsavelArthur.setAliasId(UUID.fromString("c0b5889c-dc37-47e6-85fd-7ac3f89c7df7"));;
                 usuarioService.cadastrarResponsavel(responsavelArthur);
-                usuarioService.vincularResponsavel(atletaFabio, responsavelArthur);
-                usuarioService.desvincularResponsavel(responsavelArthur, atletaFabio);
+                usuarioService.vincularResponsavel(atletaFabio.getUsername(), responsavelArthur.getAliasId());
+                usuarioService.vincularResponsavel(responsavelArthur.getUsername(), atletaFabio.getAliasId());
                 
                 // Ações de Olheiro
                 Usuario olheiroRamilson = new Usuario("Ramilson", "Neto", "ramilson@olheiro.com", "1245678", "12345", LocalDate.of(1978, 07, 8));

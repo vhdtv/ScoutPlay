@@ -2,11 +2,12 @@ package com.scoutplay.ScoutPlay.bdd;
 
 import com.scoutplay.ScoutPlay.api.dto.ClientLoginInputDTO;
 import com.scoutplay.ScoutPlay.api.dto.ClientLoginOutputDTO;
+import com.scoutplay.ScoutPlay.enums.TipoContaEnum;
 import com.scoutplay.ScoutPlay.exceptions.ConflictException;
 import com.scoutplay.ScoutPlay.models.Usuario;
 import com.scoutplay.ScoutPlay.repositories.UsuarioRepository;
-import com.scoutplay.ScoutPlay.repositories.XUsuarioTipoContaRepository;
 import com.scoutplay.ScoutPlay.services.AuthService;
+import com.scoutplay.ScoutPlay.services.TipoContaService;
 import com.scoutplay.ScoutPlay.services.UsuarioService;
 
 import io.cucumber.java.Before;
@@ -34,7 +35,7 @@ public class ScoutPlayStepDefinitions {
     private UsuarioRepository usuarioRepository;
 
     @Autowired
-    private XUsuarioTipoContaRepository xUsuarioTipoContaRepository;
+    private TipoContaService tipoContaService;
 
     @Autowired
     private PasswordEncoder passwordEncoder;
@@ -85,18 +86,7 @@ public class ScoutPlayStepDefinitions {
         try {
             resultadoLogin = authService.autenticarUsuario(new ClientLoginInputDTO(email, senha));
             Usuario usuario = usuarioRepository.findByEmail(email);
-            String tipo = xUsuarioTipoContaRepository.getByUsuario(usuario)
-                    .stream()
-                    .map(x -> switch (x.getTipoConta().getId()) {
-                        case 2 -> "ATLETA";
-                        case 1 -> "OLHEIRO";
-                        case 3 -> "RESPONSAVEL";
-                        default -> "DESCONHECIDO";
-                    })
-                    .filter(t -> t.equals("ATLETA") || t.equals("OLHEIRO"))
-                    .findFirst()
-                    .orElse("DESCONHECIDO");
-            tipoUsuarioRetornado = tipo;
+            boolean EAtleta = tipoContaService.verificarTipoConta(usuario, TipoContaEnum.ATLETA);
         } catch (IllegalArgumentException e) {
             mensagemErroLogin = e.getMessage();
         }

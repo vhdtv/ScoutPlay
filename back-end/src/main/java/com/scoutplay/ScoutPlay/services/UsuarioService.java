@@ -1,9 +1,9 @@
 package com.scoutplay.ScoutPlay.services;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Random;
-import java.util.Set;
 import java.util.UUID;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -13,13 +13,11 @@ import org.springframework.transaction.annotation.Transactional;
 
 import com.scoutplay.ScoutPlay.api.dto.UserProfileFieldsDTO;
 import com.scoutplay.ScoutPlay.api.dto.UserProfileSummary;
+import com.scoutplay.ScoutPlay.enums.TipoContaEnum;
 import com.scoutplay.ScoutPlay.exceptions.ConflictException;
 import com.scoutplay.ScoutPlay.models.DetalhePerfil;
-import com.scoutplay.ScoutPlay.models.TipoConta;
 import com.scoutplay.ScoutPlay.models.Usuario;
-import com.scoutplay.ScoutPlay.models.XUsuarioTipoConta;
 import com.scoutplay.ScoutPlay.repositories.UsuarioRepository;
-import com.scoutplay.ScoutPlay.repositories.XUsuarioTipoContaRepository;
 import com.scoutplay.ScoutPlay.repositories.DetalhePerfilRepository;
 
 
@@ -29,8 +27,6 @@ public class UsuarioService {
     private UsuarioRepository usuarioRepository;
     @Autowired
     private DetalhePerfilRepository detalhePerfilRepository;
-    @Autowired
-    private XUsuarioTipoContaRepository xUsuarioTipoContaRepository;
     @Autowired
     private TipoContaService tipoContaService;
     @Autowired
@@ -61,8 +57,8 @@ public class UsuarioService {
         if(usuario.getUsername().isBlank()) usuario.setUsername(gerarUsername(usuario.getNome()));
         usuario.setSenha(passwordEncoder.encode(usuario.getSenha()));
         usuario = usuarioRepository.saveAndFlush(usuario);
-        tipoContaService.categorizarContaComoAtleta(usuario);
-        if(usuario.obterIdade() >= 18) this.vincularResponsavel(usuario, usuario);
+        tipoContaService.categorizarContaComoAtleta(usuario.getAliasId());
+        if(usuario.obterIdade() >= 18) this.vincularResponsavel(usuario.getUsername(), usuario.getAliasId());
         return usuario;
     }
     
@@ -73,12 +69,26 @@ public class UsuarioService {
         usuario.setUsername(gerarUsername(usuario.getNome()));
         usuario.setSenha(passwordEncoder.encode(usuario.getSenha()));
         usuario = usuarioRepository.saveAndFlush(usuario);
-        tipoContaService.categorizarContaComoResponsavel(usuario);
+        tipoContaService.categorizarContaComoResponsavel(usuario.getAliasId());
         return usuario;
     }
+
     
     @Transactional
-    public DetalhePerfil vincularResponsavel(Usuario atleta, Usuario responsavel) {
+    public DetalhePerfil vincularResponsavel(String username, UUID aliasId) {
+        Usuario usuarioLogado = usuarioRepository.findByAliasId(aliasId).get();
+        Usuario outro = usuarioRepository.findByUsernameIgnoreCase(username);
+        Usuario responsavel, atleta;
+        boolean usuarioLogadoEUmAtleta = tipoContaService.verificarTipoConta(usuarioLogado, TipoContaEnum.ATLETA);
+        if(usuarioLogadoEUmAtleta) {
+            responsavel = outro;
+            atleta = usuarioLogado;
+        }
+        else {
+            responsavel = usuarioLogado;
+            atleta = outro;
+        }
+
         Map<String, Object> info = new HashMap<>();
         Object data = responsavel.getAliasId();
         info.put("RESPONSAVEL", data);
@@ -86,8 +96,21 @@ public class UsuarioService {
     }
     
     @Transactional
-    public void desvincularResponsavel(Usuario responsavel, Usuario atleta) {
-        if(!tipoContaService.verificarTipoConta(atleta, TipoConta.ATLETA)) throw new ConflictException("A conta informada não é do tipo válido (Tipo A)");
+    public void desvincularResponsavel(String username, UUID aliasId) throws Exception {
+        Usuario outro = usuarioRepository.findByUsernameIgnoreCase(username);
+        Usuario usuarioLogado = usuarioRepository.findByAliasId(aliasId).get();
+        Usuario responsavel, atleta;
+        boolean usuarioLogadoEUmAtleta = tipoContaService.verificarTipoConta(usuarioLogado, TipoContaEnum.ATLETA);
+        if(usuarioLogadoEUmAtleta) {
+            responsavel = outro;
+            atleta = usuarioLogado;
+            if(atleta.obterIdade() < 18) throw new Exception("Ação proibida");
+        }
+        else {
+            responsavel = usuarioLogado;
+            atleta = outro;
+        }
+        
         Map<String, Object> detalhePerfilDoAtleta = detalhePerfilRepository.getByUsuario(atleta).getData();
         // valida se esse responsavel realmente é o RESPONSAVEL de atleta
         if(detalhePerfilDoAtleta.get("RESPONSAVEL").equals(responsavel.getAliasId().toString()) == false) throw new ConflictException("Usuario não autorizado a realizar esta ação");
@@ -101,7 +124,7 @@ public class UsuarioService {
         usuario.setUsername(gerarUsername(usuario.getNome()));
         usuario.setSenha(passwordEncoder.encode(usuario.getSenha()));
         usuario = usuarioRepository.saveAndFlush(usuario);
-        tipoContaService.categorizarContaComoOlheiro(usuario);
+        tipoContaService.categorizarContaComoOlheiro(usuario.getAliasId());
         return usuario;
     }
     
@@ -111,9 +134,8 @@ public class UsuarioService {
     }
 
     public UserProfileSummary buscarDadosPerfil(String idDoUsuarioAProcurar, UUID idDoUsuarioAutenticado) {
-        Usuario usuario = usuarioRepository.findByUsernameIgnoreCase(idDoUsuarioAProcurar);
-        Set<XUsuarioTipoConta> poderesQueContaPossui = this.xUsuarioTipoContaRepository.getByUsuario(usuario);
-        String[] poderesConta = poderesQueContaPossui.stream().map(poder -> resolverTipo(poder)).distinct().toArray(String[]::new);
+        Usuario usuario = usuarioRepository.findByUsernameWithPoderesIgnoreCase(idDoUsuarioAProcurar);
+        String[] poderesConta = usuario.getPoderesConta().stream().map(poder -> poder.getNome()).toArray(String[]::new);
         boolean souEu = false;
         if(usuario.getAliasId().equals(idDoUsuarioAutenticado)) souEu = true;
 
@@ -128,11 +150,11 @@ public class UsuarioService {
             .build();
     }
 
+    @Transactional
     public UserProfileSummary buscarDadosPerfil(String idDoUsuarioAProcurar) {
         Usuario usuario = usuarioRepository.findByUsernameIgnoreCase(idDoUsuarioAProcurar);
         if(usuario == null) throw new Error("Usuario não encontrado");
-        Set<XUsuarioTipoConta> poderesQueContaPossui = this.xUsuarioTipoContaRepository.getByUsuario(usuario);
-        String[] poderesConta = poderesQueContaPossui.stream().map(poder -> resolverTipo(poder)).distinct().toArray(String[]::new);
+        String[] poderesConta = usuario.getPoderesConta().stream().map(poder -> poder.getNome()).distinct().toArray(String[]::new);
 
         return UserProfileSummary.builder()
             .nome(usuario.getNome())
@@ -154,8 +176,7 @@ public class UsuarioService {
     @Transactional
     public UserProfileSummary atualizarPerfilParcialmente(UserProfileFieldsDTO novaInformacao, Usuario usuario) {
         if(novaInformacao.getNome().isPresent()) usuario.setNome(novaInformacao.getNome().get());
-        Set<XUsuarioTipoConta> poderesQueContaPossui = this.xUsuarioTipoContaRepository.getByUsuario(usuario);
-        String[] poderesConta = poderesQueContaPossui.stream().map(poder -> resolverTipo(poder)).distinct().toArray(String[]::new);
+        String[] poderesConta = usuario.getPoderesConta().stream().map(poder -> poder.getNome()).distinct().toArray(String[]::new);
         
         return UserProfileSummary.builder()
             .nome(usuario.getNome())
@@ -205,17 +226,6 @@ public class UsuarioService {
 
     @Transactional
     public void buscarQuemSegue() {}
-
-    static String resolverTipo(XUsuarioTipoConta relacao) {
-        if (relacao == null) return "USUARIO";
-        return switch (relacao.getTipoConta().getId()) {
-            case TipoConta.ATLETA -> "ATLETA";
-            case TipoConta.OLHEIRO -> "OLHEIRO";
-            case TipoConta.RESPONSAVEL -> "RESPONSAVEL";
-            case TipoConta.REPRESENTANTE_CLUBE -> "REPRESENTANTE_CLUBE";
-            default -> "USUARIO";
-        };
-    }
 
     @Transactional
     public Usuario buscarPorComLike(UUID aliasId) {

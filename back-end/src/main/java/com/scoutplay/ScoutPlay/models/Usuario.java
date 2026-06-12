@@ -58,6 +58,13 @@ public class Usuario extends TabelaBase {
     private Set<Usuario> contasQueSegue = new HashSet<>();
     @ManyToMany(mappedBy = "contasQueSegue")
     private Set<Usuario> contasQueMeSeguem = new HashSet<>();
+    @ManyToMany
+    @JoinTable(
+      name = "t_tipo_conta",
+      joinColumns = @JoinColumn(name = "fk_usuario"),
+      inverseJoinColumns = @JoinColumn(name = "fk_tipo_conta")
+    )
+    private Set<TipoConta> poderesConta = new HashSet<>();
 
     protected Usuario() {}
     public Usuario(String _nome, String _email, String _senha, LocalDate _dataNascimento) {

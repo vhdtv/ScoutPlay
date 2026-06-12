@@ -14,14 +14,13 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.security.crypto.password.PasswordEncoder;
 
+import com.scoutplay.ScoutPlay.enums.TipoContaEnum;
 import com.scoutplay.ScoutPlay.exceptions.ConflictException;
 import com.scoutplay.ScoutPlay.models.DetalhePerfil;
 import com.scoutplay.ScoutPlay.models.TipoConta;
 import com.scoutplay.ScoutPlay.models.Usuario;
-import com.scoutplay.ScoutPlay.models.XUsuarioTipoConta;
 import com.scoutplay.ScoutPlay.repositories.DetalhePerfilRepository;
 import com.scoutplay.ScoutPlay.repositories.UsuarioRepository;
-import com.scoutplay.ScoutPlay.repositories.XUsuarioTipoContaRepository;
 
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.*;
@@ -39,9 +38,6 @@ class UsuarioServiceTest {
 
     @Mock
     private DetalhePerfilRepository detalhePerfilRepository;
-
-    @Mock
-    private XUsuarioTipoContaRepository xUsuarioTipoContaRepository;
 
     @Mock
     private TipoContaService tipoContaService;
@@ -76,7 +72,7 @@ class UsuarioServiceTest {
 
         assertNotNull(resultado);
         verify(usuarioRepository).saveAndFlush(any(Usuario.class));
-        verify(tipoContaService).categorizarContaComoAtleta(any(Usuario.class));
+        verify(tipoContaService).categorizarContaComoAtleta(any(UUID.class));
     }
 
     @Test
@@ -174,13 +170,10 @@ class UsuarioServiceTest {
     @Test
     @DisplayName("Deve buscar dados do perfil por username")
     void deveBuscarDadosDoPerfil() {
-        XUsuarioTipoConta relacao = mock(XUsuarioTipoConta.class);
         TipoConta tipoConta = mock(TipoConta.class);
-        when(tipoConta.getId()).thenReturn(TipoConta.ATLETA);
-        when(relacao.getTipoConta()).thenReturn(tipoConta);
+        when(tipoConta.getId()).thenReturn(TipoContaEnum.ATLETA.getId());
 
         when(usuarioRepository.findByUsernameIgnoreCase("fabiano_teste")).thenReturn(atletaMock);
-        when(xUsuarioTipoContaRepository.getByUsuario(atletaMock)).thenReturn(Set.of(relacao));
 
         var perfil = usuarioService.buscarDadosPerfil("fabiano_teste", UUID.randomUUID());
 

@@ -112,8 +112,22 @@ export default class {
             return false;
         }
     }
-    vincularComoResponsavelAConta = async (username: UserSummaryDTO["username"]): Promise<boolean> => { throw new Error("Not implemented") }
-    desvincularComoResponsavelAConta = async (username: UserSummaryDTO["username"]): Promise<boolean> => { throw new Error("Not implemented") }
+    vincularComoResponsavelAConta = async (username: UserSummaryDTO["username"]): Promise<boolean> => {
+        const request = await fetch(`${this.BACKEND_ENDPOINT}/user/${username}/responsible`, {
+            method: "POST",
+            credentials: "include",
+        })
+        if(request.status != 200) return false;
+        return true;
+    }
+    desvincularComoResponsavelAConta = async (username: UserSummaryDTO["username"]): Promise<boolean> => {
+        const request = await fetch(`${this.BACKEND_ENDPOINT}/user/${username}/responsible`, {
+            method: "DELETE",
+            credentials: "include",
+        })
+        if(request.status != 200) return false;
+        return true;
+    }
     
     criarPost = async ({titulo, arquivo, descricao}: PostDataInputDTO): Promise<PostDataOutputDTO> => {
         const formData = new FormData();

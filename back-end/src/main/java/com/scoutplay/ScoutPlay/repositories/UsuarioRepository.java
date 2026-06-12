@@ -1,5 +1,6 @@
 package com.scoutplay.ScoutPlay.repositories;
 
+import com.scoutplay.ScoutPlay.enums.TipoContaEnum;
 import com.scoutplay.ScoutPlay.models.Usuario;
 
 import java.util.Optional;
@@ -17,6 +18,8 @@ public interface UsuarioRepository extends JpaRepository<Usuario, UUID> {
     Usuario findByEmail(String email);
     @Query("SELECT u FROM Usuario u LEFT JOIN FETCH u.contasQueSegue WHERE LOWER(u.username) = LOWER(:username)")
     Usuario findByUsernameIgnoreCase(@Param("username") String username);
+    @Query("SELECT u FROM Usuario u LEFT JOIN FETCH u.poderesConta WHERE LOWER(u.username) = LOWER(:username)")
+    Usuario findByUsernameWithPoderesIgnoreCase(@Param("username") String username);
     Optional<Usuario> findByAliasId(UUID aliasId);
 
     @Query("SELECT u FROM Usuario u LEFT JOIN FETCH u.contasQueSegue WHERE u.aliasId = :aliasId")
@@ -25,9 +28,6 @@ public interface UsuarioRepository extends JpaRepository<Usuario, UUID> {
     @Query("SELECT u FROM Usuario u LEFT JOIN FETCH u.postsCurtidos WHERE u.aliasId = :aliasId")
     Optional<Usuario> findByIdWithPostsCurtidos(@Param("aliasId") UUID aliasId);
 
-    @Query("SELECT x.usuario FROM XUsuarioTipoConta x WHERE x.tipoConta.id = :tipoContaId")
-    Page<Usuario> findAllByTipoContaId(int tipoContaId, Pageable pageable);
-
-    @Query("SELECT x.usuario FROM XUsuarioTipoConta x WHERE x.tipoConta.id = :tipoContaId AND x.usuario.ativo = true")
-    Page<Usuario> findAllAtivosByTipoContaId(int tipoContaId, Pageable pageable);
+    @Query("SELECT u FROM Usuario u JOIN u.poderesConta p WHERE p.id = :#{#tipoEnum.id}")
+    Page<Usuario> findByTipoConta(@Param("tipoEnum") TipoContaEnum tipoEnum, Pageable pageable);
 }
