@@ -2,7 +2,7 @@ import API from '#/api/API'
 import type { MensagemDTO, PostDetailsDTO } from '#/api/tipos'
 import Footer from '#/components/Footer'
 import { LoggedHeader } from '#/components/Header'
-import { createFileRoute, Link } from '@tanstack/react-router'
+import { createFileRoute, Link, useNavigate } from '@tanstack/react-router'
 import { useEffect, useState, type ChangeEvent } from 'react'
 import { PostMediaComponent } from './post/$post_id'
 import ProfilePicture from '#/components/ui/ProfilePicture'
@@ -103,6 +103,7 @@ export function RouteComponent() {
   const postsCache: PostDetailsDTO[] = []
   const [postsInView, setPostsInView] = useState([] as PostDetailsDTO[]);
   const [dialogPostCreate, setDialogPostCreate] = useState(false);
+  const navigate = useNavigate();
   
   function DialogPostCreateComponent() {
     const [newPostMedia, setNewPostMedia] = useState("");
@@ -113,9 +114,10 @@ export function RouteComponent() {
       if(!arquivo) return;
       let descricao = form.get("descricao")?.toString() ?? "";
 
-      const request = await api.criarPost({arquivo, titulo, descricao});
-      if(!request) return;
+      const post = await api.criarPost({arquivo, titulo, descricao});
+      if(!post) return;
       setDialogPostCreate(false)
+      navigate({to: "/post/$post_id", params: {post_id: post.url}})
 
     }
 

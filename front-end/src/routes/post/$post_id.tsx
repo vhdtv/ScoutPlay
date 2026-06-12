@@ -65,7 +65,7 @@ function LikeButton({postUrl, contagemAtualDeLike, usuarioJaDeuLike}: {postUrl: 
 
 export function PostMediaComponent({post, className}: {post: PostDetailsDTO, className?: string}) {
   return (
-    <div className={`relative ${className}`}>
+    <div className={`relative h-full ${className ?? ""}`}>
       <div className="absolute w-full h-full flex justify-start items-end overflow-hidden gap-2">
         <div className="absolute z-0 top-0 start-0 end-0 bottom-0 bg-linear-to-b from-slate-0 to-slate-950/40"></div>
         <div className="shrink-0 bottom-16 start-4 absolute z-1">
@@ -80,7 +80,7 @@ export function PostMediaComponent({post, className}: {post: PostDetailsDTO, cla
       {
         post.media.mimeType.startsWith("video")
         ? <video className='object-fit object-center' loop autoPlay={true} muted src={api.obterMidia(post.media.src)}></video>
-        : <img src={post.media.src} />
+        : <img className='object-contain object-center w-[inherit] h-[inherit] m-auto' style={{maxHeight: "300px"}} src={api.obterMidia(post.media.src)} />
       }
     </div>
   )
@@ -135,7 +135,7 @@ function RouteComponent() {
       {
         post && (
         <div className="container grow-1 mx-auto flex items-center justify-center">
-          <div className='shadow-lg grid grid-cols-12 rounded-lg overflow-hidden max-h-96'>
+          <div className='shadow-lg grid grid-cols-12 rounded-lg overflow-hidden overflow-hidden' style={{maxHeight: "60vh"}}>
               <div className="col-span-8 bg-slate-900 flex items-center h-full relative">
                 <PostMediaComponent post={post} />
               </div>
