@@ -3,8 +3,6 @@ package com.scoutplay.ScoutPlay.controllers;
 import com.scoutplay.ScoutPlay.api.response.ApiResponse;
 import com.scoutplay.ScoutPlay.services.AIService;
 import lombok.RequiredArgsConstructor;
-
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -18,13 +16,11 @@ import java.util.Map;
 @RequiredArgsConstructor
 public class AIController {
 
-    @Autowired
     private final AIService aiService;
 
     /**
-     * POST /api/ia/copiloto
-     * Copiloto ScoutPlay — responde perguntas sobre futebol e atletas cadastrados.
-     * Requer token JWT. Body: { "pergunta": "..." }
+     * POST /api/ia/prompt
+     * Corpo esperado (JSON): { "pergunta": "Quais são os atacantes?" }
      */
     @PostMapping("/prompt")
     public ResponseEntity<ApiResponse<Map<String, String>>> perguntar(
@@ -33,10 +29,11 @@ public class AIController {
         String pergunta = body.get("pergunta");
         if (pergunta == null || pergunta.isBlank()) {
             return ResponseEntity.badRequest()
-                    .body(ApiResponse.error("INVALID_REQUEST", "Campo 'pergunta' é obrigatório"));
+                    .body(ApiResponse.error("INVALID_REQUEST", "O campo 'pergunta' é obrigatório."));
         }
 
         String resposta = aiService.perguntar(pergunta);
+
         return ResponseEntity.ok(ApiResponse.success(Map.of("resposta", resposta)));
     }
 }
