@@ -250,7 +250,17 @@ export default class {
     buscar = async (texto: string, filtros: SearchParamsDTO): Promise<SearchResultsOutputDTO> => { throw new Error("Not implemented") }
     chatIA = async (prompt: string): Promise<MensagemDTO> => { throw new Error("Not implemented") }
     
-    obterPostsFeed = async ({page}: {page: number}): Promise<{page: number, pageSize: number, data: PostDetailsDTO[]}> => { throw new Error("Not implemented") }
+    obterPostsFeed = async ({page}: {page: number}): Promise<{page: number, last: boolean, data: PostDetailsDTO[]}> => {
+        const urlEndpoint = new URL(`${this.BACKEND_ENDPOINT}/feed`);
+        if(page) urlEndpoint.searchParams.append("page", page.toString());
+        const request = await fetch(urlEndpoint, {
+            credentials: "include"
+        });
+        const { data } = await request.json();
+        if(!data) return { data: [], last: true, page: 1};
+        const {content, last, number} = data;
+        return { data: content, last, page: number};
+    }
     
     private salvarDadosUsuarioNoNavegador = (userData: UserSummaryDTO) => {
         localStorage.setItem(this.USER_CACHE_KEY, userData.username);

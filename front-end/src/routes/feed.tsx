@@ -41,7 +41,7 @@ function AIChatComponent() {
         </div>
       </div>
       <form action={enviarPrompt} className='shrink-0 p-2 relative text-xs flex gap-1'>
-        <textarea name="pergunta" placeholder='Adicione um comentário...' className='outline-none w-full p-2 border-1 border-slate-300 rounded-md hover:border-slate-400 hover:bg-slate-200 focus:border-slate-400 focus:bg-slate-200 resize-none'> </textarea>
+        <textarea name="pergunta" placeholder='Adicione um comentário...' className='outline-none w-full p-2 border-1 border-slate-300 rounded-md hover:border-slate-400 hover:bg-slate-200 focus:border-slate-400 focus:bg-slate-200 resize-none'></textarea>
         <button type="submit" className='flex items-center p-2 bg-white hover:bg-sky-700 m-auto hover:text-white focus:bg-sky-700 focus:text-white transition cursor-pointer rounded-full outline-none'>
           <span className="material-symbols-outlined" style={{fontSize: "1.2rem"}}> send </span>
         </button>
@@ -79,8 +79,8 @@ function PostFeedComponent({post}: {post: PostDetailsDTO}) {
 
   function BotaoSeguirComponent() {
     return seguindoConta
-      ? <button onClick={() => pararDeSeguirConta(post.autor.username)} className={`text-xs font-bold text-xs/3 underline-offset-4 ${esperandoServidor ? "opacity-40" : "hover:underline cursor-pointer"}`}>Seguindo</button>
-      : <button onClick={() => seguirConta(post.autor.username)} className={`text-xs font-bold text-xs/3 underline-offset-4 text-sky-700 ${esperandoServidor ? "opacity-40" : "hover:underline cursor-pointer"}`}>Seguir</button>
+      ? <button onClick={() => pararDeSeguirConta(post.autor.username)} className={`text-start text-xs font-bold text-xs/3 underline-offset-4 ${esperandoServidor ? "opacity-40" : "hover:underline cursor-pointer"}`}>Seguindo</button>
+      : <button onClick={() => seguirConta(post.autor.username)} className={`text-start text-xs font-bold text-xs/3 underline-offset-4 text-sky-700 ${esperandoServidor ? "opacity-40" : "hover:underline cursor-pointer"}`}>Seguir</button>
   }
 
   return (

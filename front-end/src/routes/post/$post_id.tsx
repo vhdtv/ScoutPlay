@@ -145,8 +145,8 @@ function RouteComponent() {
                   <div className='flex flex-col justify-center'>
                     <small className='leading-4 font-bold'>{post.autor.nome}</small>
                     { post.metadados?.segueConta
-                       ? <button onClick={deixarDeSeguir} className='text-xs/3 cursor-pointer opacity-50 hover:opacity-75'>Deixar de seguir</button>
-                       : <button onClick={seguir} className='text-xs/3 cursor-pointer opacity-50 hover:opacity-75'>Seguir</button>
+                       ? <button onClick={deixarDeSeguir} className='text-start text-xs/3 cursor-pointer opacity-50 hover:opacity-75'>Deixar de seguir</button>
+                       : <button onClick={seguir} className='text-start text-xs/3 cursor-pointer opacity-50 hover:opacity-75'>Seguir</button>
                     }
                   </div>
                 </div>

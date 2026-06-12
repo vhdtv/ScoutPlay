@@ -28,10 +28,15 @@ public class DataInitializer {
             
             try {
                 // Ações de Atleta
-                Usuario atletaFabio = new Usuario("Fabio", "Braga", "fabio@atleta.com", "12456", "12345", LocalDate.of(2006, 12, 4));
+                Usuario atletaFabio = new Usuario("Fabio", "Braga", "fabio@atleta.com", "12345678910", "12345", LocalDate.of(2006, 12, 4));
                 atletaFabio.setUsername("fabin_123");
                 atletaFabio.setAliasId(UUID.fromString("296e861f-6697-4f74-99a1-f016e6b3de1e"));
                 usuarioService.cadastrarAtleta(atletaFabio);
+                Usuario atletaRoberto = new Usuario("Roberto", "Mendes", "roberto@atleta.com", "12345678911", "asd", LocalDate.of(2006, 12, 4));
+                atletaRoberto.setUsername("__robertoo");
+                atletaRoberto.setAliasId(UUID.fromString("ebc1c3ad-6924-4c0e-b63c-c787ce7f1bda"));
+                usuarioService.cadastrarAtleta(atletaRoberto);
+                usuarioService.seguir(atletaRoberto.getUsername(), atletaFabio.getAliasId());
                 Map<String, Object> info = new HashMap<>();
                 info.put("PE_DOMINANTE", "Direito");
                 info.put("PE_DOMINANTEE", "Direito");
@@ -52,7 +57,7 @@ public class DataInitializer {
                 usuarioService.cadastrarOlheiro(olheiroRamilson);
 
                 // Criação de Post
-                Post post1 = new Post("Titulo", "descricao", "3560017-uhd_3840_2160_25fps.mp4", tipoMidiaService.categorizarComoVideo(), atletaFabio);
+                Post post1 = new Post("Titulo", "descricao", "3560017-uhd_3840_2160_25fps.mp4", tipoMidiaService.categorizarComoVideo(), atletaRoberto);
                 post1.setAliasId(UUID.fromString("ec51b202-c0f0-43ec-9f39-0cc86d48d6ee"));
                 postService.criar(post1);
             }

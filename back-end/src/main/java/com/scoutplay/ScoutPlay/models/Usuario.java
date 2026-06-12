@@ -18,6 +18,7 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Set;
 import java.util.UUID;
 
@@ -139,8 +140,17 @@ public class Usuario extends TabelaBase {
         conta.contasQueMeSeguem.remove(this);
     }
 
-    public boolean equals(Usuario outro) {
-        return this.getAliasId().equals(outro.getAliasId());
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        Usuario that = (Usuario) o;
+        return this.getAliasId().equals(that.getAliasId());
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(id);
     }
 
 }

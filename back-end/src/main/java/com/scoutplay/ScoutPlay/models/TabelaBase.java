@@ -14,7 +14,7 @@ import lombok.Setter;
 public abstract class TabelaBase {
     @Id
     @GeneratedValue(strategy=GenerationType.IDENTITY)
-    private int id;
+    protected int id;
     @Getter
     @Setter
     private java.util.UUID aliasId;

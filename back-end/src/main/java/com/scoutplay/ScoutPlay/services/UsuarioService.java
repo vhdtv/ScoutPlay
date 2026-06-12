@@ -54,7 +54,7 @@ public class UsuarioService {
         if(usuario.getSenha() == null || usuario.getSenha().isBlank()) throw new IllegalArgumentException("Senha é obrigatória");
         if(usuarioRepository.existsByCpf(usuario.getCpf())) throw new ConflictException("Um atleta com este CPF já existe.");
         if(usuarioRepository.existsByEmail(usuario.getEmail())) throw new ConflictException("Este e-mail já está em uso. Por favor, utilize outro.");
-        if(usuario.getUsername().isBlank()) usuario.setUsername(gerarUsername(usuario.getNome()));
+        if(usuario.getUsername() == null || usuario.getUsername().isBlank()) usuario.setUsername(gerarUsername(usuario.getNome()));
         usuario.setSenha(passwordEncoder.encode(usuario.getSenha()));
         usuario = usuarioRepository.saveAndFlush(usuario);
         tipoContaService.categorizarContaComoAtleta(usuario.getAliasId());
@@ -66,7 +66,7 @@ public class UsuarioService {
     public Usuario cadastrarResponsavel(Usuario usuario) {
         if(usuarioRepository.existsByCpf(usuario.getCpf())) throw new ConflictException("Um cadastro com este CPF já existe.");
         if(usuarioRepository.existsByEmail(usuario.getEmail())) throw new ConflictException("Este e-mail já está em uso. Por favor, utilize outro.");
-        if(usuario.getUsername().isBlank()) usuario.setUsername(gerarUsername(usuario.getNome()));
+        if(usuario.getUsername() == null || usuario.getUsername().isBlank()) usuario.setUsername(gerarUsername(usuario.getNome()));
         usuario.setSenha(passwordEncoder.encode(usuario.getSenha()));
         usuario = usuarioRepository.saveAndFlush(usuario);
         tipoContaService.categorizarContaComoResponsavel(usuario.getAliasId());
@@ -120,7 +120,7 @@ public class UsuarioService {
     public Usuario cadastrarOlheiro(Usuario usuario) {
         if(usuarioRepository.existsByCpf(usuario.getCpf())) throw new ConflictException("Um cadastro com este CPF já existe.");
         if(usuarioRepository.existsByEmail(usuario.getEmail())) throw new ConflictException("Este e-mail já está em uso. Por favor, utilize outro.");
-        if(usuario.getUsername().isBlank()) usuario.setUsername(gerarUsername(usuario.getNome()));
+        if(usuario.getUsername() == null || usuario.getUsername().isBlank()) usuario.setUsername(gerarUsername(usuario.getNome()));
         usuario.setSenha(passwordEncoder.encode(usuario.getSenha()));
         usuario = usuarioRepository.saveAndFlush(usuario);
         tipoContaService.categorizarContaComoOlheiro(usuario.getAliasId());
@@ -129,7 +129,7 @@ public class UsuarioService {
     
     @Transactional
     public Usuario buscarPor(UUID aliasId) {
-        return this.usuarioRepository.findByAliasId(aliasId).orElse(null);
+        return this.usuarioRepository.findByAliasIdWithContasQueSegue(aliasId).orElse(null);
     }
 
     public UserProfileSummary buscarDadosPerfil(String idDoUsuarioAProcurar, UUID idDoUsuarioAutenticado) {

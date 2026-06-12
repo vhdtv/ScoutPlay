@@ -15,6 +15,7 @@ public interface UsuarioRepository extends JpaRepository<Usuario, UUID> {
     boolean existsByCpf(String cpf);
     boolean existsByEmail(String email);
     Optional<Usuario> findByCpf(String cpf);
+    @Query("SELECT u FROM Usuario u LEFT JOIN FETCH u.poderesConta WHERE u.email = :email")
     Usuario findByEmail(String email);
     @Query("SELECT u FROM Usuario u LEFT JOIN FETCH u.contasQueSegue WHERE LOWER(u.username) = LOWER(:username)")
     Usuario findByUsernameIgnoreCase(@Param("username") String username);
