@@ -100,4 +100,21 @@ public class UserController {
         return ResponseEntity.ok(ApiResponse.success(result));
     }
 
+    @PostMapping("/user/{username}/responsible")
+    public ResponseEntity<ApiResponse<Boolean>> vincularResponsavel(@PathVariable String username, @CookieValue(name = "access_token", required = true) String accessToken) {
+        this.usuarioService.vincularResponsavel(username, UUID.fromString(jwtTokenProvider.extractUserId(accessToken)));
+        return ResponseEntity.ok(ApiResponse.success(true));
+    }
+
+    @DeleteMapping("/user/{username}/responsible")
+    public ResponseEntity<ApiResponse<String>> desvincularResponsavel(@PathVariable String username, @CookieValue(name = "access_token", required = true) String accessToken) {
+        try {
+            this.usuarioService.desvincularResponsavel(username, UUID.fromString(jwtTokenProvider.extractUserId(accessToken)));
+            return ResponseEntity.ok(ApiResponse.success("200","true"));
+        }
+        catch(Exception e) {
+            return ResponseEntity.ok(ApiResponse.error("404", "false"));
+        }
+    }
+
 }
