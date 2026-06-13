@@ -16,6 +16,8 @@ const config = defineConfig({
     tanstackStart(),
     viteReact(),
   ],
+  build: { sourcemap: true },
+  css: { devSourcemap: true }
 })
 
 export default config
