@@ -2,6 +2,7 @@ package com.scoutplay.ScoutPlay.controllers;
 
 import com.scoutplay.ScoutPlay.api.dto.CommentDataInputDTO;
 import com.scoutplay.ScoutPlay.api.dto.CommentDataOutputDTO;
+import com.scoutplay.ScoutPlay.api.dto.PostAuthorSummary;
 import com.scoutplay.ScoutPlay.api.dto.PostDataInputDTO;
 import com.scoutplay.ScoutPlay.api.dto.PostDataOutputDTO;
 import com.scoutplay.ScoutPlay.api.dto.PostDetailsDTO;
@@ -57,6 +58,32 @@ public class PostController {
         PostDataOutputDTO criado = this.postService.criar(dto);
         if(criado == null) return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(ApiResponse.error("400", "Erro ao criar post"));
         return ResponseEntity.status(HttpStatus.OK).body(ApiResponse.success(criado, "Post criado com sucesso"));
+    }
+
+    @PatchMapping("/post/{postId}")
+    public ResponseEntity<ApiResponse<PostDataOutputDTO>> atualizar(@RequestBody PostDataInputDTO dto, @PathVariable UUID postId) {
+        try {
+            Post result = postService.atualizarPost(postId, dto);
+            return ResponseEntity.status(HttpStatus.OK).body(ApiResponse.success(PostDataOutputDTO.builder()
+                .autor(PostAuthorSummary.builder()
+                    .nome(result.getAutor().getNome())
+                    .sobrenome(result.getAutor().getSobrenome())
+                    .iniciais(result.getAutor().getIniciais())
+                    .username(result.getAutor().getUsername())
+                    .fotoPerfil(result.getAutor().getFotoPerfil())
+                    .build())
+                .url(result.getAliasId())
+                .titulo(result.getTitulo())
+                .descricao(Optional.of(result.getDescricao()))
+                .src(result.getCaminhoArquivo())
+                .poster(null)
+                .criadoEm(result.getCriadoEm())
+                .tipoMidia(result.getTipoMidia())
+                .build()));
+        }
+        catch(Exception e) {
+            return ResponseEntity.ok(ApiResponse.error("404", ""));
+        }
     }
 
     @GetMapping("/post/{postId}/comments")

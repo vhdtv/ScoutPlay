@@ -94,6 +94,11 @@ export type PostDTO = {
     }
 }
 
+export type PostDataUpdateInputDTO = {
+    titulo?: string,
+    descricao?: string,
+}
+
 export type ConfigItemDTO = {
     OLHEIROS_PODEM_CONECTAR_PELO_WHATSAPP?: boolean,
     OCULTAR_INFORMACOES_PESSOAIS_PUBLICAMENTE?: boolean

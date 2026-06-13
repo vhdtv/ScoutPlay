@@ -180,4 +180,14 @@ public class PostService {
             .build();
     }
 
+    @Transactional
+    public Post atualizarPost(UUID postId, PostDataInputDTO dto) throws Exception {
+        Post post = postRepository.findByAliasIdAndAtivoTrue(postId).get();
+        Usuario usuarioLogado = usuarioRepository.findByAliasId(UUID.fromString(SecurityUtils.currentUserId())).orElseThrow(() -> new ResourceNotFoundException("Usuário não encontrado"));
+        if(!post.getAutor().equals(usuarioLogado)) throw new Exception("Você não criou este post");
+        Optional.ofNullable(dto.getTitulo()).ifPresent(post::setTitulo);
+        Optional.ofNullable(dto.getDescricao()).ifPresent(post::setDescricao);
+        return post;
+    }
+
 }

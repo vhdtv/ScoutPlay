@@ -1,5 +1,5 @@
 import type { UUID } from "crypto";
-import type { CommentDTO, ConfigItemDTO, ConviteDTO, MensagemDTO, PostDataInputDTO, PostDataOutputDTO, PostDetailsDTO, PostHighlightDTO, ProfileUpdateInputDTO, SearchParamsDTO, SearchResultsOutputDTO, UserProfileDetailDTO, UserProfileDTO, UserSummaryDTO } from "./tipos";
+import type { CommentDTO, ConfigItemDTO, ConviteDTO, MensagemDTO, PostDataInputDTO, PostDataOutputDTO, PostDataUpdateInputDTO, PostDetailsDTO, PostHighlightDTO, ProfileUpdateInputDTO, SearchParamsDTO, SearchResultsOutputDTO, UserProfileDetailDTO, UserProfileDTO, UserSummaryDTO } from "./tipos";
 
 export default class {
     get USER_CACHE_KEY() { return "__usuario"; }
@@ -191,7 +191,16 @@ export default class {
         await request.json();
         return true;
     }
-    atualizarPost = async (id: PostDataOutputDTO["url"], data: PostDataOutputDTO): Promise<PostDataOutputDTO> => { throw new Error("Not implemented: 2") }
+    atualizarPost = async (id: PostDataOutputDTO["url"], input: PostDataUpdateInputDTO): Promise<PostDataOutputDTO> => {
+        const request = await fetch(`${this.BACKEND_ENDPOINT}/post/${id}`, {
+            method: "PATCH",
+            credentials: "include",
+            headers: this.GET_HEADERS,
+            body: JSON.stringify(input)
+        })
+        const { data } = await request.json();
+        return data;
+    }
     darLikeEmPost = async (postId: string): Promise<boolean> => {
         const request = await fetch(`${this.BACKEND_ENDPOINT}/post/${postId}/like`, {
             method: "POST",
