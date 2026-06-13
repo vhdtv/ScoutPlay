@@ -282,8 +282,23 @@ export default class {
         if(request.status != 200) return false;
         return true;
     }
-    obterConvites = async (): Promise<ConviteDTO[]> => { throw new Error("Not implemented: 5") }
-    mandarConvite = async (username: UserSummaryDTO["username"], texto: string): Promise<ConviteDTO> => { throw new Error("Not implemented: 4") }
+    obterConvites = async (): Promise<ConviteDTO[]> => {
+        const request = await fetch(`${this.BACKEND_ENDPOINT}/message`, {
+            credentials: "include"
+        })
+        const {data} = await request.json();
+        return data;
+    }
+    mandarConvite = async (username: UserSummaryDTO["username"], mensagem: string): Promise<ConviteDTO> => {
+        const request = await fetch(`${this.BACKEND_ENDPOINT}/message`, {
+            method: "POST",
+            headers: this.GET_HEADERS,
+            credentials: "include",
+            body: JSON.stringify({usernameDestinatario: username, mensagem}),
+        })
+        const {data} = await request.json();
+        return data;
+    }
     aceitarConvite = async (conviteId: UUID): Promise<boolean> => { throw new Error("Not implemented: 6") }
     recusarConvite = async (conviteId: UUID): Promise<boolean> => { throw new Error("Not implemented: 7") }
     
