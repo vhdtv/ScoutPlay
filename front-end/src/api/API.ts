@@ -224,13 +224,21 @@ export default class {
             method: "POST",
             credentials: "include",
             headers: this.GET_HEADERS,
-            body: JSON.stringify({id: input.id, texto: input.texto})
+            body: JSON.stringify({aliasId: input.id, nome: input.texto})
         });
         const { data } = await request.json();
         return data;
-
     }
-    retirarDestaque = async (postId: UUID, destaque: UUID): Promise<PostHighlightDTO> => { throw new Error("Not implemented: 3.5") }
+    retirarDestaque = async (postId: UUID, destaqueId: UUID): Promise<PostHighlightDTO> => {
+        const request = await fetch(`${this.BACKEND_ENDPOINT}/post/${postId}/highlight`, {
+            method: "DELETE",
+            credentials: "include",
+            headers: this.GET_HEADERS,
+            body: JSON.stringify({aliasId: destaqueId})
+        });
+        const { data } = await request.json();
+        return data;
+    }
     obterComentarios = async (postId: UUID): Promise<CommentDTO[]> => {
         const request = await fetch(`${this.BACKEND_ENDPOINT}/post/${postId}/comments`, {
             headers: this.GET_HEADERS

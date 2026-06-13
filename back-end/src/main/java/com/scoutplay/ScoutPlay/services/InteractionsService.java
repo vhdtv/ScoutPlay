@@ -2,11 +2,14 @@ package com.scoutplay.ScoutPlay.services;
 
 import lombok.RequiredArgsConstructor;
 
+import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
+import java.util.stream.Collectors;
 
 import org.springframework.stereotype.Service;
 
+import com.scoutplay.ScoutPlay.api.dto.PostHighlightDTO;
 import com.scoutplay.ScoutPlay.models.Destaque;
 import com.scoutplay.ScoutPlay.models.DestaquesEmPost;
 import com.scoutplay.ScoutPlay.models.Post;
@@ -39,9 +42,33 @@ public class InteractionsService {
         usuario.descurtirPost(post);
         usuarioRepository.save(usuario);
     }
+
+    @Transactional
+    public List<PostHighlightDTO> obterDestaquesDoPost(UUID postId, UUID userAliasId) {
+        List<PostHighlightDTO> destaquesDoPost = destaqueRepository.findAllByPostWithUserContext(postId, userAliasId).stream().map(item -> PostHighlightDTO.builder()
+            .aliasId(item.getAliasId())
+            .nome(item.getNome())
+            .count(item.getQuantidadeMarcada())
+            .marcadoPeloUsuario(item.getMarcadoPeloUsuario())
+            .build()
+        ).collect(Collectors.toList());
+        return destaquesDoPost;
+    }
     
     @Transactional
-    public void darDestaque(UUID postId, UUID usuarioLogadoId, UUID destaqueId) {
+    public List<PostHighlightDTO> obterDestaquesDoPost(UUID postId) {
+        List<PostHighlightDTO> destaquesDoPost = destaqueRepository.findAllByPost(postId).stream().map(item -> PostHighlightDTO.builder()
+            .aliasId(item.getAliasId())
+            .nome(item.getNome())
+            .count(item.getQuantidadeMarcada())
+            .marcadoPeloUsuario(item.getMarcadoPeloUsuario())
+            .build()
+        ).collect(Collectors.toList());
+        return destaquesDoPost;
+    }
+    
+    @Transactional
+    public DestaquesEmPost darDestaque(UUID postId, UUID usuarioLogadoId, UUID destaqueId) {
         Post post = postRepository.findByAliasIdAndAtivoTrue(postId).orElseThrow(() -> new RuntimeException("Post não encontrado"));
         Usuario usuario = usuarioRepository.findByAliasId(usuarioLogadoId).orElseThrow(() -> new RuntimeException("Usuário não encontrado"));
         Optional<Destaque> destaque = destaqueRepository.findByAliasId(destaqueId);
@@ -54,6 +81,15 @@ public class InteractionsService {
                 .destaque(destaque.get())
                 .build();
 
-        destaquesEmPostRepository.save(novaMarcacao);
+        destaquesEmPostRepository.saveAndFlush(novaMarcacao);
+        return novaMarcacao;
+    }
+
+    public void retirarDestaque(UUID postId, UUID usuarioLogadoId, UUID destaqueId) {
+        Post post = postRepository.findByAliasIdAndAtivoTrue(postId).orElseThrow(() -> new RuntimeException("Post não encontrado"));
+        Usuario usuario = usuarioRepository.findByAliasId(usuarioLogadoId).orElseThrow(() -> new RuntimeException("Usuário não encontrado"));
+        Destaque destaque = destaqueRepository.findByAliasId(destaqueId).get();
+        DestaquesEmPost linhaEmBanco = destaquesEmPostRepository.findByPostAndUsuarioAndDestaque(post, usuario, destaque);
+        destaquesEmPostRepository.delete(linhaEmBanco);
     }
 }

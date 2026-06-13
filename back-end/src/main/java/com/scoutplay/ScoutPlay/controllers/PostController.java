@@ -53,6 +53,7 @@ public class PostController {
             return ResponseEntity.ok(ApiResponse.success(result));
         }
         catch(Exception e) {
+            System.out.println(e);
             return ResponseEntity.ok(ApiResponse.error("404", ""));
         }
     }
@@ -150,12 +151,29 @@ public class PostController {
     }
 
     @PostMapping("/post/{postId}/highlight")
-    public ResponseEntity<ApiResponse<Boolean>> darDestaque(@PathVariable UUID postId, @RequestBody PostHighlightDTO dto, @CookieValue(name = "access_token", required = true) String accessToken) {
+    public ResponseEntity<ApiResponse<PostHighlightDTO>> darDestaque(@PathVariable UUID postId, @RequestBody PostHighlightDTO dto, @CookieValue(name = "access_token", required = true) String accessToken) {
         Usuario usuario = usuarioService.buscarPor(UUID.fromString(jwtTokenProvider.extractUserId(accessToken)));
         Destaque destaque;
-        if(dto.getId() == null) destaque = destaqueService.criar(dto);
-        else destaque = destaqueService.buscarPor(dto.getId());
+        if(dto.getAliasId() == null) destaque = destaqueService.criar(dto);
+        else destaque = destaqueService.buscarPor(dto.getAliasId());
         interactionsService.darDestaque(postId, usuario.getAliasId(), destaque.getAliasId());
-        return ResponseEntity.ok().body(ApiResponse.success(true));
+        return ResponseEntity.ok().body(ApiResponse.success(PostHighlightDTO.builder()
+            .aliasId(destaque.getAliasId())
+            .nome(destaque.getNome())
+            .build()));
+    }
+
+    @DeleteMapping("/post/{postId}/highlight")
+    public ResponseEntity<ApiResponse<Boolean>> retirarDestaque(@PathVariable UUID postId, @RequestBody PostHighlightDTO dto, @CookieValue(name = "access_token", required = true) String accessToken) {
+        Usuario usuario = usuarioService.buscarPor(UUID.fromString(jwtTokenProvider.extractUserId(accessToken)));
+        Destaque destaque = destaqueService.buscarPor(dto.getAliasId());
+        if(destaque == null) return ResponseEntity.ok().body(ApiResponse.success(false, "Destaque não encontrado"));
+        try {
+            interactionsService.retirarDestaque(postId, usuario.getAliasId(), dto.getAliasId());
+            return ResponseEntity.ok().body(ApiResponse.success(true));
+        }
+        catch(Exception e) {
+            return ResponseEntity.ok().body(ApiResponse.success(false));
+        }
     }
 }

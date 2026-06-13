@@ -12,6 +12,8 @@ import lombok.experimental.SuperBuilder;
 @SuperBuilder
 @NoArgsConstructor
 public class PostHighlightDTO {
-    private UUID id;
-    private String texto;
+    private UUID aliasId;
+    private String nome;
+    private int count;
+    private boolean marcadoPeloUsuario;
 }

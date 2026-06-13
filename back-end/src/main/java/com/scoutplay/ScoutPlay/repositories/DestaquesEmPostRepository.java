@@ -9,6 +9,7 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 
@@ -21,4 +22,5 @@ public interface DestaquesEmPostRepository extends JpaRepository<DestaquesEmPost
            "WHERE pdu.post.id = :postId " +
            "GROUP BY d.id, d.nome")
     List<Object[]> countDestaquesByPostId(@Param("postId") UUID postId);
+    DestaquesEmPost findByPostAndUsuarioAndDestaque(Post post, Usuario usuario, Destaque destaque);
 }

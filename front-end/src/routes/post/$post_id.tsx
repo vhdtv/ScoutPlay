@@ -5,6 +5,7 @@ import API from '#/api/API';
 import { useEffect, useState } from 'react';
 import type { CommentDTO, PostDetailsDTO, UserSummaryDTO } from '#/api/tipos';
 import ProfilePicture from '#/components/ui/ProfilePicture';
+import type { UUID } from 'crypto';
 
 const api = new API
 
@@ -64,6 +65,13 @@ function LikeButton({postUrl, contagemAtualDeLike, usuarioJaDeuLike}: {postUrl: 
 }
 
 export function PostMediaComponent({post, className}: {post: PostDetailsDTO, className?: string}) {
+  
+  const retirarDestaque = async (destaqueId: UUID) => {
+    if(!post) return console.log("sem post");
+    if(!destaqueId) return console.log("sem destaqueId");
+    const data = await api.retirarDestaque(post.url, destaqueId);
+    if(!data) return;
+  }
   return (
     <div className={`relative h-full ${className ?? ""}`}>
       <div className="absolute w-full h-full flex justify-start items-end overflow-hidden gap-2">
@@ -73,7 +81,14 @@ export function PostMediaComponent({post, className}: {post: PostDetailsDTO, cla
         </div>
         <div className='grow-1 overflow-hidden backdrop-blur-xs'>
           <div className='w-full p-3 ps-4 flex gap-4 items-center justify-start snap-x scroll-pl-6 overflow-x-auto no-scrollbar'>
-            {post.interacoes?.destaques?.map((destaque, index) => <span key={index} className='shrink-0 p-1 rounded-full px-4 flex items-center border border-white text-white relative'>#{destaque.texto} <span className='absolute w-5 h-5 aspect-square rounded-full font-bold bottom-0 translate-x-2 translate-y-1 end-0 bg-white text-black flex items-center justify-center text-xs'>{destaque.contador}</span></span>)}
+            {post.interacoes?.destaques?.map((destaque, index) => (
+              <span onClick={() => retirarDestaque(destaque.aliasId!)} key={index} className={`shrink-0 p-1 rounded-full px-4 flex items-center border border-white relative ${destaque.marcadoPeloUsuario ? "bg-white text-black" : 'text-white'}`}>
+                #{destaque.nome} 
+                <span className='absolute w-5 h-5 aspect-square rounded-full font-bold bottom-0 translate-x-2 translate-y-1 end-0 bg-white text-black flex items-center justify-center text-xs'>
+                  {destaque.count}
+                </span>
+              </span>
+            ))}
           </div>
         </div>
       </div>
@@ -129,6 +144,12 @@ function RouteComponent() {
       }))
   }
 
+  const darDestaque = async () => {
+    if(!post) return;
+    const data = await api.darDestaque(post.url, {texto: "Teste"});
+    if(!data) return;
+  }
+
   return (
     <div className='page-noscroll flex flex-col'>
       <LoggedHeader/>
@@ -162,6 +183,7 @@ function RouteComponent() {
                 </form>
               </div>
             </div>
+          <button className='block p-2 bg-red-100' onClick={darDestaque}>Dar destaque ("Teste")</button>
         </div>
         )
       }

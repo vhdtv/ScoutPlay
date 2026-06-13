@@ -6,6 +6,7 @@ import com.scoutplay.ScoutPlay.api.dto.PostAuthorSummary;
 import com.scoutplay.ScoutPlay.api.dto.PostDataInputDTO;
 import com.scoutplay.ScoutPlay.api.dto.PostDataOutputDTO;
 import com.scoutplay.ScoutPlay.api.dto.PostDetailsDTO;
+import com.scoutplay.ScoutPlay.api.dto.PostHighlightDTO;
 import com.scoutplay.ScoutPlay.api.dto.PostMediaData;
 import com.scoutplay.ScoutPlay.api.dto.UserSummaryDTO;
 import com.scoutplay.ScoutPlay.exceptions.ResourceNotFoundException;
@@ -20,6 +21,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.Optional;
 import java.util.Set;
 import java.util.UUID;
@@ -29,6 +31,7 @@ import java.util.UUID;
 public class PostService {
 
     private final PostRepository postRepository;
+    private final InteractionsService interactionsService;
     private final UsuarioRepository usuarioRepository;
     private final TipoMidiaService tipoMidiaService;
 
@@ -115,12 +118,14 @@ public class PostService {
         if(linha.isEmpty()) throw new Exception(String.format("Post não encontrado: %s", postId.toString()));
         
         Post post = linha.get();
+        ArrayList<PostHighlightDTO> destaquesDoPost = interactionsService.obterDestaquesDoPost(post.getAliasId(), aliasIdDoUsuarioLogado).stream().collect(java.util.stream.Collectors.toCollection(ArrayList::new));
         return PostDetailsDTO.builder()
             .url(post.getAliasId())
             .titulo(post.getTitulo())
             .descricao(Optional.of(post.getDescricao()))
             .interacoes(Optional.of(InteracoesDTO.builder()
                 .quantidadeLike(post.getUsuariosQueCurtiram().size())
+                .destaques(destaquesDoPost)
                 .deuLike(post.getUsuariosQueCurtiram().stream().anyMatch(usuarioQueCurtiu -> usuarioQueCurtiu.getAliasId().equals(usuarioLogado.getAliasId())))
                 .build()))
             .media(PostMediaData.builder()
@@ -152,6 +157,11 @@ public class PostService {
 
         boolean deuLike = false;
         boolean segueConta = false;
+        ArrayList<PostHighlightDTO> destaquesDoPost = interactionsService.obterDestaquesDoPost(post.getAliasId()).stream().map(item -> PostHighlightDTO.builder()
+            .aliasId(item.getAliasId())
+            .nome(item.getNome())
+            .build()
+        ).collect(java.util.stream.Collectors.toCollection(ArrayList::new));
 
         return PostDetailsDTO.builder()
             .url(post.getAliasId())
@@ -160,6 +170,7 @@ public class PostService {
             .interacoes(Optional.of(InteracoesDTO.builder()
                 .quantidadeLike(post.getUsuariosQueCurtiram().size())
                 .deuLike(deuLike)
+                .destaques(destaquesDoPost)
                 .build()))
             .media(PostMediaData.builder()
                 .src(post.getCaminhoArquivo())

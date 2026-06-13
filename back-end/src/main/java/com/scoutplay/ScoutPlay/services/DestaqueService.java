@@ -19,13 +19,13 @@ public class DestaqueService {
     @Transactional
     public Destaque criar(PostHighlightDTO dto) {
         Destaque destaque = new Destaque();
-        destaque.setNome(dto.getTexto());
+        destaque.setNome(dto.getNome());
         Destaque result = destaqueRepository.save(destaque);
         return result;
     }
 
     @Transactional
     public Destaque buscarPor(UUID aliasId) {
-        return destaqueRepository.findById(aliasId).get();
+        return destaqueRepository.findByAliasId(aliasId).get();
     }
 }

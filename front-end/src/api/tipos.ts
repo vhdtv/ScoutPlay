@@ -55,8 +55,10 @@ export type PostDataOutputDTO = {
 }
 
 export type PostHighlightDTO = {
-    texto: string,
-    contador: number
+    aliasId?: UUID,
+    nome: string,
+    count: number,
+    marcadoPeloUsuario: boolean,
 }
 
 export type PostDetailsDTO = PostDTO & {autor: UserSummaryDTO, metadados: {segueConta: boolean}}
