@@ -1,16 +1,23 @@
 package com.scoutplay.ScoutPlay.services;
 
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Optional;
 import java.util.Random;
 import java.util.UUID;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.autoconfigure.couchbase.CouchbaseProperties.Io;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.multipart.MultipartFile;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.core.type.TypeReference;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.scoutplay.ScoutPlay.api.dto.UserProfileFieldsDTO;
 import com.scoutplay.ScoutPlay.api.dto.UserProfileSummary;
 import com.scoutplay.ScoutPlay.enums.TipoContaEnum;
@@ -23,6 +30,8 @@ import com.scoutplay.ScoutPlay.repositories.DetalhePerfilRepository;
 
 @Service
 public class UsuarioService {
+    @Autowired
+    private ObjectMapper objectMapper;
     @Autowired
     private UsuarioRepository usuarioRepository;
     @Autowired
@@ -173,18 +182,39 @@ public class UsuarioService {
     }   
 
     @Transactional
-    public UserProfileSummary atualizarPerfilParcialmente(UserProfileFieldsDTO novaInformacao, Usuario usuario) {
-        if(novaInformacao.getNome().isPresent()) usuario.setNome(novaInformacao.getNome().get());
-        String[] poderesConta = usuario.getPoderesConta().stream().map(poder -> poder.getNome()).distinct().toArray(String[]::new);
-        
+    public UserProfileSummary atualizarPerfilParcialmente(UserProfileFieldsDTO dto, UUID aliasId) throws IOException {
+        Usuario registroNoBanco = usuarioRepository.findByAliasId(aliasId).get();
+        Optional.ofNullable(dto.getNome()).ifPresent(registroNoBanco::setNome);
+        Optional.ofNullable(dto.getSobrenome()).ifPresent(registroNoBanco::setSobrenome);
+        Optional.ofNullable(dto.getUsername()).ifPresent(registroNoBanco::setUsername);
+        if (dto.getFotoPerfil() != null) { registroNoBanco.setFotoPerfil(salvar(dto.getFotoPerfil())); }
+        Optional.ofNullable(dto.getConfig()).ifPresent((value) -> {
+            try {
+                Map<String, Object> config = objectMapper.readValue(
+                    dto.getConfig(), 
+                    new TypeReference<Map<String, Object>>() {}
+                );
+                this.adicionarInformacao(config, registroNoBanco);
+            }
+            catch(JsonProcessingException e) {
+                throw new IllegalArgumentException("O formato do JSON de configuração enviado é inválido.", e);
+            }
+        });
+
+        String[] poderesConta = registroNoBanco.getPoderesConta().stream().map(poder -> poder.getNome()).distinct().toArray(String[]::new);
         return UserProfileSummary.builder()
-            .nome(usuario.getNome())
-            .username(usuario.getUsername())
-            .sobrenome(usuario.getSobrenome())
-            .fotoPerfil(usuario.getFotoPerfil())
+            .nome(registroNoBanco.getNome())
+            .username(registroNoBanco.getUsername())
+            .sobrenome(registroNoBanco.getSobrenome())
+            .fotoPerfil(registroNoBanco.getFotoPerfil())
             .tipoConta(poderesConta)
-            .idade(usuario.obterIdade())
+            .idade(registroNoBanco.obterIdade())
             .build();
+    }
+
+    @Transactional
+    public String salvar(MultipartFile arquivo) throws IOException {
+        return FileService.saveFileInFolder(arquivo, "uploads/fotos_perfil");
     }
 
     @Transactional

@@ -1,11 +1,14 @@
 package com.scoutplay.ScoutPlay.controllers;
 
+import java.io.IOException;
 import java.util.UUID;
 
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.CookieValue;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -13,6 +16,7 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.multipart.MultipartFile;
 
 import com.scoutplay.ScoutPlay.api.dto.DetalhePerfilOutputDTO;
 import com.scoutplay.ScoutPlay.api.dto.ProfileDetailInputDTO;
@@ -78,14 +82,30 @@ public class UserController {
         return ResponseEntity.ok(ApiResponse.success(userData));
     }
 
-    
-    @PatchMapping("/user/{username}/")
-    public ResponseEntity<ApiResponse<DetalhePerfil>> atualizarPerfilParcialmente(@PathVariable String username, @Valid @RequestBody UserProfileFieldsDTO body, @CookieValue(name = "access_token", required = true) String accessToken) {
-        Usuario usuarioLogado = this.usuarioService.buscarPor(UUID.fromString(jwtTokenProvider.extractUserId(accessToken)));
-        if(!username.equals(usuarioLogado.getUsername())) return ResponseEntity.ok(ApiResponse.error("403", ""));
-        
-        DetalhePerfil registro = this.usuarioService.atualizarConfiguracoesPerfilParcialmente(body.getConfig().get(), usuarioLogado);
-        return ResponseEntity.ok(ApiResponse.success(registro));
+    @PatchMapping(value = "/user", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+    public ResponseEntity<ApiResponse<UserProfileSummary>> atualizarPerfilParcialmente(
+        @RequestParam(value = "nome", required = false) String nome,
+        @RequestParam(value = "sobrenome", required = false) String sobrenome,
+        @RequestParam(value = "username", required = false) String username,
+        @RequestParam(value = "fotoPerfil", required = false) MultipartFile fotoPerfil,
+        @RequestParam(value = "config", required = false) String configJson,
+        @CookieValue(name = "access_token", required = true) String accessToken)
+    {
+        UUID aliasId = UUID.fromString(jwtTokenProvider.extractUserId(accessToken));
+        UserProfileFieldsDTO dto = UserProfileFieldsDTO.builder()
+            .nome(nome)
+            .sobrenome(sobrenome)
+            .username(username)
+            .fotoPerfil(fotoPerfil)
+            .config(configJson)
+        .build();
+        try {
+            UserProfileSummary result = this.usuarioService.atualizarPerfilParcialmente(dto, aliasId);
+            return ResponseEntity.ok(ApiResponse.success(result));
+        }
+        catch(IOException e) {
+            return ResponseEntity.ok(ApiResponse.error("500", ""));
+        }
     }
     
     @PostMapping("/user/{username}/follow")

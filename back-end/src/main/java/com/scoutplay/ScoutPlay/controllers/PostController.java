@@ -52,7 +52,7 @@ public class PostController {
         }
     }
 
-    @PostMapping("/post/")
+    @PostMapping("/post")
     public ResponseEntity<ApiResponse<PostDataOutputDTO>> criar(@ModelAttribute PostDataInputDTO dto) {
         PostDataOutputDTO criado = this.postService.criar(dto);
         if(criado == null) return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(ApiResponse.error("400", "Erro ao criar post"));

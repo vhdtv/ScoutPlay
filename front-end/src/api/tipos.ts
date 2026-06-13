@@ -108,4 +108,21 @@ export type CommentDTO = {
 export type MensagemDTO = {
     autor: "IA" | "USUARIO",
     texto: string,
-  }
+}
+
+export type ConviteDTO = {
+    id: UUID,
+    de: string,
+    para: string,
+    texto?: string,
+    aceito: boolean,
+    visto: boolean,
+}
+
+export type ProfileUpdateInputDTO = {
+    nome?: string,
+    sobrenome?: string,
+    username?: string,
+    fotoPerfil?: File,
+    config?: ConfigItemDTO
+} & ConfigItemDTO;

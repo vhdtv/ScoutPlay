@@ -1,17 +1,16 @@
 import type { UUID } from "crypto";
-import type { CommentDTO, ConfigItemDTO, MensagemDTO, PostDataInputDTO, PostDataOutputDTO, PostDetailsDTO, PostHighlightDTO, SearchParamsDTO, SearchResultsOutputDTO, UserProfileDetailDTO, UserProfileDTO, UserSummaryDTO } from "./tipos";
+import type { CommentDTO, ConfigItemDTO, ConviteDTO, MensagemDTO, PostDataInputDTO, PostDataOutputDTO, PostDetailsDTO, PostHighlightDTO, ProfileUpdateInputDTO, SearchParamsDTO, SearchResultsOutputDTO, UserProfileDetailDTO, UserProfileDTO, UserSummaryDTO } from "./tipos";
 
 export default class {
     get USER_CACHE_KEY() { return "__usuario"; }
     get BACKEND_ENDPOINT() { return `http://localhost:8080/api`; }
+    get GET_HEADERS() { return { "Content-Type": "application/json" } }
     
     fazerLogin = async (email: string, senha: string): Promise<UserSummaryDTO> => {
         const request = await fetch(`${this.BACKEND_ENDPOINT}/login`, {
             method: "POST",
             credentials: "include",
-            headers: {
-                "Content-Type": "application/json",
-            },
+            headers: this.GET_HEADERS,
             body: JSON.stringify({email, senha}),
         });
         if(request.status !== 200) throw new Error(`Login failed`)
@@ -69,14 +68,39 @@ export default class {
             souEu: data.souEu
         }
     }
-    atualizarPerfil = async (data: any) => { throw new Error("Not implemented") }
+    atualizarPerfil = async (input: ProfileUpdateInputDTO): Promise<UserProfileDTO> => {
+        const formData = new FormData();
+        input.nome && formData.append("nome", input.nome);
+        input.sobrenome && formData.append("sobrenome", input.sobrenome);
+        input.username && formData.append("username", input.username);
+        input.fotoPerfil && formData.append("fotoPerfil", input.fotoPerfil);
+        input.config && formData.append("config", JSON.stringify(input.config));
+
+        const request = await fetch(`${this.BACKEND_ENDPOINT}/user`, {
+            method: "PATCH",
+            credentials: "include",
+            body: formData
+        })
+        const { data } = await request.json();
+        if(!data) throw new Error("atualizarPerfil veio com data = null")
+        return {
+            username: data.username,
+            nome: data.nome,
+            sobrenome: data.sobrenome,
+            iniciais: data.iniciais,
+            fotoPerfil: data.fotoPerfil,
+            idade: data.idade,
+            tipoConta: data.tipoConta,
+            detalhesPerfil: data.detalhesPerfil,
+            posts: data.posts,
+            souEu: data.souEu
+        };
+    }
     definirDetalhePerfil = async (chave: string, valor: string): Promise<UserProfileDetailDTO> => {
         const request = await fetch(`${this.BACKEND_ENDPOINT}/profile-detail`, {
             method: "POST",
             credentials: "include",
-            headers: {
-                "Content-Type": "application/json"
-            },
+            headers: this.GET_HEADERS,
             body: JSON.stringify({chave, valor}),
         })
         const {data} = await request.json();
@@ -86,9 +110,7 @@ export default class {
         const request = await fetch(`${this.BACKEND_ENDPOINT}/profile-detail`, {
             method: "DELETE",
             credentials: "include",
-            headers: {
-                "Content-Type": "application/json"
-            },
+            headers: this.GET_HEADERS,
             body: JSON.stringify({chave}),
         })
         const {data} = await request.json();
@@ -97,15 +119,7 @@ export default class {
 
     atualizarConfiguracao = async (config: ConfigItemDTO): Promise<boolean> => {
         try {
-            const request = await fetch(`${this.BACKEND_ENDPOINT}/user`, {
-                method: "PATCH",
-                credentials: "include",
-                headers: {
-                    "Content-Type": "application/json"
-                },
-                body: JSON.stringify({config}),
-            })
-            const {data} = await request.json();
+            const data = await this.atualizarPerfil({config});
             return true;
         }
         catch(e) {
@@ -177,14 +191,12 @@ export default class {
         await request.json();
         return true;
     }
-    atualizarPost = async (id: PostDataOutputDTO["url"], data: PostDataOutputDTO): Promise<PostDataOutputDTO> => { throw new Error("Not implemented") }
+    atualizarPost = async (id: PostDataOutputDTO["url"], data: PostDataOutputDTO): Promise<PostDataOutputDTO> => { throw new Error("Not implemented: 2") }
     darLikeEmPost = async (postId: string): Promise<boolean> => {
         const request = await fetch(`${this.BACKEND_ENDPOINT}/post/${postId}/like`, {
             method: "POST",
             credentials: "include",
-            headers: {
-                "Content-Type": "application/json"
-            }
+            headers: this.GET_HEADERS,
         });
         if(request.status != 200) return false;
         return true;
@@ -193,17 +205,15 @@ export default class {
         const request = await fetch(`${this.BACKEND_ENDPOINT}/post/${postId}/dislike`, {
             method: "POST",
             credentials: "include",
-            headers: {
-                "Content-Type": "application/json"
-            }
+            headers: this.GET_HEADERS,
         });
         if(request.status != 200) return false;
         return true;
     }
-    darDestaque = async (postId: UUID, data: string | number): Promise<PostHighlightDTO> => { throw new Error("Not implemented") }
+    darDestaque = async (postId: UUID, data: string | number): Promise<PostHighlightDTO> => { throw new Error("Not implemented: 3") }
     obterComentarios = async (postId: UUID): Promise<CommentDTO[]> => {
         const request = await fetch(`${this.BACKEND_ENDPOINT}/post/${postId}/comments`, {
-            headers: { "Content-Type": "application/json" }
+            headers: this.GET_HEADERS
         })
         const { data } = await request.json();
         return data as CommentDTO[];
@@ -236,7 +246,6 @@ export default class {
         if(request.status != 200) return false;
         return true;
     }
-
     pararDeSeguir = async (username: UserSummaryDTO["username"]): Promise<boolean> => {
         const request = await fetch(`${this.BACKEND_ENDPOINT}/user/${username}/unfollow`, {
             method: "POST",
@@ -245,10 +254,13 @@ export default class {
         if(request.status != 200) return false;
         return true;
     }
-    mandarConvite = async (username: UserSummaryDTO["username"], texto: string): Promise<boolean> => { throw new Error("Not implemented") }
+    obterConvites = async (): Promise<ConviteDTO[]> => { throw new Error("Not implemented: 5") }
+    mandarConvite = async (username: UserSummaryDTO["username"], texto: string): Promise<ConviteDTO> => { throw new Error("Not implemented: 4") }
+    aceitarConvite = async (conviteId: UUID): Promise<boolean> => { throw new Error("Not implemented: 6") }
+    recusarConvite = async (conviteId: UUID): Promise<boolean> => { throw new Error("Not implemented: 7") }
     
-    buscar = async (texto: string, filtros: SearchParamsDTO): Promise<SearchResultsOutputDTO> => { throw new Error("Not implemented") }
-    chatIA = async (prompt: string): Promise<MensagemDTO> => { throw new Error("Not implemented") }
+    buscar = async (texto: string, filtros: SearchParamsDTO): Promise<SearchResultsOutputDTO> => { throw new Error("Not implemented: 8") }
+    chatIA = async (prompt: string): Promise<MensagemDTO> => { throw new Error("Not implemented: 9") }
     
     obterPostsFeed = async ({page}: {page: number}): Promise<{page: number, last: boolean, data: PostDetailsDTO[]}> => {
         const urlEndpoint = new URL(`${this.BACKEND_ENDPOINT}/feed`);
