@@ -6,13 +6,16 @@ import com.scoutplay.ScoutPlay.api.dto.PostAuthorSummary;
 import com.scoutplay.ScoutPlay.api.dto.PostDataInputDTO;
 import com.scoutplay.ScoutPlay.api.dto.PostDataOutputDTO;
 import com.scoutplay.ScoutPlay.api.dto.PostDetailsDTO;
+import com.scoutplay.ScoutPlay.api.dto.PostHighlightDTO;
 import com.scoutplay.ScoutPlay.api.dto.UserSummaryDTO;
 import com.scoutplay.ScoutPlay.api.response.ApiResponse;
 import com.scoutplay.ScoutPlay.models.Comentario;
+import com.scoutplay.ScoutPlay.models.Destaque;
 import com.scoutplay.ScoutPlay.models.Post;
 import com.scoutplay.ScoutPlay.models.Usuario;
 import com.scoutplay.ScoutPlay.security.JwtTokenProvider;
 import com.scoutplay.ScoutPlay.services.ComentarioService;
+import com.scoutplay.ScoutPlay.services.DestaqueService;
 import com.scoutplay.ScoutPlay.services.InteractionsService;
 import com.scoutplay.ScoutPlay.services.PostService;
 import com.scoutplay.ScoutPlay.services.UsuarioService;
@@ -32,6 +35,7 @@ import java.util.UUID;
 public class PostController {
 
     private final PostService postService;
+    private final DestaqueService destaqueService;
     private final JwtTokenProvider jwtTokenProvider;
     private final UsuarioService usuarioService;
     private final ComentarioService comentarioService;
@@ -145,4 +149,13 @@ public class PostController {
         return ResponseEntity.ok().body(ApiResponse.success(true));
     }
 
+    @PostMapping("/post/{postId}/highlight")
+    public ResponseEntity<ApiResponse<Boolean>> darDestaque(@PathVariable UUID postId, @RequestBody PostHighlightDTO dto, @CookieValue(name = "access_token", required = true) String accessToken) {
+        Usuario usuario = usuarioService.buscarPor(UUID.fromString(jwtTokenProvider.extractUserId(accessToken)));
+        Destaque destaque;
+        if(dto.getId() == null) destaque = destaqueService.criar(dto);
+        else destaque = destaqueService.buscarPor(dto.getId());
+        interactionsService.darDestaque(postId, usuario.getAliasId(), destaque.getAliasId());
+        return ResponseEntity.ok().body(ApiResponse.success(true));
+    }
 }

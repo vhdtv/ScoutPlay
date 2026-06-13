@@ -219,7 +219,18 @@ export default class {
         if(request.status != 200) return false;
         return true;
     }
-    darDestaque = async (postId: UUID, data: string | number): Promise<PostHighlightDTO> => { throw new Error("Not implemented: 3") }
+    darDestaque = async (postId: UUID, input: {id?: UUID, texto: string}): Promise<PostHighlightDTO> => {
+        const request = await fetch(`${this.BACKEND_ENDPOINT}/post/${postId}/highlight`, {
+            method: "POST",
+            credentials: "include",
+            headers: this.GET_HEADERS,
+            body: JSON.stringify({id: input.id, texto: input.texto})
+        });
+        const { data } = await request.json();
+        return data;
+
+    }
+    retirarDestaque = async (postId: UUID, destaque: UUID): Promise<PostHighlightDTO> => { throw new Error("Not implemented: 3.5") }
     obterComentarios = async (postId: UUID): Promise<CommentDTO[]> => {
         const request = await fetch(`${this.BACKEND_ENDPOINT}/post/${postId}/comments`, {
             headers: this.GET_HEADERS

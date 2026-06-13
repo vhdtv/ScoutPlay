@@ -1,8 +1,7 @@
 package com.scoutplay.ScoutPlay.models;
 
-import java.util.ArrayList;
 import java.util.HashSet;
-import java.util.List;
+import java.util.LinkedHashSet;
 import java.util.Set;
 
 import jakarta.persistence.CascadeType;
@@ -11,10 +10,12 @@ import jakarta.persistence.ManyToMany;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.OneToMany;
 import jakarta.persistence.Table;
-import lombok.Data;
+import lombok.Getter;
+import lombok.Setter;
 
 @Entity
-@Data
+@Getter
+@Setter
 @Table(name="t_post")
 public class Post extends TabelaBase {
     private String titulo;
@@ -24,8 +25,10 @@ public class Post extends TabelaBase {
     private String caminhoArquivo;
     @ManyToOne 
     private Usuario autor;
-    @ManyToMany(mappedBy = "postsCurtidos") 
+    @ManyToMany(mappedBy = "postsCurtidos")
     private Set<Usuario> usuariosQueCurtiram = new HashSet<Usuario>();
+    @OneToMany(mappedBy = "post", cascade = CascadeType.ALL, orphanRemoval = true)
+    private Set<DestaquesEmPost> destaquesRecebidos = new LinkedHashSet<>();
 
     public Post() {}
     public Post(String titulo, String descricao, String caminhoArquivo, TipoMidia tipoMidia, Usuario autor) {
