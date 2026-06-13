@@ -149,6 +149,7 @@ public class UsuarioService {
 
         return UserProfileSummary.builder()
             .nome(usuario.getNome())
+            .detalhes(usuario.getDetalhePerfil())
             .username(usuario.getUsername())
             .sobrenome(usuario.getSobrenome())
             .fotoPerfil(usuario.getFotoPerfil())

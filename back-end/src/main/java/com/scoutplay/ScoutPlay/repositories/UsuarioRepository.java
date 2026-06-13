@@ -19,7 +19,7 @@ public interface UsuarioRepository extends JpaRepository<Usuario, UUID> {
     Usuario findByEmail(String email);
     @Query("SELECT u FROM Usuario u LEFT JOIN FETCH u.contasQueSegue WHERE LOWER(u.username) = LOWER(:username)")
     Usuario findByUsernameIgnoreCase(@Param("username") String username);
-    @Query("SELECT u FROM Usuario u LEFT JOIN FETCH u.poderesConta WHERE LOWER(u.username) = LOWER(:username)")
+    @Query("SELECT u FROM Usuario u LEFT JOIN FETCH u.poderesConta LEFT JOIN FETCH u.detalhePerfil WHERE LOWER(u.username) = LOWER(:username)")
     Usuario findByUsernameWithPoderesIgnoreCase(@Param("username") String username);
     Optional<Usuario> findByAliasId(UUID aliasId);
 

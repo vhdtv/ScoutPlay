@@ -42,7 +42,7 @@ public class Usuario extends TabelaBase {
     @OneToMany(mappedBy = "usuario", cascade = CascadeType.ALL)
     @Setter(AccessLevel.NONE)
     @JsonManagedReference
-    private List<DetalhePerfil> detalhePerfil = new ArrayList<>();
+    private Set<DetalhePerfil> detalhePerfil = new HashSet<>();
     @ManyToMany
     @JoinTable(
       name = "t_like",
