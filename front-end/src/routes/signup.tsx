@@ -1,11 +1,14 @@
+import API from '#/api/API';
 import Footer from '#/components/Footer'
 import Input from '#/components/ui/Input';
 import InputDate from '#/components/ui/InputDate';
 import InputStateField from '#/components/ui/InputStateField';
-import { createFileRoute, Link } from '@tanstack/react-router'
+import { createFileRoute, Link, useNavigate } from '@tanstack/react-router'
 import { useState } from 'react';
 
 enum STEPS {ABOUT_YOU, PROFISSIONAL_HISTORY, ACCESS_FORM};
+
+const api = new API;
 
 export const Route = createFileRoute('/signup')({
   component: RouteComponent,
@@ -14,15 +17,25 @@ export const Route = createFileRoute('/signup')({
 function RouteComponent() {
   const SECTIONS = ["Sobre Você", "Formação Profissional", "Forma de Acesso"]
   let [currentSection, setCurrentSection] = useState(STEPS.ABOUT_YOU);
+  const navigate = useNavigate();
   
   const savePersonalInfo = (form: FormData) => {
     console.log(form.get("Estado"))
     setCurrentSection(STEPS.PROFISSIONAL_HISTORY)
   }
   
-  const saveProfissionalHistoryInfo = (form: FormData) => {
-    console.log(form.get(""))
-    setCurrentSection(STEPS.ACCESS_FORM)
+  const saveProfissionalHistoryInfo = async (form: FormData) => {
+    const data = await api.fazerCadastro({
+      cpf: "999999999-00",
+      dataNascimento: new Date("12-24-00"),
+      username: "masterYii",
+      email: "master@chief.com",
+      nome: "Master",
+      sobrenome: "Chief",
+      senha: "ala",
+      tipoConta: "atleta",
+    })
+    console.log({data})
   }
   const renderSwitch = () => {
     switch(currentSection) {

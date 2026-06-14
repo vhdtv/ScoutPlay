@@ -1,5 +1,5 @@
 import API from '#/api/API'
-import type { ProfileUpdateInputDTO, UserProfileDTO } from '#/api/tipos'
+import type { ConviteDTO, ProfileUpdateInputDTO, UserProfileDTO } from '#/api/tipos'
 import Footer from '#/components/Footer'
 import { LoggedHeader } from '#/components/Header'
 import Input from '#/components/ui/Input'
@@ -15,12 +15,15 @@ export const Route = createFileRoute('/settings')({
 
 function RouteComponent() {
   const [usuario, definirUsuario] = useState({} as UserProfileDTO);
+  const [convites, definirConvites] = useState([] as ConviteDTO[]);
+
   useEffect(() => {
     api.obterDadosDoPerfil()
       .then(data => definirUsuario(data))
       .catch(e => console.log(e))
+    api.obterConvites()
+    .then(data => definirConvites(data))
   }, []);
-  
   function UserProfilePicture() {
     const previewMedia = ({target}: ChangeEvent<HTMLInputElement>) => {
         if(!target.files) return;
@@ -51,11 +54,38 @@ function RouteComponent() {
     definirUsuario(dadosAtualizados)
   }
 
+  const criarConviteMock = async () => {
+    const result = await api.mandarConvite(usuario.username, "Oi")
+    console.log({result})
+  }
+
+  const aceitarConvite = async (convite: ConviteDTO) => {
+    const data = await api.aceitarConvite(convite.id)
+    console.log({aceito: data})
+  }
+
+  const recusarConvite = async (convite: ConviteDTO) => {
+    const data = await api.recusarConvite(convite.id)
+    console.log({recusado: data})
+  }
+
   return (
     <div className='page-noscroll flex flex-col'>
       <LoggedHeader/>
       <div className="container grow-1 mx-auto flex flex-col items-start">
         <h1 className='text-3xl font-bold text-slate-700 opacity-40 my-4'>Configurações</h1>
+        <button onClick={criarConviteMock}>Criar Convite Mock</button>
+        { 
+          convites.map(convite => (
+            <div className='flex flex-wrap border-red-200 bg-red-100 border border-red-300 rounded-2xl p-4'>
+              <span className='w-full'>{convite.mensagem} <br /> por: {convite.remetente.nome}</span>
+              <div className='w-full flex gap-2'>
+                <button onClick={() => aceitarConvite(convite)} className='p-2 grow border-2 bg-green-500'>Aceitar Convite</button>
+                <button onClick={() => recusarConvite(convite)} className='p-2 grow border-2 bg-red-500'>Recusar Convite</button>
+              </div>
+            </div>
+          )) 
+        }
         <form className='flex flex-col gap-4 w-full' action={atualizarDadosPerfil}>
           <Input type='file' hideLabel={true} fieldName='foto_perfil' />
           <div className="flex gap-2">

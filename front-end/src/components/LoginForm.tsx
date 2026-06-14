@@ -34,8 +34,8 @@ export default function LoginForm() {
   return (
     <form action={makeLoginAttempt} className="flex flex-col w-full">
       {loginError && <span className="p-3 text-xs bg-red-100 mb-3 self-start border-1 border-red-300 rounded-md">Login ou senha incorretos</span> }
-      <Input fieldName="E-Mail" type="email" placeholder="Insira o email" className="mb-2"/>
-      <Input fieldName="Senha" type="password" placeholder="Insira sua senha" className="mb-2"/>
+      <Input fieldName="E-Mail" defaultValue={"fabio@atleta.com"} type="email" placeholder="Insira o email" className="mb-2"/>
+      <Input fieldName="Senha" defaultValue={"12345"} type="password" placeholder="Insira sua senha" className="mb-2"/>
       <div className="my-4">
         <LoginButton />
         <Link className="block button ghost w-full rounded-full" to="/forgot-password">Esqueci minha senha</Link>

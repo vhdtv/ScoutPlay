@@ -6,6 +6,7 @@ export default class {
     get BACKEND_ENDPOINT() { return `http://localhost:8080/api`; }
     get GET_HEADERS() { return { "Content-Type": "application/json" } }
 
+    // auth-related
     fazerCadastro = async (input: ClientSignupInputDTO): Promise<UserSummaryDTO> => {
         const request = await fetch(`${this.BACKEND_ENDPOINT}/signup`, {
             method: "POST",
@@ -68,6 +69,7 @@ export default class {
         return true;
     }
 
+    // profile-related
     obterDadosDoPerfil = async (username?: UserSummaryDTO["username"]): Promise<UserProfileDTO> => {
         let urlEndpoint = `${this.BACKEND_ENDPOINT}/user/`;
         urlEndpoint += username ?? ""
@@ -143,6 +145,7 @@ export default class {
         return data as UserProfileDetailDTO;
     }
 
+    // settings
     atualizarConfiguracao = async (config: ConfigItemDTO): Promise<boolean> => {
         try {
             const data = await this.atualizarPerfil({config});
@@ -169,6 +172,7 @@ export default class {
         return true;
     }
     
+    // post-related
     criarPost = async ({titulo, arquivo, descricao}: PostDataInputDTO): Promise<PostDataOutputDTO> => {
         const formData = new FormData();
         formData.append("arquivo", arquivo);
@@ -291,7 +295,19 @@ export default class {
     obterMidia = (mediaPath: string): string => {
         return `${this.BACKEND_ENDPOINT}/media/${mediaPath}`;
     }
+    obterPostsFeed = async ({page}: {page: number}): Promise<{page: number, last: boolean, data: PostDetailsDTO[]}> => {
+        const urlEndpoint = new URL(`${this.BACKEND_ENDPOINT}/feed`);
+        if(page) urlEndpoint.searchParams.append("page", page.toString());
+        const request = await fetch(urlEndpoint, {
+            credentials: "include"
+        });
+        const { data } = await request.json();
+        if(!data) return { data: [], last: true, page: 1};
+        const {content, last, number} = data;
+        return { data: content, last, page: number};
+    }
     
+    // interactions
     seguir = async (username: UserSummaryDTO["username"]): Promise<boolean> => {
         const request = await fetch(`${this.BACKEND_ENDPOINT}/user/${username}/follow`, {
             method: "POST",
@@ -354,29 +370,17 @@ export default class {
         }
     }
     
+    // search
     buscar = async (texto: string, filtros: SearchParamsDTO): Promise<SearchResultsOutputDTO> => { throw new Error("Not implemented: 8") }
     chatIA = async (prompt: string): Promise<MensagemDTO> => { throw new Error("Not implemented: 9") }
     
-    obterPostsFeed = async ({page}: {page: number}): Promise<{page: number, last: boolean, data: PostDetailsDTO[]}> => {
-        const urlEndpoint = new URL(`${this.BACKEND_ENDPOINT}/feed`);
-        if(page) urlEndpoint.searchParams.append("page", page.toString());
-        const request = await fetch(urlEndpoint, {
-            credentials: "include"
-        });
-        const { data } = await request.json();
-        if(!data) return { data: [], last: true, page: 1};
-        const {content, last, number} = data;
-        return { data: content, last, page: number};
-    }
-    
+    // helpers
     private salvarDadosUsuarioNoNavegador = (userData: UserSummaryDTO) => {
         localStorage.setItem(this.USER_CACHE_KEY, userData.username);
     }
-    
     private deletarDadosUsuarioNoNavegador = () => {
         localStorage.removeItem(this.USER_CACHE_KEY)
     }
-    
     obterDadosUsuarioNoNavegador = (): string | null => {
         if (typeof window === 'undefined' || !localStorage) return null;
         return localStorage.getItem(this.USER_CACHE_KEY)?.toString() ?? null;
