@@ -1,5 +1,6 @@
 package com.scoutplay.ScoutPlay.services;
 
+import java.beans.Transient;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
@@ -15,6 +16,7 @@ import com.scoutplay.ScoutPlay.models.Usuario;
 import com.scoutplay.ScoutPlay.repositories.ConviteRepository;
 import com.scoutplay.ScoutPlay.repositories.UsuarioRepository;
 
+import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 
 @Service
@@ -23,7 +25,7 @@ public class ConviteService {
     private final ConviteRepository conviteRepository;
     private final UsuarioRepository usuarioRepository;
 
-    public List<ConviteOutputDTO> findAllByDestinatario(UUID usuarioLogado) {
+    public List<ConviteOutputDTO> findAllByDestinatarioAndAtivoTrue(UUID usuarioLogado) {
         return conviteRepository.findConvitesRecebidosComRemetente(usuarioLogado)
             .stream()
             .map(item -> build(item))
@@ -44,6 +46,7 @@ public class ConviteService {
 
     private ConviteOutputDTO build(Convite item) {
         return ConviteOutputDTO.builder()
+            .id(item.getAliasId())
             .remetente(UserSummaryDTO.builder()
                 .nome(item.getRemetente().getNome())
                 .sobrenome(item.getRemetente().getSobrenome())
@@ -61,5 +64,19 @@ public class ConviteService {
             .aceito(item.isAceito())
             .mensagem(item.getMensagem())
             .build();
+    }
+
+    @Transactional
+    public void aceitarConvite(UUID idConvite, UUID usuarioLogado) throws Exception {
+        Convite convite = conviteRepository.findByAliasId(idConvite).orElseThrow(() -> new Exception("Convite não encontrado"));
+        if(!convite.getDestinatario().getAliasId().equals(usuarioLogado)) throw new Exception("Usuario não pode executar esta ação");
+        convite.setAceito(true);
+    }
+
+    @Transactional
+    public void rejeitarConvite(UUID idConvite, UUID usuarioLogado) throws Exception {
+        Convite convite = conviteRepository.findByAliasId(idConvite).orElseThrow(() -> new Exception("Convite não encontrado"));
+        if(!convite.getDestinatario().getAliasId().equals(usuarioLogado)) throw new Exception("Usuario não pode executar esta ação");
+        convite.setAtivo(false);
     }
 }

@@ -299,8 +299,34 @@ export default class {
         const {data} = await request.json();
         return data;
     }
-    aceitarConvite = async (conviteId: UUID): Promise<boolean> => { throw new Error("Not implemented: 6") }
-    recusarConvite = async (conviteId: UUID): Promise<boolean> => { throw new Error("Not implemented: 7") }
+    aceitarConvite = async (conviteId: UUID): Promise<boolean> => {
+        try {
+            const request = await fetch(`${this.BACKEND_ENDPOINT}/message/${conviteId}/accept`, {
+                method: "POST",
+                headers: this.GET_HEADERS,
+                credentials: "include",
+            })
+            const {data} = await request.json();
+            return data;
+        }
+        catch(e) {
+            return false;
+        }
+    }
+    recusarConvite = async (conviteId: UUID): Promise<boolean> => {
+         try {
+            const request = await fetch(`${this.BACKEND_ENDPOINT}/message/${conviteId}/decline`, {
+                method: "POST",
+                headers: this.GET_HEADERS,
+                credentials: "include",
+            })
+            const {data} = await request.json();
+            return data;
+        }
+        catch(e) {
+            return false;
+        }
+    }
     
     buscar = async (texto: string, filtros: SearchParamsDTO): Promise<SearchResultsOutputDTO> => { throw new Error("Not implemented: 8") }
     chatIA = async (prompt: string): Promise<MensagemDTO> => { throw new Error("Not implemented: 9") }

@@ -119,11 +119,10 @@ export type MensagemDTO = {
 
 export type ConviteDTO = {
     id: UUID,
-    de: string,
-    para: string,
-    texto?: string,
     aceito: boolean,
-    visto: boolean,
+    destinatario: UserSummaryDTO,
+    remetente: UserSummaryDTO,
+    mensagem: string,
 }
 
 export type ProfileUpdateInputDTO = {

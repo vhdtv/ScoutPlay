@@ -1,5 +1,7 @@
 package com.scoutplay.ScoutPlay.api.dto;
 
+import java.util.UUID;
+
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
@@ -12,6 +14,7 @@ import lombok.Setter;
 @AllArgsConstructor
 @NoArgsConstructor
 public class ConviteOutputDTO {
+    private UUID id;
     private UserSummaryDTO remetente;
     private UserSummaryDTO destinatario;
     private boolean aceito;

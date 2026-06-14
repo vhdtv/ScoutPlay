@@ -1,10 +1,7 @@
 package com.scoutplay.ScoutPlay.controllers;
 
-import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
-import java.util.stream.Collectors;
-
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -15,13 +12,10 @@ import org.springframework.web.bind.annotation.RestController;
 
 import com.scoutplay.ScoutPlay.api.dto.ConviteInputDTO;
 import com.scoutplay.ScoutPlay.api.dto.ConviteOutputDTO;
-import com.scoutplay.ScoutPlay.api.dto.UserSummaryDTO;
 import com.scoutplay.ScoutPlay.api.response.ApiResponse;
-import com.scoutplay.ScoutPlay.models.Convite;
 import com.scoutplay.ScoutPlay.security.SecurityUtils;
 import com.scoutplay.ScoutPlay.services.ConviteService;
 
-import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 
 @RestController
@@ -33,7 +27,7 @@ public class MessageController {
     @GetMapping("/message")
     public ResponseEntity<ApiResponse<List<ConviteOutputDTO>>> obter() {
         UUID usuarioLogado = UUID.fromString(SecurityUtils.currentUserId());
-        List<ConviteOutputDTO> result = conviteService.findAllByDestinatario(usuarioLogado);
+        List<ConviteOutputDTO> result = conviteService.findAllByDestinatarioAndAtivoTrue(usuarioLogado);
         return ResponseEntity.ok(ApiResponse.success(result));
     }
 
@@ -50,9 +44,29 @@ public class MessageController {
         }
     }
     
-    // @PostMapping("/message/{invite_id}/accept")
-    // public ResponseEntity<ApiResponse<ConviteInputDTO>> aceitar(@PathVariable String username, ConviteInputDTO dto) {}
+    @PostMapping("/message/{idConvite}/accept")
+    public ResponseEntity<ApiResponse<Boolean>> aceitar(@PathVariable UUID idConvite) {
+        try {
+            UUID usuarioLogado = UUID.fromString(SecurityUtils.currentUserId());
+            conviteService.aceitarConvite(idConvite, usuarioLogado);
+            return ResponseEntity.ok(ApiResponse.success(true));
+        }
+        catch(Exception e) {
+            System.out.println(e.getMessage());
+            return ResponseEntity.ok(ApiResponse.success(false));
+        }
+    }
     
-    // @PostMapping("/message/{invite_id}/decline")
-    // public ResponseEntity<ApiResponse<ConviteInputDTO>> rejeitar(@PathVariable String username) {}
+    @PostMapping("/message/{idConvite}/decline")
+    public ResponseEntity<ApiResponse<Boolean>> rejeitar(@PathVariable UUID idConvite) {
+        try {
+            UUID usuarioLogado = UUID.fromString(SecurityUtils.currentUserId());
+            conviteService.rejeitarConvite(idConvite, usuarioLogado);
+            return ResponseEntity.ok(ApiResponse.success(true));
+        }
+        catch(Exception e) {
+            System.out.println(e.getMessage());
+            return ResponseEntity.ok(ApiResponse.success(false));
+        }
+    }
 }
