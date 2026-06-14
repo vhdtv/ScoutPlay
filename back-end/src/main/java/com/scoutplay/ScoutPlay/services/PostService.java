@@ -2,6 +2,8 @@ package com.scoutplay.ScoutPlay.services;
 
 import com.scoutplay.ScoutPlay.api.dto.InteracoesDTO;
 import com.scoutplay.ScoutPlay.api.dto.MetadataDTO;
+import com.scoutplay.ScoutPlay.api.dto.InteracoesDTO;
+import com.scoutplay.ScoutPlay.api.dto.MetadataDTO;
 import com.scoutplay.ScoutPlay.api.dto.PostAuthorSummary;
 import com.scoutplay.ScoutPlay.api.dto.PostDataInputDTO;
 import com.scoutplay.ScoutPlay.api.dto.PostDataOutputDTO;

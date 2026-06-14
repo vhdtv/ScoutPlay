@@ -11,6 +11,7 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -74,9 +75,11 @@ public class UserController {
         UserProfileSummary userData;
         if(accessToken == null || accessToken.isEmpty() || accessToken.isBlank()) {
             userData = usuarioService.buscarDadosPerfil(username);
+            userData = usuarioService.buscarDadosPerfil(username);
         }
         else {
             UUID aliasId = UUID.fromString(jwtTokenProvider.extractUserId(accessToken));
+            userData = usuarioService.buscarDadosPerfil(username, aliasId);
             userData = usuarioService.buscarDadosPerfil(username, aliasId);
         }
         return ResponseEntity.ok(ApiResponse.success(userData));
@@ -136,5 +139,4 @@ public class UserController {
             return ResponseEntity.ok(ApiResponse.error("404", "false"));
         }
     }
-
 }
