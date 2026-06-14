@@ -1,11 +1,37 @@
 import type { UUID } from "crypto";
-import type { CommentDTO, ConfigItemDTO, ConviteDTO, MensagemDTO, PostDataInputDTO, PostDataOutputDTO, PostDataUpdateInputDTO, PostDetailsDTO, PostHighlightDTO, ProfileUpdateInputDTO, SearchParamsDTO, SearchResultsOutputDTO, UserProfileDetailDTO, UserProfileDTO, UserSummaryDTO } from "./tipos";
+import type { CommentDTO, ConfigItemDTO, ConviteDTO, MensagemDTO, PostDataInputDTO, PostDataOutputDTO, PostDataUpdateInputDTO, PostDetailsDTO, PostHighlightDTO, ProfileUpdateInputDTO, SearchParamsDTO, SearchResultsOutputDTO, UserProfileDetailDTO, UserProfileDTO, UserSummaryDTO, ClientSignupInputDTO } from "./tipos";
 
 export default class {
     get USER_CACHE_KEY() { return "__usuario"; }
     get BACKEND_ENDPOINT() { return `http://localhost:8080/api`; }
     get GET_HEADERS() { return { "Content-Type": "application/json" } }
-    
+
+    fazerCadastro = async (input: ClientSignupInputDTO): Promise<UserSummaryDTO> => {
+        const request = await fetch(`${this.BACKEND_ENDPOINT}/signup`, {
+            method: "POST",
+            credentials: "include",
+            headers: this.GET_HEADERS,
+            body: JSON.stringify({
+                email: input.email,
+                senha: input.senha,
+                username: input.username,
+                dataNascimento: input.dataNascimento,
+                cpf: input.cpf,
+                nome: input.nome,
+                sobrenome: input.sobrenome,
+                tipoConta: input.tipoConta,
+            })
+        })
+        if(request.status != 200) throw new Error("Falha ao cadastrar");
+        const { data } = await request.json();
+        return {
+            fotoPerfil: data.fotoPerfil,
+            iniciais: data.iniciais,
+            nome: data.nome,
+            sobrenome: data.sobrenome,
+            username: data.username,
+        }
+    }
     fazerLogin = async (email: string, senha: string): Promise<UserSummaryDTO> => {
         const request = await fetch(`${this.BACKEND_ENDPOINT}/login`, {
             method: "POST",
@@ -13,7 +39,7 @@ export default class {
             headers: this.GET_HEADERS,
             body: JSON.stringify({email, senha}),
         });
-        if(request.status !== 200) throw new Error(`Login failed`)
+        if(request.status !== 200) throw new Error(`Falha ao logar`)
         const { data } = (await request.json());
         this.salvarDadosUsuarioNoNavegador(data);
         return {

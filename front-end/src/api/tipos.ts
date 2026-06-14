@@ -132,3 +132,15 @@ export type ProfileUpdateInputDTO = {
     fotoPerfil?: File,
     config?: ConfigItemDTO
 } & ConfigItemDTO;
+
+
+export type ClientSignupInputDTO = {
+    email: string,
+    senha: string,
+    username?: string,
+    dataNascimento: Date,
+    cpf: string,
+    nome: string,
+    sobrenome: string,
+    tipoConta: string,
+}
