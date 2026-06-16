@@ -34,7 +34,7 @@ export default function({...props}: {} & ComponentProps<"div">) {
     <form action={criarPost} className={`card p-6 flex flex-col gap-4 ${props.className}`}>
       <p className="font-semibold text-xl/6 text-mist-800">Criar Post</p>
       <div className="flex gap-4">
-        <button style={{backgroundImage: `url(${previewMedia})`}} onClick={focusOnFileInput} className="w-50 bg-center bg-cover bg-no-repeat rounded-xl border border-mist-200 bg-mist-100 text-mist-400 p-2 h-full aspect-square flex items-center justify-center text-2xl cursor-pointer transition outline-none hover:bg-mist-200 hover:border-mist-400 hover:text-mist-500 focus:bg-mist-200 focus:border-mist-400 focus:text-mist-500">
+        <button type="button" style={{backgroundImage: `url(${previewMedia})`}} onClick={focusOnFileInput} className="w-50 bg-center bg-cover bg-no-repeat rounded-xl border border-mist-200 bg-mist-100 text-mist-400 p-2 h-full aspect-square flex items-center justify-center text-2xl cursor-pointer transition outline-none hover:bg-mist-200 hover:border-mist-400 hover:text-mist-500 focus:bg-mist-200 focus:border-mist-400 focus:text-mist-500">
           {previewMedia == "" && <i className="ri-upload-2-line"></i>}
           <input type="file" className='hidden' onChange={createURLFromBlob} name="media" />
         </button>
