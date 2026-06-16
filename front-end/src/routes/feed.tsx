@@ -36,6 +36,7 @@ return (
         <div className='px-4 hidden lg:block pt-22 grow basis-4/12 me-auto'>
           <div className='card p-6 max-w-[20vw]'>
             <h3 className='text-xl mb-4'>Para você</h3>
+            <p className='text-mist-400 text-center m-0 p-6 text-md/8'>Funcionalidade disponível na próxima evolução</p>
             {Array(0).fill("").map(_ => (
               <div className='user-card border border-mist-200 p-4 rounded-2xl flex gap-4 items-center mb-3'>
                 <img src="https://unsplash.it/100" className='w-12 rounded-full' />
