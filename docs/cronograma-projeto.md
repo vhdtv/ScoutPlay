@@ -1,6 +1,6 @@
 # Cronograma do Projeto - ScoutPlay
 
-**Atualizado em:** 2026-05-20
+**Atualizado em:** 2026-06-16
 
 ## 1. Equipe e papéis
 
@@ -15,32 +15,42 @@
 | Sprint | Status | Entregas |
 |--------|--------|----------|
 | **Sprint 0 (Setup)** | Concluido | Repo, arquitetura 4 camadas, Maven, estrutura base |
-| **Sprint 1 (MVP)** | Concluido | JWT auth, registro de atleta/olheiro/responsavel, login |
-| **Sprint 2 (Incremento)** | Concluido (backend) | 18 endpoints CRUD, upload de foto, videos, avaliacoes, remodel de banco |
-| **Sprint 3 (Estabilizacao)** | Em andamento | Testes unitarios, BDD, integracao frontend, modulo IA |
+| **Sprint 1 (MVP)** | Concluido | JWT auth via cookie HttpOnly, cadastro de atleta/olheiro, login/logout |
+| **Sprint 2 (Incremento)** | Concluido | 28+ endpoints, upload de foto/midia, feed de posts, likes, comentarios, seguidores, avaliacoes, shortlist, modulo IA (FastAPI + RAG) |
+| **Sprint 3 (Estabilizacao)** | Concluido | Frontend completo (11 rotas), recuperacao de senha por email, seed de dados (10 usuarios), guards de autenticacao, melhorias visuais (ocai0) |
+| **Sprint 4 (Seguranca)** | Em andamento | Correcao de vulnerabilidades criticas, parametrizacao de URL e cookies |
 
 ---
 
-## 3. Distribuicao de trabalho — Sprint 3 (atual)
+## 3. Distribuicao de trabalho — Sprint 4 (atual)
 
 ### Backend
-- [x] Todos os 18 endpoints implementados
-- [x] Seguranca JWT configurada (SecurityConfig, JwtAuthenticationFilter)
-- [x] Remodel de banco: modelo flat com `t_usuario`, `t_detalhes_perfil` (JSONB), `t_video_atleta`, `t_avaliacao`
-- [x] Dados de teste (DataInitializer) — 3 usuarios seed
-- [ ] Testes unitarios (meta >=80% cobertura em services)
-- [ ] Integracao do modulo IA como microservico (ver `docs/ia-integracao.md`)
+- [x] JWT em cookie HttpOnly (nao mais Bearer header)
+- [x] Cookie `secure` configuravel via env var `COOKIE_SECURE`
+- [x] Validacao de startup do JWT secret (minimo 32 chars, obrigatorio)
+- [x] Recuperacao de senha via email (Gmail SMTP, App Password)
+- [x] Seed automatico de 5 atletas + 5 olheiros com posts, fotos e interacoes
+- [x] Modulo IA integrado: FastAPI + RAG (Ollama phi3:mini + embeddinggemma)
+- [ ] Rate limiting no /login (protecao contra brute force)
+- [ ] Validacao de CPF (algoritmo mod 11)
+- [ ] Fix IDOR no endpoint /user/avatar
+- [ ] Indices de banco em email, username, criadoEm
+- [ ] Corrigir N+1 queries em PostService.listar()
 
 ### Frontend
-- [ ] Conectar LoginForm ao `POST /api/login` e salvar token no localStorage
-- [ ] Implementar registro de atleta (usar `POST /api/atletas/registro`)
-- [ ] Feed de atletas (`GET /api/atletas`) com paginacao
-- [ ] Perfil de atleta (`GET /api/atletas/{id}`)
-- [ ] Upload de foto de perfil (`POST /api/atletas/{id}/foto`)
-- [ ] Adicionar e listar videos (`POST/GET /api/atletas/{id}/videos`)
-- [ ] Perfil de olheiro (`GET /api/olheiros/{id}`)
-- [ ] Criar avaliacao (`POST /api/avaliacoes`)
-- [ ] Implementar client HTTP com `Authorization: Bearer <token>` em todas as chamadas
+- [x] 11 rotas implementadas e integradas com a API
+- [x] Guards de autenticacao (beforeLoad + redirect)
+- [x] Feed com filtro por tipo de conta (Atleta / Olheiro)
+- [x] Perfil de usuario com foto, posts, seguidores
+- [x] Tela de busca de atletas com filtros
+- [x] Minha Lista (shortlist para olheiros)
+- [x] Configuracoes de conta
+- [x] Cadastro com dados especificos por tipo de conta
+- [x] Recuperacao de senha
+- [x] URL do backend via `VITE_BACKEND_URL` (env var — nao hardcoded)
+- [ ] Timeout no fetch (AbortController 30s)
+- [ ] Desabilitar botoes durante loading (evitar double-submit)
+- [ ] Error boundary nas rotas principais
 
 ### IA / Testes
 - [ ] Minimo de 5 cenarios BDD automatizados (Cucumber)
@@ -73,9 +83,9 @@ Uma issue so vai para **Concluido** quando tiver:
 
 ## 6. Checklist final de entrega
 
-- [ ] Board GitHub com colunas minimas e issues por sprint
-- [x] Minimo de 10 classes autorais + 4 camadas/pacotes
-- [x] Minimo de 6 funcionalidades (18 endpoints implementados)
+- [x] Board GitHub com colunas minimas e issues por sprint
+- [x] Minimo de 10 classes autorais + 4 camadas/pacotes (14 models + 16 services + 5 controllers + config)
+- [x] Minimo de 6 funcionalidades (28+ endpoints implementados)
 - [ ] Testes unitarios (meta >=80% em regras/services)
 - [ ] Minimo de 5 cenarios BDD automatizados
 - [ ] `/docs/testes/plano-de-teste.md` preenchido
@@ -92,6 +102,5 @@ Uma issue so vai para **Concluido** quando tiver:
 | Documento | Conteudo |
 |-----------|----------|
 | `docs/modelagem-banco.md` | Esquema completo do banco + todos os endpoints |
-| `docs/SEMANA2_JWT.md` | Como JWT foi implementado |
-| `docs/ia-integracao.md` | Plano de integracao do modulo RAG |
-| `docs/ScoutPlay.postman_collection.json` | Colecao Postman com todos os endpoints |
+| `docs/ia-integracao.md` | Arquitetura e estado atual do modulo RAG |
+| `docs/requisitos/requisitos-nao-funcionais.md` | RNFs de seguranca, desempenho, escalabilidade |
