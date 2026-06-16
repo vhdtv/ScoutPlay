@@ -20,7 +20,7 @@ public class FileService {
         Path completePath = path.resolve(String.format("%s.%s", filename, filetype));
         Files.copy(stream, completePath);
 
-        return filename.toString();
+        return String.format("%s.%s", filename, filetype);
     }
 
     static public String getFileExtension(MultipartFile file) {

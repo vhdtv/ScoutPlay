@@ -11,5 +11,7 @@ import java.util.UUID;
 public interface ComentarioRepository extends JpaRepository<Comentario, UUID> {
 
     ArrayList<Comentario> findAllByPost(Post post);
-
+    ArrayList<Comentario> findAllByPostAndParentComentarioIsNull(Post post);
+    ArrayList<Comentario> findAllByParentComentario(Comentario parent);
+    java.util.Optional<Comentario> findByAliasId(UUID aliasId);
 }

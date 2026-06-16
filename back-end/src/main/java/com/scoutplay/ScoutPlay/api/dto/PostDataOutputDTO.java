@@ -5,7 +5,7 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
-import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.Optional;
 import java.util.UUID;
 
@@ -21,7 +21,7 @@ public class PostDataOutputDTO {
     private Optional<String> descricao;
     private String src;
     private String poster;
-    private LocalDate criadoEm;
+    private LocalDateTime criadoEm;
     private TipoMidia tipoMidia;
     private PostAuthorSummary autor;
 }

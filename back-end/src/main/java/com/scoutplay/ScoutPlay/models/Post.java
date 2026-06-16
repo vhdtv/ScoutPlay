@@ -40,13 +40,13 @@ public class Post extends TabelaBase {
         return caminhoArquivo.substring(caminhoArquivo.lastIndexOf(".") + 1);
     }
     public String obterMimeType() {
-        switch(this.obterExtensaoDaMidia()) {
-            case "jpg":
-                return "image/jpg";
-            case "mp4":
-                return "video/mp4";
-            default: 
-                return "";
-        }
+        return switch(this.obterExtensaoDaMidia().toLowerCase()) {
+            case "jpg", "jpeg" -> "image/jpeg";
+            case "png"         -> "image/png";
+            case "webp"        -> "image/webp";
+            case "mp4"         -> "video/mp4";
+            case "mov"         -> "video/quicktime";
+            default            -> "image/jpeg";
+        };
     }
 }

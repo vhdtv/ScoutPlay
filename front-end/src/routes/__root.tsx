@@ -3,12 +3,8 @@ import {
   Scripts,
   createRootRouteWithContext,
 } from '@tanstack/react-router'
-import { TanStackRouterDevtoolsPanel } from '@tanstack/react-router-devtools'
-import { TanStackDevtools } from '@tanstack/react-devtools'
 
 import TanStackQueryProvider from '../integrations/tanstack-query/root-provider'
-
-import TanStackQueryDevtools from '../integrations/tanstack-query/devtools'
 
 import appCss from '../styles.css?url'
 
@@ -37,6 +33,15 @@ export const Route = createRootRouteWithContext<MyRouterContext>()({
         rel: 'stylesheet',
         href: appCss,
       },
+      {
+        rel: 'icon',
+        type: 'image/png',
+        href: '/logo-scoutplay.png',
+      },
+      {
+        rel: 'apple-touch-icon',
+        href: '/logo-scoutplay.png',
+      },
     ],
   }),
   shellComponent: RootDocument,
@@ -51,10 +56,6 @@ function RootDocument({ children }: { children: React.ReactNode }) {
       <body>
         <TanStackQueryProvider>
           {children}
-          <TanStackDevtools
-            config={{ position: 'bottom-right' }}
-            plugins={[ { name: 'Tanstack Router', render: <TanStackRouterDevtoolsPanel />, }, TanStackQueryDevtools ]}
-          />
         </TanStackQueryProvider>
         <Scripts />
       </body>

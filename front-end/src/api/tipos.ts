@@ -6,6 +6,8 @@ export type UserSummaryDTO = {
     iniciais: string,
     fotoPerfil: string | null,
     sobrenome: string | null,
+    posicao?: string,
+    tipoConta?: string[],
 }
 
 export type UserProfileDTO = UserSummaryDTO & {
@@ -14,7 +16,10 @@ export type UserProfileDTO = UserSummaryDTO & {
     detalhesPerfil: UserProfileDetailDTO
     posts: PostDTO[],
     souEu?: boolean,
-    configuracoes?: ConfigItemDTO
+    configuracoes?: ConfigItemDTO,
+    seguidores?: number,
+    seguindo?: number,
+    souSeguidor?: boolean,
 }
 
 export type TipoContaDTO = "ATLETA" | "RESPONSAVEL"
@@ -100,12 +105,36 @@ export type ConfigItemDTO = {
 }
 
 export type CommentDTO = {
+    id: string,
     por: UserSummaryDTO,
     texto: string,
-    quantidadeLike: number
+    quantidadeLike: number,
+    euCurti: boolean,
+    respostas: CommentDTO[],
 }
 
 export type MensagemDTO = {
     autor: "IA" | "USUARIO",
     texto: string,
-  }
+}
+
+export type AtletaCardDTO = {
+    username: string,
+    nome: string,
+    sobrenome: string | null,
+    iniciais: string,
+    fotoPerfil: string | null,
+    idade: number | null,
+    posicao: string | null,
+    peDominante: string | null,
+    clubesAnteriores: string | null,
+    seguidores: number,
+}
+
+export type AvaliacaoDTO = {
+    id: string,
+    nota: number,
+    comentario: string | null,
+    olheiro: UserSummaryDTO,
+    criadoEm: string,
+}

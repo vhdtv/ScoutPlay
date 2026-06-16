@@ -1,19 +1,13 @@
 package com.scoutplay.ScoutPlay.api.dto;
 
-import java.util.Collection;
-
-import com.scoutplay.ScoutPlay.models.DetalhePerfil;
-import com.scoutplay.ScoutPlay.models.Post;
+import java.util.List;
+import java.util.Map;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
-/**
- * DTO para resposta de login
- * Retorna o token JWT e informações do usuário
- */
 @Data
 @Builder
 @NoArgsConstructor
@@ -26,7 +20,21 @@ public class UserProfileSummary {
     private String fotoPerfil;
     private String[] tipoConta;
     private String cidade;
-    private int idade;
-    private Collection<DetalhePerfil> detalhes;
-    private Collection<Post> posts;
+    private Integer idade;
+    private Map<String, Object> detalhesPerfil;
+    private List<PostResume> posts;
+    private long seguidores;
+    private long seguindo;
+    private boolean souSeguidor;
+
+    @Data
+    @Builder
+    @NoArgsConstructor
+    @AllArgsConstructor
+    public static class PostResume {
+        private String url;
+        private String titulo;
+        private String src;
+        private String mimeType;
+    }
 }

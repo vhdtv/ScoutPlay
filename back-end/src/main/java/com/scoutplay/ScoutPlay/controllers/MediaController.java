@@ -21,21 +21,30 @@ import org.springframework.web.bind.annotation.RestController;
 public class MediaController {
 
     @GetMapping("/media/{filename}")
-    public ResponseEntity<Resource> criar(@PathVariable String filename) {
+    public ResponseEntity<Resource> servirMidia(@PathVariable String filename) {
+        return servirArquivo(Paths.get("uploads/media"), filename);
+    }
+
+    @GetMapping("/avatar/{filename}")
+    public ResponseEntity<Resource> servirAvatar(@PathVariable String filename) {
+        return servirArquivo(Paths.get("uploads/avatars"), filename);
+    }
+
+    private ResponseEntity<Resource> servirArquivo(Path dir, String filename) {
         try {
-            Path caminhoArquivo = Paths.get("uploads/media").resolve(filename);
-            File arquivo = caminhoArquivo.toFile();
-            
+            File arquivo = dir.resolve(filename).toFile();
+            if (!arquivo.exists()) {
+                try (var paths = Files.newDirectoryStream(dir, filename + ".*")) {
+                    for (Path p : paths) { arquivo = p.toFile(); break; }
+                } catch (IOException ignored) {}
+            }
             if (!arquivo.exists()) return ResponseEntity.notFound().build();
             Resource resource = new FileSystemResource(arquivo);
-            String contentType = Files.probeContentType(caminhoArquivo);
-            if (contentType == null) {
-                contentType = "application/octet-stream";
-            }
+            String contentType = Files.probeContentType(arquivo.toPath());
+            if (contentType == null) contentType = "application/octet-stream";
             return ResponseEntity.ok()
                 .contentType(MediaType.parseMediaType(contentType))
                 .body(resource);
-
         } catch (IOException e) {
             return ResponseEntity.notFound().build();
         }

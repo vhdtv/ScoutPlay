@@ -25,6 +25,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.ArrayList;
+import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 
@@ -39,6 +40,14 @@ public class PostController {
     private final ComentarioService comentarioService;
     private final InteractionsService interactionsService;
 
+    @GetMapping("/")
+    public ResponseEntity<ApiResponse<List<PostDetailsDTO>>> listar(
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "10") int size) {
+        List<PostDetailsDTO> posts = postService.listar(page, size);
+        return ResponseEntity.ok(ApiResponse.success(posts));
+    }
+
     @PostMapping("/")
     public ResponseEntity<ApiResponse<PostDataOutputDTO>> criar(@ModelAttribute PostDataInputDTO dto) {
         PostDataOutputDTO criado = this.postService.criar(dto);
@@ -46,6 +55,7 @@ public class PostController {
         return ResponseEntity.status(HttpStatus.OK).body(ApiResponse.success(criado, "Post criado com sucesso"));
     }
     
+    @Transactional
     @PostMapping("/{postId}/comment")
     public ResponseEntity<ApiResponse<CommentDataOutputDTO>> comentar(@PathVariable UUID postId, @RequestBody CommentDataInputDTO request, @CookieValue(name = "access_token", required = true) String accessToken) {
         UUID aliasIdDoAutor = UUID.fromString(jwtTokenProvider.extractUserId(accessToken));
@@ -82,27 +92,83 @@ public class PostController {
         return ResponseEntity.ok().body(ApiResponse.success(true));
     }
 
+    @Transactional
     @GetMapping("/{postId}/comments")
-    public ResponseEntity<ApiResponse<ArrayList<CommentDataOutputDTO>>> obterComentarios(@PathVariable UUID postId) {
+    public ResponseEntity<ApiResponse<ArrayList<CommentDataOutputDTO>>> obterComentarios(
+            @PathVariable UUID postId,
+            @CookieValue(name = "access_token", required = false) String accessToken) {
         Optional<Post> item = postService.buscarPor(postId);
         if(item.isEmpty()) throw new Error("Post não encontrado");
         Post post = item.get();
-        ArrayList<Comentario> comentarios = comentarioService.buscarTodosPorPost(post);
-        ArrayList<CommentDataOutputDTO> output = comentarios.stream().map(comentario -> {
-            Usuario autor = comentario.getAutor();
-            return CommentDataOutputDTO.builder()
-                .postId(postId)
-                .texto(comentario.getTexto())
-                .por(UserSummaryDTO.builder()
-                    .nome(autor.getNome())
-                    .sobrenome(autor.getSobrenome())
-                    .username(autor.getUsername())
-                    .iniciais(autor.getIniciais())
-                    .fotoPerfil(autor.getFotoPerfil())
-                    .build())
-                .build();
-        }).collect(java.util.stream.Collectors.toCollection(ArrayList::new));
+        Usuario logado = null;
+        if (accessToken != null) {
+            try { logado = usuarioService.buscarPor(UUID.fromString(jwtTokenProvider.extractUserId(accessToken))); } catch (Exception ignored) {}
+        }
+        final Usuario usuarioLogado = logado;
+        ArrayList<Comentario> raiz = comentarioService.buscarRaizPorPost(post);
+        ArrayList<CommentDataOutputDTO> output = raiz.stream().map(c -> toDTO(c, postId, usuarioLogado))
+            .collect(java.util.stream.Collectors.toCollection(ArrayList::new));
         return ResponseEntity.status(HttpStatus.OK).body(ApiResponse.success(output));
+    }
+
+    @PostMapping("/{postId}/comment/{commentId}/like")
+    public ResponseEntity<ApiResponse<Boolean>> curtirComentario(
+            @PathVariable UUID postId,
+            @PathVariable UUID commentId,
+            @CookieValue(name = "access_token", required = true) String accessToken) {
+        UUID userId = UUID.fromString(jwtTokenProvider.extractUserId(accessToken));
+        Usuario usuario = usuarioService.buscarPor(userId);
+        comentarioService.curtir(commentId, usuario);
+        return ResponseEntity.ok(ApiResponse.success(true));
+    }
+
+    @PostMapping("/{postId}/comment/{commentId}/dislike")
+    public ResponseEntity<ApiResponse<Boolean>> descurtirComentario(
+            @PathVariable UUID postId,
+            @PathVariable UUID commentId,
+            @CookieValue(name = "access_token", required = true) String accessToken) {
+        UUID userId = UUID.fromString(jwtTokenProvider.extractUserId(accessToken));
+        Usuario usuario = usuarioService.buscarPor(userId);
+        comentarioService.descurtir(commentId, usuario);
+        return ResponseEntity.ok(ApiResponse.success(true));
+    }
+
+    @Transactional
+    @PostMapping("/{postId}/comment/{commentId}/reply")
+    public ResponseEntity<ApiResponse<CommentDataOutputDTO>> responderComentario(
+            @PathVariable UUID postId,
+            @PathVariable UUID commentId,
+            @RequestBody CommentDataInputDTO request,
+            @CookieValue(name = "access_token", required = true) String accessToken) {
+        UUID userId = UUID.fromString(jwtTokenProvider.extractUserId(accessToken));
+        Usuario autor = usuarioService.buscarPor(userId);
+        Post post = postService.buscarPor(postId).orElseThrow();
+        Comentario parent = comentarioService.buscarPorId(commentId);
+        Comentario resposta = comentarioService.criar(new Comentario(request.getTexto(), post, autor, parent));
+        return ResponseEntity.ok(ApiResponse.success(toDTO(resposta, postId, autor)));
+    }
+
+    private CommentDataOutputDTO toDTO(Comentario c, UUID postId, Usuario logado) {
+        Usuario autor = c.getAutor();
+        ArrayList<Comentario> respostas = comentarioService.buscarRespostas(c);
+        boolean euCurti = logado != null && c.getCurtidas().contains(logado);
+        return CommentDataOutputDTO.builder()
+            .id(c.getAliasId())
+            .postId(postId)
+            .texto(c.getTexto())
+            .quantidadeLike(c.getCurtidas().size())
+            .euCurti(euCurti)
+            .respostas(respostas.stream()
+                .map(r -> toDTO(r, postId, logado))
+                .collect(java.util.stream.Collectors.toList()))
+            .por(UserSummaryDTO.builder()
+                .nome(autor.getNome())
+                .sobrenome(autor.getSobrenome())
+                .username(autor.getUsername())
+                .iniciais(autor.getIniciais())
+                .fotoPerfil(autor.getFotoPerfil())
+                .build())
+            .build();
     }
 
     // @GetMapping
@@ -161,6 +227,15 @@ public class PostController {
     //         @RequestBody PostDataInputDTO dto) {
     //     return ResponseEntity.ok(ApiResponse.success(postService.atualizar(id, dto)));
     // }
+
+    @DeleteMapping("/{postId}")
+    public ResponseEntity<ApiResponse<Void>> deletar(
+            @PathVariable UUID postId,
+            @CookieValue(name = "access_token", required = true) String accessToken) {
+        UUID userId = UUID.fromString(jwtTokenProvider.extractUserId(accessToken));
+        postService.deletar(postId, userId);
+        return ResponseEntity.ok(ApiResponse.success(null, "Post deletado com sucesso"));
+    }
 
     // @DeleteMapping("/{id}")
     // public ResponseEntity<ApiResponse<Void>> deletar(@PathVariable UUID id) {

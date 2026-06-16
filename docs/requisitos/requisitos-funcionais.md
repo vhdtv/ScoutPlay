@@ -1,62 +1,169 @@
 # Requisitos Funcionais — ScoutPlay
 
-## RF01 — Cadastro de Atleta
-**Descrição:** O sistema deve permitir que jovens atletas se cadastrem informando nome, e-mail, CPF, senha, data de nascimento, CEP e telefone.
-**Regras:**
-- CPF deve ser único no sistema
-- E-mail deve ser único no sistema
-- Senha é obrigatória e deve ter no mínimo 6 caracteres
-- Atletas menores de idade devem estar vinculados a um responsável
+**Versão:** 2.0 | **Atualizado em:** 2026-06-12
 
-## RF02 — Cadastro de Olheiro
-**Descrição:** O sistema deve permitir que olheiros (profissionais de scouting) se cadastrem informando nome, e-mail, CPF, senha, clube e localização.
-**Regras:**
-- CPF deve ser único no sistema
-- E-mail deve ser único no sistema
-- Senha é obrigatória e deve ter no mínimo 6 caracteres
+---
 
-## RF03 — Cadastro de Responsável
-**Descrição:** O sistema deve permitir o cadastro de responsáveis para atletas menores de idade.
+## RF-01 — Cadastro de Atleta
+
+**Descrição:** O sistema deve permitir que jovens atletas se cadastrem informando nome, sobrenome, e-mail, CPF, senha, data de nascimento e tipo de conta `ATLETA`.
+
+**Regras:**
+- CPF deve ser único no sistema → retorna 409 Conflict se duplicado
+- E-mail deve ser único no sistema → retorna 409 Conflict se duplicado
+- Senha é obrigatória; campos nulos ou em branco lançam `IllegalArgumentException`
+- Senha armazenada com codificação bcrypt antes de persistir
+
+**Endpoint:** `POST /api/signup`
+
+---
+
+## RF-02 — Cadastro de Olheiro
+
+**Descrição:** O sistema deve permitir que olheiros (profissionais de scouting) se cadastrem com tipo de conta `OLHEIRO`.
+
+**Regras:**
+- Mesmas validações de unicidade de RF-01
+- Conta categorizada como `OLHEIRO` via `XUsuarioTipoConta`
+
+**Endpoint:** `POST /api/signup`
+
+---
+
+## RF-03 — Cadastro de Responsável
+
+**Descrição:** O sistema deve permitir o cadastro de responsáveis legais de atletas menores de idade com tipo de conta `RESPONSAVEL`.
+
 **Regras:**
 - CPF e e-mail únicos no sistema
 - Senha obrigatória
 
-## RF04 — Autenticação (Login)
-**Descrição:** O sistema deve autenticar usuários (atletas, olheiros e responsáveis) via e-mail e senha, retornando um token JWT.
+**Endpoint:** `POST /api/signup`
+
+---
+
+## RF-04 — Autenticação (Login / Logout)
+
+**Descrição:** O sistema deve autenticar usuários via e-mail e senha, retornando um token JWT armazenado em cookie HttpOnly.
+
 **Regras:**
-- Credenciais inválidas retornam erro 401
-- Token JWT tem validade de 24 horas
+- Credenciais inválidas retornam 401 Unauthorized
+- Token JWT com validade configurável via `JWT_EXPIRATION` (padrão: 24 h)
+- Logout limpa o cookie `access_token`
 
-## RF05 — Consultar Perfil Autenticado
-**Descrição:** Um usuário autenticado consulta seu próprio perfil usando o `userId` retornado no login:
-- Atleta: `GET /api/atletas/{id}`
-- Olheiro: `GET /api/olheiros/{id}`
+**Endpoints:** `POST /api/login` · `POST /api/logout`
 
-O `userId` está disponível no payload do token JWT e na resposta do login/registro.
+---
 
-## RF06 — Listagem de Atletas (Feed do Olheiro)
-**Descrição:** Qualquer usuário autenticado pode listar todos os atletas ativos de forma paginada via `GET /api/atletas?page=0&size=10`.
+## RF-05 — Feed Paginado de Posts
+
+**Descrição:** Qualquer usuário pode visualizar um feed paginado de publicações de todos os atletas.
+
 **Regras:**
-- Resultado retornado paginado (padrão: 10 por página)
-- Filtros por posição, peso, altura e pé dominante não estão implementados no MVP
+- Resultado paginado (padrão: 10 por página), ordenado por data decrescente
+- Cada post exibe: autor, título, mídia (imagem/vídeo), contagem de likes, indicação de "deu like" e "segue conta"
+- Filtros opcionais na UI: posição do atleta e tipo de conta
 
-## RF07 — Upload de Foto de Perfil
-**Descrição:** Atletas podem enviar uma foto de perfil via `POST /api/atletas/{id}/foto`.
+**Endpoint:** `GET /api/post/?page={n}`
+
+---
+
+## RF-06 — Criação e Exclusão de Post
+
+**Descrição:** Usuários autenticados podem publicar imagens ou vídeos com título e descrição, e excluir suas próprias publicações.
+
 **Regras:**
-- Formatos aceitos: JPG, JPEG, PNG
-- Tamanho máximo: 10 MB
-- Outros formatos retornam erro 400
+- Criação via upload multipart (arquivo + título + descrição)
+- Tipos aceitos: JPG, WEBP, PNG (imagem) · outros (vídeo)
+- Exclusão lógica (`ativo = false`) — somente o autor pode excluir (ownership via JWT)
 
-## RF08 — Gerenciamento de Vídeos do Atleta
-**Descrição:** Atletas podem associar vídeos ao seu perfil (URL + título).
-**Operações:** criar, listar por atleta, atualizar, deletar
+**Endpoints:** `POST /api/post/` · `DELETE /api/post/{postId}`
 
-## RF09 — Avaliações de Atletas
-**Descrição:** Olheiros podem registrar avaliações sobre atletas, contendo nota, comentário e a identificação do olheiro.
-**Operações:** criar avaliação, listar avaliações de um atleta
+---
 
-## RF10 — Atualização e Exclusão de Perfil
-**Descrição:** Usuários autenticados podem atualizar e excluir o próprio perfil.
+## RF-07 — Interações: Like, Dislike e Comentário
+
+**Descrição:** Usuários autenticados podem dar like/dislike em posts e adicionar comentários.
+
 **Regras:**
-- Apenas o próprio usuário pode alterar/excluir sua conta (verificação de ownership via JWT)
-- A senha é atualizada somente se um novo valor for informado
+- Like idempotente: dar like duas vezes no mesmo post remove o like
+- Comentários são persistidos com autor e timestamp
+
+**Endpoints:** `POST /api/post/{id}/like` · `POST /api/post/{id}/dislike` · `POST /api/post/{id}/comment` · `GET /api/post/{id}/comments`
+
+---
+
+## RF-08 — Seguir / Deixar de Seguir Usuário
+
+**Descrição:** Usuários autenticados podem seguir e deixar de seguir outros usuários.
+
+**Regras:**
+- Relação armazenada em `t_seguidor` (seguidor → seguido)
+- Contadores de seguidores e seguindo atualizados no perfil
+- O usuário não pode seguir a si mesmo (botão oculto no próprio perfil)
+
+**Endpoints:** `POST /api/user/{username}/seguir` · `DELETE /api/user/{username}/seguir`
+
+---
+
+## RF-09 — Visualização e Edição de Perfil
+
+**Descrição:** Qualquer usuário pode visualizar o perfil público de outro usuário; o usuário autenticado pode editar o próprio perfil.
+
+**Regras:**
+- Perfil exibe: nome, foto, tipo de conta, dados esportivos (posição, altura, peso, pé dominante, clubes), posts e contadores
+- Edição de dados esportivos armazenados como JSONB em `DetalhePerfil`
+- Apenas o próprio usuário vê o botão "Editar perfil" e os botões de exclusão de posts
+
+**Endpoints:** `GET /api/user?username={u}` · `PATCH /api/user` · `POST /api/profile-detail` · `DELETE /api/profile-detail`
+
+---
+
+## RF-10 — Upload de Foto de Perfil
+
+**Descrição:** Usuários autenticados podem enviar ou atualizar sua foto de perfil.
+
+**Regras:**
+- Formatos aceitos: JPG, JPEG, PNG, WEBP
+- Arquivo salvo em `uploads/avatars/`
+- Retorna URL pública via `/api/avatar/{filename}`
+
+**Endpoint:** `POST /api/user/avatar`
+
+---
+
+## RF-11 — Copiloto de IA (Chatbot RAG)
+
+**Descrição:** Usuários podem fazer perguntas em linguagem natural sobre atletas cadastrados no sistema.
+
+**Regras:**
+- Respostas geradas pela API Claude (Haiku 4.5) ou serviço Python local como fallback
+- Contexto montado por `AIContextService`: inclui nome, idade, posição, altura, peso, pé dominante, clubes e avaliações
+- **Nunca expõe** CPF, e-mail ou telefone dos atletas
+- Serviço Python (`FastAPI`) roda na porta 8081
+
+**Endpoint:** `POST /api/ia/prompt`
+
+---
+
+## RF-12 — Recuperação de Senha
+
+**Descrição:** Usuários podem solicitar a redefinição de senha por e-mail.
+
+**Regras:**
+- Token de redefinição gerado e associado ao e-mail
+- Nova senha substituída com codificação bcrypt
+
+**Endpoints:** `POST /api/forgot-password` · `POST /api/reset-password`
+
+---
+
+## Regras de negócio não-triviais
+
+| Regra | Implementação |
+|-------|--------------|
+| Unicidade de CPF e e-mail | `UsuarioRepository.existsByCpf()` + `existsByEmail()` → `ConflictException` (409) |
+| Senha obrigatória e codificada | Validação em `UsuarioService.cadastrarAtleta()` + `passwordEncoder.encode()` antes do save |
+| Ownership de posts e perfil | `SecurityUtils.currentUserId()` comparado ao `aliasId` do recurso em todos os PUT/DELETE |
+| Privacidade no contexto IA | `AIContextService.montarContexto()` acessa apenas campos públicos — CPF/e-mail/telefone nunca incluídos |
+| Segurança de sessão | JWT em cookie HttpOnly — inacessível via JavaScript (proteção contra XSS) |

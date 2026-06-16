@@ -8,9 +8,9 @@ export const Route = createFileRoute('/login')({
 
 export function RouteComponent() {
   return <div className='page-noscroll flex flex-col'>
-    <section className="content grow-1 flex flex-row">
-      <div className='grow-1 hidden md:flex border-e-2 border-gray-200 p-3 pt-12'>
-        <section className='logo'>
+    <section className="content grow-1 min-h-0 flex flex-row">
+      <div className='grow-1 min-h-0 hidden md:flex flex-col border-e-2 border-gray-200 p-6 pt-10 gap-4 overflow-hidden'>
+        <section className='logo shrink-0'>
           <div className='flex'>
             <img src="/assets/logo.svg" className='h-16 m-2' />
             <div className='grow-1 items-center content-center'>
@@ -19,7 +19,13 @@ export function RouteComponent() {
             </div>
           </div>
         </section>
-        <section className="carousel"></section>
+        <section className="min-h-0 flex-1 overflow-hidden rounded-2xl mb-4">
+          <img
+            src="/assets/images/atleta-banner-1.webp"
+            alt="Atleta em ação"
+            className="w-full h-full object-cover object-top"
+          />
+        </section>
       </div>
       <div className='shrink-0 sm:grow-0 flex flex-col flex-wrap items-center justify-center'>
         <div className='border-b-2 border-gray-200 p-3 min-w-xl'>

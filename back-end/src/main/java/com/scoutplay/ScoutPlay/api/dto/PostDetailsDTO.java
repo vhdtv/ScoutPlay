@@ -14,10 +14,12 @@ import lombok.experimental.SuperBuilder;
 public class PostDetailsDTO extends PostDTO {
     private UserSummaryDTO autor;
     private Metadata metadados;
-}
 
-@Getter
-@Setter
-class Metadata {
-    protected Boolean segueConta;
+    @Getter
+    @Setter
+    @NoArgsConstructor
+    @AllArgsConstructor
+    public static class Metadata {
+        private Boolean segueConta;
+    }
 }

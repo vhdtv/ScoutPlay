@@ -46,6 +46,7 @@ public class AuthService {
                 .username(usuario.getUsername())
                 .sobrenome(usuario.getSobrenome())
                 .fotoPerfil(usuario.getFotoPerfil())
+                .tipoConta(poderesConta)
                 .build()
             ).build();
     }

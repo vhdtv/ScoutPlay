@@ -1,5 +1,6 @@
 package com.scoutplay.ScoutPlay.api.dto;
 
+import java.time.LocalDateTime;
 import java.util.UUID;
 
 import lombok.AllArgsConstructor;
@@ -11,12 +12,10 @@ import lombok.NoArgsConstructor;
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-public class CommentDataOutputDTO {
+public class AvaliacaoOutputDTO {
     private UUID id;
-    private UUID postId;
-    private String texto;
-    private UserSummaryDTO por;
-    private int quantidadeLike;
-    private boolean euCurti;
-    private java.util.List<CommentDataOutputDTO> respostas;
+    private Double nota;
+    private String comentario;
+    private UserSummaryDTO olheiro;
+    private LocalDateTime criadoEm;
 }

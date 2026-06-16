@@ -9,12 +9,15 @@ import lombok.NoArgsConstructor;
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-public class UserSummaryDTO {
+public class AtletaCardDTO {
+    private String username;
     private String nome;
     private String sobrenome;
-    private String username;
     private String iniciais;
     private String fotoPerfil;
+    private Integer idade;
     private String posicao;
-    private String[] tipoConta;
+    private String peDominante;
+    private String clubesAnteriores;
+    private long seguidores;
 }

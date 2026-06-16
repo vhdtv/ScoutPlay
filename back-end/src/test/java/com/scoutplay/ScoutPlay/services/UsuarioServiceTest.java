@@ -16,12 +16,20 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 
 import com.scoutplay.ScoutPlay.exceptions.ConflictException;
 import com.scoutplay.ScoutPlay.models.DetalhePerfil;
+import com.scoutplay.ScoutPlay.models.Post;
 import com.scoutplay.ScoutPlay.models.TipoConta;
 import com.scoutplay.ScoutPlay.models.Usuario;
 import com.scoutplay.ScoutPlay.models.XUsuarioTipoConta;
 import com.scoutplay.ScoutPlay.repositories.DetalhePerfilRepository;
+import com.scoutplay.ScoutPlay.repositories.PostRepository;
+import com.scoutplay.ScoutPlay.repositories.SeguidorRepository;
 import com.scoutplay.ScoutPlay.repositories.UsuarioRepository;
 import com.scoutplay.ScoutPlay.repositories.XUsuarioTipoContaRepository;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
+import org.springframework.data.domain.Pageable;
+
+import java.util.Collections;
 
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.*;
@@ -48,6 +56,12 @@ class UsuarioServiceTest {
 
     @Mock
     private DetalhePerfilService detalhePerfilService;
+
+    @Mock
+    private PostRepository postRepository;
+
+    @Mock
+    private SeguidorRepository seguidorRepository;
 
     @Mock
     private PasswordEncoder passwordEncoder;
@@ -179,8 +193,12 @@ class UsuarioServiceTest {
         when(tipoConta.getId()).thenReturn(TipoConta.ATLETA);
         when(relacao.getTipoConta()).thenReturn(tipoConta);
 
+        Page<Post> paginaVazia = new PageImpl<>(Collections.<Post>emptyList());
         when(usuarioRepository.findByUsernameIgnoreCase("fabiano_teste")).thenReturn(atletaMock);
         when(xUsuarioTipoContaRepository.getByUsuario(atletaMock)).thenReturn(Set.of(relacao));
+        when(postRepository.findByAutorAndAtivoTrue(any(Usuario.class), any(Pageable.class))).thenReturn(paginaVazia);
+        when(seguidorRepository.countBySeguidor(any(Usuario.class))).thenReturn(0L);
+        when(seguidorRepository.countBySeguido(any(Usuario.class))).thenReturn(0L);
 
         var perfil = usuarioService.buscarDadosPerfil("fabiano_teste", UUID.randomUUID());
 

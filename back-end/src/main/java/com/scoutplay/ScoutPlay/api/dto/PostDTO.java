@@ -1,6 +1,6 @@
 package com.scoutplay.ScoutPlay.api.dto;
 
-import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.Optional;
 import java.util.UUID;
 import java.util.ArrayList;
@@ -20,5 +20,5 @@ public class PostDTO {
     protected Optional<String> descricao;
     protected Optional<InteracoesDTO> interacoes;
     protected PostMediaData media;
-    protected LocalDate criadoEm;
+    protected LocalDateTime criadoEm;
 }

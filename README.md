@@ -7,14 +7,14 @@ Com login dedicado para players, o Scope permite encontrar talentos de forma rá
 
 ## Integrantes
 
-| | Nome | RA |
-| --- | --- | --- |
-| <img src="https://avatars.githubusercontent.com/u/101878978?v=4" style="display: inline-block; width: 64px"> | Victor Henrique Dias | 4231920004
-| <img src="https://avatars.githubusercontent.com/u/130322697?v=4" style="display: inline-block; width: 64px"> | Paulo Vitor Amorim de Oliveira | 42322453
-| <img src="https://avatars.githubusercontent.com/u/129996963?v=4" style="display: inline-block; width: 64px"> | Maria Clara Marques Lino | 4231924407
-| <img src="https://avatars.githubusercontent.com/u/129918519?v=4" style="display: inline-block; width: 64px"> | Lucas Ferreira Andrade | 4231921505
-| <img src="https://avatars.githubusercontent.com/u/134884115?v=4" style="display: inline-block; width: 64px"> | Cesar Augusto Ferreira Martins | 4231921453
-| <img src="https://avatars.githubusercontent.com/u/35999467?v=4" style="display: inline-block; width: 64px"> | Caio Alves Fernandes | 4231925609
+| | Nome | RA | Papel na Sprint |
+| --- | --- | --- | --- |
+| <img src="https://avatars.githubusercontent.com/u/101878978?v=4" style="display: inline-block; width: 64px"> | Victor Henrique Dias | 4231920004 | Scrum Master · Back-end · Integração IA |
+| <img src="https://avatars.githubusercontent.com/u/130322697?v=4" style="display: inline-block; width: 64px"> | Paulo Vitor Amorim de Oliveira | 42322453 | Back-end · Segurança JWT · DevOps |
+| <img src="https://avatars.githubusercontent.com/u/129996963?v=4" style="display: inline-block; width: 64px"> | Maria Clara Marques Lino | 4231924407 | Front-end · React · Testes de Usabilidade |
+| <img src="https://avatars.githubusercontent.com/u/129918519?v=4" style="display: inline-block; width: 64px"> | Lucas Ferreira Andrade | 4231921505 | Back-end · BDD / Cucumber · Repositórios |
+| <img src="https://avatars.githubusercontent.com/u/134884115?v=4" style="display: inline-block; width: 64px"> | Cesar Augusto Ferreira Martins | 4231921453 | Front-end · Componentes UI · Design |
+| <img src="https://avatars.githubusercontent.com/u/35999467?v=4" style="display: inline-block; width: 64px"> | Caio Alves Fernandes | 4231925609 | Back-end · Controllers · Documentação |
 ---
 
 ## 📋 Sumário
@@ -191,36 +191,45 @@ mvn spring-boot:run
 
 ```
 ScoutPlay/
-├── src/
-│   ├── main/
-│   │   ├── java/com/scoutplay/ScoutPlay/
-│   │   │   ├── ScoutPlayApplication.java    (Classe principal)
-│   │   │   ├── controllers/                 (APIs REST — camada UI)
-│   │   │   ├── models/                      (Entidades JPA — camada domain)
-│   │   │   ├── repositorys/                 (Acesso a dados — camada infra)
-│   │   │   ├── services/                    (Lógica de negócio — camada service)
-│   │   │   ├── api/dto/                     (Data Transfer Objects)
-│   │   │   ├── api/response/                (ApiResponse padrão)
-│   │   │   ├── config/                      (CORS, Security)
-│   │   │   ├── exceptions/                  (ConflictException, ResourceNotFoundException)
-│   │   │   └── security/                    (JWT Filter, Provider, SecurityUtils)
-│   │   └── resources/
-│   │       ├── application.properties
-│   │       ├── static/                      (Frontend HTML/CSS/JS)
-│   │       └── ia/
-│   │           ├── app.py                   (Copiloto RAG — Streamlit + Ollama)
-│   │           ├── arquivos/                (Base de conhecimento em PDF)
-│   │           ├── brasileirao/             (Dataset Brasileirão)
-│   │           ├── safa e transfermarkt/    (Datasets SofaScore + Transfermarkt)
-│   │           └── notebook/               (Notebooks de análise e modelo pkl)
-│   └── test/
-│       ├── java/com/scoutplay/ScoutPlay/
-│       │   ├── services/                    (Testes unitários — JUnit 5 + Mockito)
-│       │   ├── controllers/                 (Testes de integração — MockMvc)
-│       │   └── bdd/                         (Cucumber runner + step definitions)
-│       └── resources/
-│           ├── features/                    (Arquivos .feature Gherkin)
-│           └── application-test.properties  (Config de teste com H2)
+├── back-end/                                (API Spring Boot — Java 21)
+│   ├── src/
+│   │   ├── main/
+│   │   │   ├── java/com/scoutplay/ScoutPlay/
+│   │   │   │   ├── ScoutPlayApplication.java    (Classe principal)
+│   │   │   │   ├── controllers/                 (APIs REST — camada ui)
+│   │   │   │   ├── models/                      (Entidades JPA — camada domain)
+│   │   │   │   ├── repositories/                (Acesso a dados — camada infra)
+│   │   │   │   ├── services/                    (Lógica de negócio — camada service)
+│   │   │   │   ├── api/dto/                     (Data Transfer Objects)
+│   │   │   │   ├── api/response/                (ApiResponse padrão)
+│   │   │   │   ├── config/                      (CORS, Security, JWT)
+│   │   │   │   ├── exceptions/                  (ConflictException, ResourceNotFoundException)
+│   │   │   │   └── security/                    (JWT Filter, Provider, SecurityUtils)
+│   │   │   └── resources/
+│   │   │       ├── application.properties
+│   │   │       └── ia/                          (Módulo Python — FastAPI + RAG)
+│   │   │           ├── api.py                   (FastAPI — endpoint /prompt)
+│   │   │           ├── arquivos/                (Base de conhecimento PDF)
+│   │   │           └── notebook/                (Notebooks + modelo pkl)
+│   │   └── test/
+│   │       ├── java/com/scoutplay/ScoutPlay/
+│   │       │   ├── services/                    (Testes unitários — JUnit 5 + Mockito)
+│   │       │   └── bdd/                         (Cucumber runner + step definitions)
+│   │       └── resources/
+│   │           └── features/                    (Arquivos .feature Gherkin — PT)
+│   ├── uploads/
+│   │   ├── media/                               (Arquivos de posts)
+│   │   └── avatars/                             (Fotos de perfil)
+│   └── pom.xml
+│
+├── front-end/                               (SPA React 19 + Vite — Node 20)
+│   ├── src/
+│   │   ├── api/                             (API.ts, tipos.ts)
+│   │   ├── components/                      (Header, ProfilePostList, ui/)
+│   │   ├── routes/                          (feed, login, signup, user/$user, post/$post_id, settings)
+│   │   └── styles.css
+│   └── package.json
+│
 ├── docs/
 │   ├── requisitos/
 │   │   ├── requisitos-funcionais.md
@@ -228,11 +237,12 @@ ScoutPlay/
 │   └── testes/
 │       ├── plano-de-teste.md
 │       ├── roteiros-de-teste.md
-│       ├── usabilidade.md                   (a preencher)
-│       └── evidencias/                      (prints dos testes)
-├── uploads/
-│   └── fotos_perfil/
-├── pom.xml
+│       ├── usabilidade.md
+│       └── evidencias/                      (prints / logs dos testes)
+│
+├── slides/
+│   └── apresentacao.md                      (Slides da apresentação final)
+│
 └── README.md
 ```
 
@@ -327,30 +337,55 @@ ScoutPlay/
 ### ▶️ Rodar todos os testes automatizados
 
 ```bash
-# Rodar testes unitários (JUnit 5 + Mockito)
+# Entrar na pasta do back-end
+cd back-end
+
+# Rodar testes unitários (JUnit 5 + Mockito) + BDD (Cucumber)
 ./mvnw test
+
+# Windows — usar wrapper local:
+.\mvnw.cmd test
 
 # Rodar apenas um arquivo de teste específico
-./mvnw test -Dtest=AtletaServiceTest
+./mvnw test -Dtest=UsuarioServiceTest
 
-# Gerar relatório de cobertura JaCoCo
-./mvnw test
-# Abrir: target/site/jacoco/index.html
+# Gerar relatório de cobertura JaCoCo (gerado automaticamente com ./mvnw test)
+# Abrir no navegador: back-end/target/site/jacoco/index.html
 
 # Relatório Cucumber (BDD)
-# Abrir: target/cucumber-reports/report.html
+# Abrir no navegador: back-end/target/cucumber-reports/report.html
 ```
 
-**Classes testadas e cobertura:**
+**Classes testadas:**
 
 | Classe | Tipo | Testes |
 |---|---|---|
-| `AtletaService` | Unitário | 10 cenários (criação, CPF/e-mail duplicado, senha, update, delete) |
-| `OlheiroService` | Unitário | 8 cenários (criação, duplicidade, update, delete) |
-| `LoginService` | Unitário | 6 cenários (atleta, olheiro, responsável, senha inválida, e-mail inexistente) |
-| `LoginController` | Integração (MockMvc) | 3 cenários (atleta, olheiro, credenciais inválidas) |
-| Autenticação | BDD (Cucumber) | 5 cenários Gherkin |
-| Cadastro de atleta | BDD (Cucumber) | 4 cenários Gherkin |
+| `UsuarioService` | Unitário (JUnit 5 + Mockito) | 11 cenários: cadastro, CPF/e-mail duplicado, senha nula/branco, codificação de senha, busca por ID, perfil, adição/remoção de info |
+| Autenticação | BDD (Cucumber) | 5 cenários Gherkin (`autenticacao.feature`) |
+| Cadastro de atleta | BDD (Cucumber) | 4 cenários Gherkin (`cadastro_atleta.feature`) |
+| Posts | BDD (Cucumber) | 4 cenários Gherkin (`posts.feature`) |
+| Perfil | BDD (Cucumber) | 4 cenários Gherkin (`perfil.feature`) |
+
+**Total: 11 testes unitários + 17 cenários BDD automatizados**
+
+### ▶️ Rodar o frontend
+
+```bash
+cd front-end
+npm install          # primeira vez
+npm run dev          # inicia em http://localhost:5173
+
+# Windows com Node sem PATH:
+"C:\Program Files\nodejs\npm.cmd" run dev
+```
+
+### ▶️ Rodar o módulo de IA
+
+```bash
+cd back-end/src/main/resources/ia
+pip install -r requirements.txt   # primeira vez
+uvicorn api:app --host 0.0.0.0 --port 8081
+```
 
 ### Opção 2: Usando Postman
 
