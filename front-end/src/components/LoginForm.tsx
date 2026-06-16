@@ -1,4 +1,4 @@
-import Input from "#/components/ui/Input"
+import Input from "#/components/ui/InputField"
 import { useFormStatus } from "react-dom";
 import { Link, useNavigate } from "@tanstack/react-router"
 import { useState } from "react";

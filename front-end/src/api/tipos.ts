@@ -86,6 +86,7 @@ export type PostDTO = {
         /* Fala se o perfil que está logado já deu like no post */
         deuLike: boolean,
         quantidadeLike: number,
+        quantidadeComentarios: number,
         destaques?: PostHighlightDTO[] 
     },
     criadoEm: Date,

@@ -1,14 +1,14 @@
-import { createFileRoute, Link } from '@tanstack/react-router'
-import { LoggedHeader } from '#/components/Header';
+import { createFileRoute, Link, useNavigate } from '@tanstack/react-router'
+import Header from '#/components/Header';
 import Footer from '#/components/Footer';
 import API from '#/api/API';
 import { useEffect, useState } from 'react';
-import type { CommentDTO, PostDetailsDTO, UserSummaryDTO } from '#/api/tipos';
+import type { CommentDTO, PostDetailsDTO, PostHighlightDTO } from '#/api/tipos';
 import ProfilePicture from '#/components/ui/ProfilePicture';
-import type { UUID } from 'crypto';
+import TextField from '#/components/ui/TextField';
+import { mesclar } from '#/components/PostComponent';
 
-const api = new API
-
+const api = new API;
 export const Route = createFileRoute('/post/$post_id')({
   component: RouteComponent,
   loader: async ({params}) => {
@@ -16,179 +16,163 @@ export const Route = createFileRoute('/post/$post_id')({
   }
 })
 
-function Comment({user, valor}: {user: UserSummaryDTO, valor: string}) {
-  return <div className='flex gap-2 px-2 py-1 items-center'>
-    <Link to='/user/$user' params={{user: user.username}}>
-      <ProfilePicture user={user} className='w-8' />
-    </Link>
-    <span className='text-sm'>{valor}</span>
-  </div>
-}
+function RouteComponent() {
+  const { post_id } = Route.useLoaderData();
+  const [post, definirPost] = useState<PostDetailsDTO>();
+  const [comentarios, definirCommentarios] = useState([] as CommentDTO[]);
+  const [listaDestaques, setListaDestaques] = useState(post?.interacoes.destaques ?? [])
+  const navigate = useNavigate();
 
-function LikeButton({postUrl, contagemAtualDeLike, usuarioJaDeuLike}: {postUrl: string, contagemAtualDeLike: number, usuarioJaDeuLike: boolean}) {
-  const [contadorLike, definirContadorLike] = useState(contagemAtualDeLike);
-  const [likeDoUsuarioLogado, definirLikeDoUsuarioLogado] = useState(usuarioJaDeuLike);
+  useEffect(() => {
+      api.obterPost(post_id)
+        .then((data) => {
+          definirPost(data)
+          api.obterDestaques(data.url)
+            .then(listaDestaques => {
+                setListaDestaques((destaquesQueJaPossui) => mesclar(destaquesQueJaPossui, listaDestaques))
+          })
+          api.obterComentarios(data.url)
+            .then(dados => definirCommentarios(dados))
+      })
+  }, [])
 
-  const enviarGostei = async () => {
-    const result = await api.darLikeEmPost(postUrl)
-    if(result === true) {
-      definirContadorLike(contadorLike + 1)
-      definirLikeDoUsuarioLogado(!likeDoUsuarioLogado)
+  function HighlightButtonComponent({post, destaque}: {post: PostDetailsDTO, destaque: PostHighlightDTO}) {
+    const darDestaque = async () => {
+      await api.darDestaque(post.url, {id: destaque.aliasId, texto: destaque.nome});
+      navigate({reloadDocument: true})
     }
+    
+    const retirarDestaque = async () => {
+      if(!destaque.aliasId) return;
+      await api.retirarDestaque(post.url, destaque.aliasId)
+      navigate({reloadDocument: true})
+    }
+
+    return (
+    <>
+      {
+        destaque.marcadoPeloUsuario
+        ? (
+          <button onClick={retirarDestaque} className="cursor-pointer uppercase font-semibold py-1 px-3 shrink-0 rounded-full border border-mist-300 text-xs/4 relative bg-mist-100 hover:bg-mist-50">
+              <span>{destaque.nome}</span>
+              { destaque.count < 10 && <span className='w-5 h-5 flex items-center text-mist-700 justify-center bg-white absolute bottom-0 end-0 rounded-full border border-mist-300 translate-x-3 translate-y-3'>{destaque.count}</span>}
+              { destaque.count < 100 && <span className='w-6 h-6 flex items-center text-mist-700 justify-center bg-white absolute bottom-0 end-0 rounded-full border border-mist-300 translate-x-3 translate-y-3'>{destaque.count}</span>}
+              { destaque.count >= 100 && <span className='w-10 h-6 flex items-center text-mist-700 justify-center bg-white absolute bottom-0 end-0 rounded-full border border-mist-300 translate-x-6 translate-y-4'>{destaque.count}</span>}
+          </button>
+        )
+        : (
+          <button onClick={darDestaque} className="cursor-pointer uppercase font-semibold py-1 px-3 shrink-0 rounded-full border border-mist-300 text-xs/4 relative text-mist-500 hover:bg-mist-50">
+              <span>{destaque.nome}</span>
+              { destaque.count < 10 && <span className='w-5 h-5 flex items-center text-mist-700 justify-center bg-white absolute bottom-0 end-0 rounded-full border border-mist-300 translate-x-3 translate-y-3'>{destaque.count}</span>}
+              { destaque.count < 100 && <span className='w-6 h-6 flex items-center text-mist-700 justify-center bg-white absolute bottom-0 end-0 rounded-full border border-mist-300 translate-x-3 translate-y-3'>{destaque.count}</span>}
+              { destaque.count >= 100 && <span className='w-10 h-6 flex items-center text-mist-700 justify-center bg-white absolute bottom-0 end-0 rounded-full border border-mist-300 translate-x-6 translate-y-4'>{destaque.count}</span>}
+          </button>
+        )
+      }
+    </>
+      
+    )
   }
-  const enviarNaoGostei = async () => {
-    const result = await api.darDislikeEmPost(postUrl)
-    if(result === true) {
-      definirContadorLike(contadorLike - 1)
-      definirLikeDoUsuarioLogado(!likeDoUsuarioLogado)
-    }
+  
+  const enviarComentario = async (form: FormData) => {
+    if(!post) return;
+    const comentario = form.get("comment")!.toString();
+    const result = await api.enviarComentario(post.url, comentario);
+    definirCommentarios([...comentarios, result])
   }
 
   return (
     <>
-      { !likeDoUsuarioLogado 
-        ? (
-          <button onClick={enviarGostei} className='relative transition focus:backdrop-blur-sm focus:outline-2 outline-offset-3 outline-neutral-100 border-1 border-slate-100 p-5 flex flex-col items-center justify-center rounded-full cursor-pointer text-slate-100 hover:bg-white/50 hover:border-white/0 hover:text-slate-950 hover:backdrop-blur-sm focus:bg-white/50 focus:border-white/0 focus:text-slate-950'>
-            <span className="-translate-y-1 material-symbols-outlined" style={{fontSize: "1rem", lineHeight: '1em'}}> thumb_up </span>
-            <span className='-translate-y-0.5 absolute bottom-2' style={{fontSize: ".8rem"}}> {contadorLike}</span>
-          </button>  
-        )
-        : (
-          <button onClick={enviarNaoGostei} className='relative transition focus:backdrop-blur-sm focus:outline-2 outline-offset-3 outline-neutral-100 border-1 border-slate-100 p-5 flex flex-col items-center justify-center rounded-full cursor-pointer bg-white/50 border-white/0 text-slate-950 backdrop-blur-sm hover:bg-white/20 hover:text-white focus:bg-white/20 focus:text-white'>
-            <span className="-translate-y-1 material-symbols-outlined" style={{fontSize: "1rem", lineHeight: '1em'}}> thumb_up </span>
-            <span className='-translate-y-0.5 absolute bottom-2' style={{fontSize: ".8rem"}}> {contadorLike}</span>
-          </button>  
+      {
+        post && (
+          <div className='w-screen min-h-screen bg-pattern field-pattern flex flex-col relative'>
+            <Header />
+            <main className='grow-1 flex container mx-auto'>
+              <div className="card m-auto overflow-hidden flex w-full max-w-[1200px] h-[60vh]">
+                <div className='basis-7/12 bg-mist-900 flex items-center justify-center shrink-0 overflow-hidden'>
+                  {
+                    post.media.mimeType.startsWith("image")
+                    ? <img className='w-full h-full grow object-contain object-center max-w-full' src={api.obterMidia(post.media.src)}/>
+                    : <video className='w-full grow object-contain object-center max-w-full' src={api.obterMidia(post.media.src)} muted loop autoPlay={true}></video>
+                  }
+                </div>
+                <div className='basis-5/12 shrink-0 h-full flex flex-col overflow-hidden'>
+                  <div className='border-b-1 shrink-0 border-gray-300 p-2 flex gap-2 items-center overflow-hidden'>
+                    <Link to='/user/$user' params={{user: post.autor.username}}>
+                      <ProfilePicture user={post.autor} className="w-10" />
+                    </Link>
+                    <div className=''>
+                      <Link to='/user/$user' params={{user: post.autor.username}} className='font-semibold h6 text-mist-700 text-sm/4'>{`${post.autor.nome} ${post.autor.sobrenome}`}</Link>
+                      <FollowButtonComponent username={post.autor.username} value={post.metadados.segueConta} />
+                    </div>
+                  </div>
+                  <div className='overflow-auto grow pt-5'>
+                    { comentarios.length == 0 
+                      ? <span className='block text-center text-mist-400 py-8'>Sem comentários ainda</span>
+                      : comentarios.map((comment, index) => <CommentComponent key={index} comentario={comment} />)
+                    }
+                  </div>
+                  <div className='relative w-full'>
+                    <div className='flex gap-4 overflow-x-auto no-scrollbar w-full px-4 py-4'>
+                      {listaDestaques.map((destaque, index) => <HighlightButtonComponent key={index} destaque={destaque} post={post} />)}
+                    </div>
+                  </div>
+                  <form action={enviarComentario} className='border-t-1 shrink-0 border-gray-300 p-2 flex gap-2 items-center overflow-hidden flex items-center justify-center'>
+                    <TextField fieldName='comment' placeholder='Faça um comentário' className='w-full'/>
+                    <button className='bg-mist-200 outline-0 p-2 rounded-full relative flex items-center justify-center cursor-pointer transition hover:bg-indigo-200 hover:text-indigo-900 focus:bg-indigo-200 focus:text-indigo-900'>
+                      <i className="ri-send-ins-line translate-y-0.5"></i>
+                    </button>
+                  </form>
+                </div>
+              </div>
+            </main>
+            <Footer />
+          </div>
         )
       }
     </>
   )
 }
 
-export function PostMediaComponent({post, className}: {post: PostDetailsDTO, className?: string}) {
+function FollowButtonComponent({username, value}: {username: string, value: boolean}) {
+  const [serverRequested, setServerRequested] = useState(false);
+      const [segueConta, setSegueConta] = useState(value);
+      const seguirConta = async () => {
+          if(serverRequested) return;
+          setServerRequested(true);
+          const result = await api.seguir(username);
+          setServerRequested(false);
+          if(!result) {
+          setSegueConta(false);
+          return;
+          }
+          else setSegueConta(true);
+      }
+      const pararDeSeguirConta = async () => {
+          if(serverRequested) return;
+          setServerRequested(true);
+          const result = await api.pararDeSeguir(username);
+          setServerRequested(false);
+          if(!result) {
+          setSegueConta(true);
+          return;
+          }
+          else setSegueConta(false);
+      }
   
-  const retirarDestaque = async (destaqueId: UUID) => {
-    if(!post) return console.log("sem post");
-    if(!destaqueId) return console.log("sem destaqueId");
-    const data = await api.retirarDestaque(post.url, destaqueId);
-    if(!data) return;
-  }
+      return segueConta
+          ? <button onClick={pararDeSeguirConta} className='text-xs/3 block hover:text-mist-500 cursor-pointer'>Seguindo</button>
+          : <button onClick={seguirConta} className='text-xs/3 block hover:text-mist-500 cursor-pointer'>Seguir</button>
+}
+
+function CommentComponent({comentario}: {comentario: CommentDTO}) {
   return (
-    <div className={`relative h-full ${className ?? ""}`}>
-      <div className="absolute w-full h-full flex justify-start items-end overflow-hidden gap-2">
-        <div className="absolute z-0 top-0 start-0 end-0 bottom-0 bg-linear-to-b from-slate-0 to-slate-950/40"></div>
-        <div className="shrink-0 bottom-16 start-4 absolute z-1">
-          <LikeButton contagemAtualDeLike={post.interacoes?.quantidadeLike ?? 0} postUrl={post.url} usuarioJaDeuLike={post.interacoes?.deuLike ?? false} />
-        </div>
-        <div className='grow-1 overflow-hidden backdrop-blur-xs'>
-          <div className='w-full p-3 ps-4 flex gap-4 items-center justify-start snap-x scroll-pl-6 overflow-x-auto no-scrollbar'>
-            {post.interacoes?.destaques?.map((destaque, index) => (
-              <span onClick={() => retirarDestaque(destaque.aliasId!)} key={index} className={`shrink-0 p-1 rounded-full px-4 flex items-center border border-white relative ${destaque.marcadoPeloUsuario ? "bg-white text-black" : 'text-white'}`}>
-                #{destaque.nome} 
-                <span className='absolute w-5 h-5 aspect-square rounded-full font-bold bottom-0 translate-x-2 translate-y-1 end-0 bg-white text-black flex items-center justify-center text-xs'>
-                  {destaque.count}
-                </span>
-              </span>
-            ))}
-          </div>
-        </div>
+    <div className='block border-red-400 w-full px-3 mb-4 flex gap-3 items-center'>
+      <ProfilePicture user={comentario.por} className="w-9 shrink-0" />
+      <div className='flex flex-col gap-0.5'>
+        <span className='text-xs/3 font-semibold h6 text-mist-600'>{`${comentario.por.nome} ${comentario.por.sobrenome}`}</span>
+        <p className='pt-0.5'>{comentario.texto}</p>
       </div>
-      {
-        post.media.mimeType.startsWith("video")
-        ? <video className='object-fit object-center' loop autoPlay={true} muted src={api.obterMidia(post.media.src)}></video>
-        : <img className='object-contain object-center w-[inherit] h-[inherit] m-auto' style={{maxHeight: "300px"}} src={api.obterMidia(post.media.src)} />
-      }
     </div>
   )
 }
-
-function RouteComponent() {
-  const { post_id } = Route.useLoaderData();
-  const [post, definirPost] = useState<PostDetailsDTO>();
-  const [comentarios, definirCommentarios] = useState([] as CommentDTO[]);
-
-  useEffect(() => {
-    api.obterPost(post_id)
-      .then((data) => {
-        definirPost(data)
-        api.obterComentarios(data.url)
-          .then(dados => definirCommentarios(dados))
-      })
-  }, [])
-
-  const enviarComentario = async (form: FormData) => {
-    if(!post) return;
-    const comentario = form.get("comentario")!.toString();
-    const result = await api.enviarComentario(post.url, comentario);
-    definirCommentarios([...comentarios, result])
-  }
-
-  const seguir = async () => {
-    if(!post) return;
-    const result = await api.seguir(post.autor.username);
-    definirPost((_old): any => ({
-        ..._old,
-        metadados: {
-          segueConta: true
-        }
-      }))
-  }
-
-  const deixarDeSeguir = async () => {
-    if(!post) return;
-    const result = await api.pararDeSeguir(post.autor.username);
-    definirPost((_old): any => ({
-        ..._old,
-        metadados: {
-          segueConta: false
-        }
-      }))
-  }
-
-  const darDestaque = async () => {
-    if(!post) return;
-    const data = await api.darDestaque(post.url, {texto: "Teste"});
-    if(!data) return;
-  }
-
-  return (
-    <div className='page-noscroll flex flex-col'>
-      <LoggedHeader/>
-      {
-        post && (
-        <div className="container grow-1 mx-auto flex items-center justify-center">
-          <div className='shadow-lg grid grid-cols-12 rounded-lg overflow-hidden overflow-hidden' style={{maxHeight: "60vh"}}>
-              <div className="col-span-8 bg-slate-900 flex items-center h-full relative">
-                <PostMediaComponent post={post} />
-              </div>
-              <div className="col-span-4 bg-slate-100 overflow-hidden flex h-full flex-col">
-                <div className='flex gap-2 p-2 border-b-1 border-slate-300 bg-slate-200'> 
-                  <ProfilePicture user={post.autor} className="w-9" />
-                  <div className='flex flex-col justify-center'>
-                    <small className='leading-4 font-bold'>{post.autor.nome}</small>
-                    { post.metadados?.segueConta
-                       ? <button onClick={deixarDeSeguir} className='text-start text-xs/3 cursor-pointer opacity-50 hover:opacity-75'>Deixar de seguir</button>
-                       : <button onClick={seguir} className='text-start text-xs/3 cursor-pointer opacity-50 hover:opacity-75'>Seguir</button>
-                    }
-                  </div>
-                </div>
-                <div className='flex flex-col overflow-auto grow-1 py-2'>
-                  {comentarios.length == 0 && <span className='opacity-50 text-bold w-full text-center block p-4'>Sem comentários ainda</span>}
-                  {comentarios.map(((comentario, index) => <Comment key={index} user={comentario.por} valor={comentario.texto} /> ))}
-                </div>
-                <form action={enviarComentario} className='p-4 relative text-xs flex gap-2'>
-                  <textarea name="comentario" placeholder='Adicione um comentário...' className='outline-none w-full p-2 border-1 border-slate-300 rounded-md hover:border-slate-400 hover:bg-slate-200 focus:border-slate-400 focus:bg-slate-200 resize-none'></textarea>
-                  <button type="submit" className='flex items-center p-2 bg-white hover:bg-sky-700 m-auto hover:text-white focus:bg-sky-700 focus:text-white transition cursor-pointer rounded-full outline-none'>
-                    <span className="material-symbols-outlined" style={{fontSize: "1.2rem"}}> send </span>
-                  </button>
-                </form>
-              </div>
-            </div>
-          <button className='block p-2 bg-red-100' onClick={darDestaque}>Dar destaque ("Teste")</button>
-        </div>
-        )
-      }
-      <Footer/>
-    </div>
-  )
-}
-

@@ -249,6 +249,15 @@ export default class {
         if(request.status != 200) return false;
         return true;
     }
+    obterDestaques = async (postId: UUID): Promise<PostHighlightDTO[]> => {
+        const request = await fetch(`${this.BACKEND_ENDPOINT}/post/${postId}/highlight`, {
+            method: "GET",
+            credentials: "include",
+            headers: this.GET_HEADERS,
+        });
+        const { data } = await request.json();
+        return data;
+    }
     darDestaque = async (postId: UUID, input: {id?: UUID, texto: string}): Promise<PostHighlightDTO> => {
         const request = await fetch(`${this.BACKEND_ENDPOINT}/post/${postId}/highlight`, {
             method: "POST",
@@ -378,7 +387,7 @@ export default class {
     private salvarDadosUsuarioNoNavegador = (userData: UserSummaryDTO) => {
         localStorage.setItem(this.USER_CACHE_KEY, userData.username);
     }
-    private deletarDadosUsuarioNoNavegador = () => {
+    deletarDadosUsuarioNoNavegador = () => {
         localStorage.removeItem(this.USER_CACHE_KEY)
     }
     obterDadosUsuarioNoNavegador = (): string | null => {

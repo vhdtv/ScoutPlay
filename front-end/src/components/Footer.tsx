@@ -1,9 +1,7 @@
 export default function Footer() {
   return (
-    <footer className='flex align-start w-full bg-slate-800 max-h-16 grow-0 shrink-0 border-t-1 border-slate-100'>
-      <div className="container mx-auto">
-        <div className="w-16 h-16 "></div>
-      </div>
+    <footer className='h-14 element flex items-center shrink-0 gap-3 px-5'>
+      <span className='text-xs text-mist-500 font-semibold'>ScoutPlay 2026</span>
     </footer>
   )
 }
