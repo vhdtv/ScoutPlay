@@ -14,5 +14,6 @@ import lombok.NoArgsConstructor;
 public class InteracoesDTO {
     protected Boolean deuLike;
     protected Integer quantidadeLike;
+    protected Integer quantidadeComentarios;
     protected ArrayList<PostHighlightDTO> destaques;
 }

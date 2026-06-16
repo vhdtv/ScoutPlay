@@ -20,6 +20,7 @@ import com.scoutplay.ScoutPlay.api.response.ApiResponse;
 import com.scoutplay.ScoutPlay.models.Post;
 import com.scoutplay.ScoutPlay.models.Usuario;
 import com.scoutplay.ScoutPlay.security.JwtTokenProvider;
+import com.scoutplay.ScoutPlay.services.ComentarioService;
 import com.scoutplay.ScoutPlay.services.FeedService;
 import com.scoutplay.ScoutPlay.services.UsuarioService;
 
@@ -29,6 +30,7 @@ import com.scoutplay.ScoutPlay.services.UsuarioService;
 public class FeedController {
     private final FeedService feedService;
     private final UsuarioService usuarioService;
+    private final ComentarioService comentarioService;
     private final JwtTokenProvider jwtTokenProvider;
 
     @GetMapping("/feed")
@@ -46,6 +48,7 @@ public class FeedController {
                     .interacoes(Optional.of(InteracoesDTO.builder()
                         .destaques(null)
                         .quantidadeLike(item.getUsuariosQueCurtiram().size())
+                        .quantidadeComentarios(comentarioService.buscarTodosPorPost(item).size())
                         .deuLike(item.getUsuariosQueCurtiram().stream().anyMatch(usuarioQueCurtiu -> usuarioQueCurtiu.getAliasId().equals(usuarioLogado.getAliasId())))
                         .build()))
                     .media(PostMediaData.builder()
