@@ -46,6 +46,8 @@ public class Post extends TabelaBase {
         switch(this.obterExtensaoDaMidia()) {
             case "jpg":
                 return "image/jpg";
+            case "png":
+                return "image/png";
             case "mp4":
                 return "video/mp4";
             default: 
