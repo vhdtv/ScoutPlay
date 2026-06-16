@@ -37,6 +37,14 @@ export const Route = createRootRouteWithContext<MyRouterContext>()({
         rel: 'stylesheet',
         href: appCss,
       },
+      {
+        rel: "icon",
+        href: "/assets/logo_icon_small.png"
+      },
+      {
+        rel: 'stylesheet',
+        href: `https://cdn.jsdelivr.net/npm/remixicon@4.9.0/fonts/remixicon.css`,
+      },
     ],
   }),
   shellComponent: RootDocument,
@@ -51,10 +59,10 @@ function RootDocument({ children }: { children: React.ReactNode }) {
       <body>
         <TanStackQueryProvider>
           {children}
-          <TanStackDevtools
+          {/* <TanStackDevtools
             config={{ position: 'bottom-right' }}
             plugins={[ { name: 'Tanstack Router', render: <TanStackRouterDevtoolsPanel />, }, TanStackQueryDevtools ]}
-          />
+          /> */}
         </TanStackQueryProvider>
         <Scripts />
       </body>

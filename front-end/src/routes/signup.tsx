@@ -1,91 +1,101 @@
+import API from '#/api/API';
 import Footer from '#/components/Footer'
-import Input from '#/components/ui/Input';
-import InputDate from '#/components/ui/InputDate';
-import InputStateField from '#/components/ui/InputStateField';
-import { createFileRoute, Link } from '@tanstack/react-router'
+import { createFileRoute, Link, useNavigate } from '@tanstack/react-router'
 import { useState } from 'react';
+import InputField from '#/components/ui/InputField';
+import PasswordField from '#/components/ui/PasswordField';
+import DateField from '#/components/ui/DateField';
+import type { ClientSignupInputDTO } from '#/api/tipos';
 
 enum STEPS {ABOUT_YOU, PROFISSIONAL_HISTORY, ACCESS_FORM};
 
+const api = new API;
+
 export const Route = createFileRoute('/signup')({
   component: RouteComponent,
+  validateSearch: (search: Record<string, unknown>) => {
+    return {
+      tipoConta: search?.tipoConta as string || ""
+    }
+  }
 })
 
+// @ts-ignore
+let signupData: ClientSignupInputDTO = {};
 function RouteComponent() {
   const SECTIONS = ["Sobre Você", "Formação Profissional", "Forma de Acesso"]
-  let [currentSection, setCurrentSection] = useState(STEPS.ABOUT_YOU);
+  const { tipoConta } = Route.useSearch();
+  signupData.tipoConta = tipoConta;
   
-  const savePersonalInfo = (form: FormData) => {
-    console.log(form.get("Estado"))
-    setCurrentSection(STEPS.PROFISSIONAL_HISTORY)
-  }
+  const [currentSection, setCurrentSection] = useState(STEPS.ABOUT_YOU);
+  const navigate = useNavigate();
   
-  const saveProfissionalHistoryInfo = (form: FormData) => {
-    console.log(form.get(""))
-    setCurrentSection(STEPS.ACCESS_FORM)
+  const fazerCadastro = async () => {
+    await api.fazerCadastro(signupData);
+    api.deletarDadosUsuarioNoNavegador()
+    await api.fazerLogin(signupData.email, signupData.senha);
+    navigate({to: "/feed"});
   }
-  const renderSwitch = () => {
+
+  const savePersonalData = (form: FormData) => {
+      signupData.nome = form.get("nome")!.toString();
+      signupData.sobrenome = form.get("sobrenome")!.toString();
+      signupData.cpf = form.get("cpf")!.toString();
+      signupData.dataNascimento = new Date(form.get("dataNascimento")!.toString());
+    setCurrentSection(STEPS.ACCESS_FORM);
+  }
+  const saveLoginData = (form: FormData) => {
+    signupData.email = form.get("email")!.toString();
+    signupData.senha = form.get("senha")!.toString();
+    fazerCadastro()
+  }
+
+  const renderCards = () => {
     switch(currentSection) {
       case STEPS.ABOUT_YOU:
       default:
-        return <form action={savePersonalInfo} className='w-full md:min-w-[670px]'>
-          <section className='shadow-lg rounded-lg mb-4 p-6'>
-            <Input fieldName='Seu Nome' className='mb-3'/>
-            <InputDate fieldName='Sua Data de Nascimento' className='mb-3' />
-            <div className='flex gap-3'>
-              <InputStateField fieldName='Estado' />
-              <Input fieldName='Cidade' />
-            </div>
-          </section>
-          <div className='flex justify-end items-center'>
-            <button className='button primary rounded-full px-12' type='submit'>Próximo</button>
+        return (
+          <div className="card p-6 w-full max-w-[600px] fade-in">
+            <h1 className='text-2xl/7 font-medium'>Fazer Cadastro</h1>
+            <h2 className='text-lg text-mist-500 font-semibold mb-6'>Dados Pessoais (1/2)</h2>
+            <form action={savePersonalData} className='flex flex-col gap-6'>
+              <div className='flex gap-3'>
+                <InputField fieldName='nome' label="Seu Nome" placeholder='Digite aqui' classNameContainer='grow basis-2/6' />
+                <InputField fieldName='sobrenome' label="Seu Sobrenome" placeholder='Digite aqui' classNameContainer='grow basis-4/6' />
+              </div>
+              <div className='flex gap-3'>
+                <InputField fieldName='cpf' label="Seu CPF" placeholder='Digite aqui' classNameContainer='grow basis-1/2' />
+                <DateField fieldName='dataNascimento' label="Data de nascimetno" />
+              </div>
+              <button className='grow text-white bg-emerald-600 hover:bg-emerald-700 focus:bg-emerald-700 outline-none rounded-full py-2 px-12 font-semibold text-sm self-start cursor-pointer'> Próximo </button>
+            </form>
           </div>
-        </form>
-      case STEPS.PROFISSIONAL_HISTORY:
-        return <form action={saveProfissionalHistoryInfo} className='w-full md:min-w-[670px]'>
-          <section className='shadow-lg rounded-lg mb-4 p-6'>
-            <Input fieldName='Seu Nome' className='mb-3'/>
-            <InputDate fieldName='Sua Data de Nascimento' className='mb-3' />
-            <div className='flex gap-3'>
-              <InputStateField fieldName='Estado' />
-              <Input fieldName='Cidade' />
-            </div>
-          </section>
-          <div className='flex justify-end items-center gap-4'>
-            <button className='button primary-outlined border rounded-full px-8' type='submit'>Pular</button>
-            <button className='button primary rounded-full px-12' type='submit'>Próximo</button>
-          </div>
-        </form>
+        )
       case STEPS.ACCESS_FORM:
-        return <form action={saveProfissionalHistoryInfo} className='w-full md:min-w-[670px]'>
-          <section className='shadow-lg rounded-lg mb-4 p-6'>
-            <Input type="email" fieldName='E-Mail' className='mb-3'/>
-            <Input type="password" fieldName='Senha' className='mb-3'/>
-            <Input type="password" fieldName='Confirmar senha' className='mb-3'/>
-          </section>
-          <div className='flex justify-end items-center'>
-            <button className='button primary rounded-full px-12' type='submit'>Criar Conta</button>
+        return (
+          <div className="card p-6 w-full max-w-[600px] fade-in">
+            <h1 className='text-2xl/7 font-medium'>Fazer Cadastro</h1>
+            <h2 className='text-lg text-mist-500 font-semibold mb-6'>Forma de Acesso (2/2)</h2>
+            <form action={saveLoginData} className='flex flex-col gap-6'>
+              <InputField fieldName='email' label="Seu email" placeholder='Digite aqui' />
+              <PasswordField fieldName='senha' label="Senha" placeholder='Digite aqui' hideIcon={true} />
+              <PasswordField fieldName='confirmarSenha' label="Confirmar Senha" placeholder='Digite aqui' hideIcon={true} />
+              <button className='grow text-white bg-emerald-600 hover:bg-emerald-700 focus:bg-emerald-700 outline-none rounded-full py-2 px-12 font-semibold text-sm self-start cursor-pointer'> Próximo </button>
+            </form>
           </div>
-        </form>
-        break;
+        )
     }
   }
 
 
-  return <div className='page-noscroll flex flex-col'>
-      <div className='max-w-[1024px] mx-auto content grow-1 flex'>
-        <section className="flex flex-col p-4 justify-stretch w-full">
-          <div className='mt-16'>
-            <Link className="text-sm primary-outlined inline-flex items-center gap-2 transition transition-discrete text-sky-600 hover:text-sky-900 focus:text-sky-900" to="/login">
-              <span className="material-symbols-outlined">arrow_back</span>
-              <span>Voltar para Login</span>
-            </Link>
-            <h1 className='text-sky-950 font-extrabold text-2xl'>Crie sua conta</h1>
-            <p className='text-sky-950 font-extrabold mb-3'>{`${SECTIONS[currentSection]} (${currentSection+1}/${SECTIONS.length})`}</p>
-          </div>
-          { renderSwitch() }
-        </section>
+  return (
+      <div className='w-screen h-screen bg-pattern soccer-pattern flex flex-col relative'>
+        <main className='grow-1 flex container mx-auto'>
+          <section className='flex flex-col grow items-center justify-center'>
+            {renderCards()}
+          </section>
+        </main>
+        <Footer />
       </div>
-      <Footer />
-    </div>
+    )
 }

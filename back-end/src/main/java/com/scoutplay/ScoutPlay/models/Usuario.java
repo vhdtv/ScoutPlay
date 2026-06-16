@@ -2,7 +2,6 @@ package com.scoutplay.ScoutPlay.models;
 
 import jakarta.persistence.CascadeType;
 import jakarta.persistence.Entity;
-import jakarta.persistence.FetchType;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.JoinTable;
 import jakarta.persistence.ManyToMany;
@@ -16,8 +15,12 @@ import java.time.LocalDate;
 import java.time.Period;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.HashSet;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
+import java.util.Set;
 import java.util.UUID;
 
 import com.fasterxml.jackson.annotation.JsonManagedReference;
@@ -40,7 +43,7 @@ public class Usuario extends TabelaBase {
     @OneToMany(mappedBy = "usuario", cascade = CascadeType.ALL)
     @Setter(AccessLevel.NONE)
     @JsonManagedReference
-    private List<DetalhePerfil> detalhePerfil = new ArrayList<>();
+    private Set<DetalhePerfil> detalhePerfil = new HashSet<>();
     @ManyToMany
     @JoinTable(
       name = "t_like",
@@ -48,6 +51,22 @@ public class Usuario extends TabelaBase {
       inverseJoinColumns = @JoinColumn(name = "fk_post")
     )
     private Map<UUID, Post> postsCurtidos = new HashMap<UUID, Post>();
+    @ManyToMany
+    @JoinTable(
+      name = "t_contas_que_segue",
+      joinColumns = @JoinColumn(name = "fk_usuario"),
+      inverseJoinColumns = @JoinColumn(name = "fk_seguindo")
+    )
+    private Set<Usuario> contasQueSegue = new HashSet<>();
+    @ManyToMany(mappedBy = "contasQueSegue")
+    private Set<Usuario> contasQueMeSeguem = new HashSet<>();
+    @ManyToMany
+    @JoinTable(
+      name = "t_tipo_conta",
+      joinColumns = @JoinColumn(name = "fk_usuario"),
+      inverseJoinColumns = @JoinColumn(name = "fk_tipo_conta")
+    )
+    private Set<TipoConta> poderesConta = new HashSet<>();
 
     protected Usuario() {}
     public Usuario(String _nome, String _email, String _senha, LocalDate _dataNascimento) {
@@ -108,6 +127,31 @@ public class Usuario extends TabelaBase {
         if (naoDeuLike) return;
         this.postsCurtidos.remove(post.getAliasId());
         post.getUsuariosQueCurtiram().remove(this);
+    }
+
+    public void seguir(Usuario conta) {
+        if(this.contasQueSegue.contains(conta)) throw new Error("Já segue esta conta");
+        this.contasQueSegue.add(conta);
+        conta.contasQueMeSeguem.add(this);
+    }
+
+    public void pararDeSeguir(Usuario conta) {
+        if(!this.contasQueSegue.contains(conta)) throw new Error("Já não segue esta conta");
+        this.contasQueSegue.remove(conta);
+        conta.contasQueMeSeguem.remove(this);
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        Usuario that = (Usuario) o;
+        return this.getAliasId().equals(that.getAliasId());
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(id);
     }
 
 }

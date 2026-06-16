@@ -26,7 +26,13 @@ public class MediaController {
             Path caminhoArquivo = Paths.get("uploads/media").resolve(filename);
             File arquivo = caminhoArquivo.toFile();
             
-            if (!arquivo.exists()) return ResponseEntity.notFound().build();
+            if (!arquivo.exists()) {
+                caminhoArquivo = Paths.get("uploads/fotos_perfil").resolve(filename);
+                arquivo = caminhoArquivo.toFile();
+                if (!arquivo.exists()) {
+                    return ResponseEntity.notFound().build();
+                }
+            }
             Resource resource = new FileSystemResource(arquivo);
             String contentType = Files.probeContentType(caminhoArquivo);
             if (contentType == null) {

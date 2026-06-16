@@ -1,5 +1,6 @@
 package com.scoutplay.ScoutPlay.services;
 
+import com.scoutplay.ScoutPlay.enums.TipoContaEnum;
 import com.scoutplay.ScoutPlay.models.Avaliacao;
 import com.scoutplay.ScoutPlay.models.DetalhePerfil;
 import com.scoutplay.ScoutPlay.models.TipoConta;
@@ -8,6 +9,8 @@ import com.scoutplay.ScoutPlay.repositories.AvaliacaoRepository;
 import com.scoutplay.ScoutPlay.repositories.DetalhePerfilRepository;
 import com.scoutplay.ScoutPlay.repositories.UsuarioRepository;
 import lombok.RequiredArgsConstructor;
+
+import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -26,9 +29,7 @@ public class AIContextService {
 
     @Transactional(readOnly = true)
     public String montarContexto() {
-        List<Usuario> atletas = usuarioRepository
-                .findAllAtivosByTipoContaId(TipoConta.ATLETA, Pageable.unpaged())
-                .getContent();
+        Page<Usuario> atletas = usuarioRepository.findByTipoConta(TipoContaEnum.ATLETA, Pageable.unpaged());
 
         if (atletas.isEmpty()) {
             System.out.println(">>> [AVISO] Lista de atletas veio VAZIA do banco de dados!");

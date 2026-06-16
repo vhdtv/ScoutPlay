@@ -29,4 +29,5 @@ public class UserProfileSummary {
     private int idade;
     private Collection<DetalhePerfil> detalhes;
     private Collection<Post> posts;
+    private Boolean souEu;
 }

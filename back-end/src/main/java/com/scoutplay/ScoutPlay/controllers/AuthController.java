@@ -2,6 +2,7 @@ package com.scoutplay.ScoutPlay.controllers;
 
 import com.scoutplay.ScoutPlay.api.dto.ClientLoginInputDTO;
 import com.scoutplay.ScoutPlay.api.dto.ClientLoginOutputDTO;
+import com.scoutplay.ScoutPlay.api.dto.ClientSignupInputDTO;
 import com.scoutplay.ScoutPlay.api.dto.UserSummaryDTO;
 import com.scoutplay.ScoutPlay.api.response.ApiResponse;
 import com.scoutplay.ScoutPlay.services.AuthService;
@@ -24,12 +25,24 @@ import java.util.Map;
 @RequestMapping("/api")
 @RequiredArgsConstructor
 public class AuthController {
-    private final AuthService loginService;
+    private final AuthService authService;
     private final PasswordResetService passwordResetService;
+
+    @PostMapping("/signup")
+    public ResponseEntity<ApiResponse<UserSummaryDTO>> login(@Valid @RequestBody ClientSignupInputDTO dto) {
+        try {
+            ClientLoginInputDTO response = authService.cadastrar(dto);
+            return this.login(response);
+        }
+        catch(Exception e) {
+            System.out.println(e.getMessage());
+            return ResponseEntity.ok().body(ApiResponse.error("404", "Login realizado com sucesso"));
+        }
+    }
 
     @PostMapping("/login")
     public ResponseEntity<ApiResponse<UserSummaryDTO>> login(@Valid @RequestBody ClientLoginInputDTO request) {
-        ClientLoginOutputDTO loginResponse = loginService.autenticarUsuario(request);
+        ClientLoginOutputDTO loginResponse = authService.autenticarUsuario(request);
         ResponseCookie accessTokenCookie = ResponseCookie.from("access_token", loginResponse.getTokenAcesso())
             .httpOnly(true)
             .secure(false)

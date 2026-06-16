@@ -1,4 +1,8 @@
 package com.scoutplay.ScoutPlay.models;
+import java.util.Objects;
+
+import com.scoutplay.ScoutPlay.enums.TipoContaEnum;
+
 import jakarta.persistence.Entity;
 import jakarta.persistence.Id;
 import jakarta.persistence.Table;
@@ -15,16 +19,25 @@ public class TipoConta {
     @Setter(AccessLevel.NONE)
     private int id;
     @Setter(AccessLevel.NONE)
-    private boolean ativo = true;
+    private boolean ativo = true;    
     private String nome;
-    public static final int OLHEIRO = 1;
-    public static final int ATLETA = 2;
-    public static final int RESPONSAVEL = 3;
-    public static final int REPRESENTANTE_CLUBE = 4;
 
     public TipoConta() {}
-    public TipoConta(int _id, String _nome) {
-        this.nome = _nome;
-        this.id = _id;
+    public TipoConta(TipoContaEnum tipo) {
+        this.id = tipo.getId();
+        this.nome = tipo.getNome();
+    }
+    
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        TipoConta that = (TipoConta) o;
+        return id == that.id;
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(id);
     }
 }

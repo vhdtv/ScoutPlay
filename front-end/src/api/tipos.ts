@@ -13,7 +13,7 @@ export type UserProfileDTO = UserSummaryDTO & {
     tipoConta: TipoContaDTO[]
     detalhesPerfil: UserProfileDetailDTO
     posts: PostDTO[],
-    souEu?: boolean,
+    souEu: boolean,
     configuracoes?: ConfigItemDTO
 }
 
@@ -55,8 +55,10 @@ export type PostDataOutputDTO = {
 }
 
 export type PostHighlightDTO = {
-    texto: string,
-    contador: number
+    aliasId?: UUID,
+    nome: string,
+    count: number,
+    marcadoPeloUsuario: boolean,
 }
 
 export type PostDetailsDTO = PostDTO & {autor: UserSummaryDTO, metadados: {segueConta: boolean}}
@@ -84,6 +86,7 @@ export type PostDTO = {
         /* Fala se o perfil que está logado já deu like no post */
         deuLike: boolean,
         quantidadeLike: number,
+        quantidadeComentarios: number,
         destaques?: PostHighlightDTO[] 
     },
     criadoEm: Date,
@@ -92,6 +95,11 @@ export type PostDTO = {
         mimeType: HTMLSourceElement['type'],
         src: string,
     }
+}
+
+export type PostDataUpdateInputDTO = {
+    titulo?: string,
+    descricao?: string,
 }
 
 export type ConfigItemDTO = {
@@ -108,4 +116,32 @@ export type CommentDTO = {
 export type MensagemDTO = {
     autor: "IA" | "USUARIO",
     texto: string,
-  }
+}
+
+export type ConviteDTO = {
+    id: UUID,
+    aceito: boolean,
+    destinatario: UserSummaryDTO,
+    remetente: UserSummaryDTO,
+    mensagem: string,
+}
+
+export type ProfileUpdateInputDTO = {
+    nome?: string,
+    sobrenome?: string,
+    username?: string,
+    fotoPerfil?: File,
+    config?: ConfigItemDTO
+} & ConfigItemDTO;
+
+
+export type ClientSignupInputDTO = {
+    email: string,
+    senha: string,
+    username?: string,
+    dataNascimento: Date,
+    cpf: string,
+    nome: string,
+    sobrenome: string,
+    tipoConta: string,
+}

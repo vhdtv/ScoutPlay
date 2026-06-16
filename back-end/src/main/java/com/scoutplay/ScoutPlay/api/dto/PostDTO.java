@@ -3,7 +3,6 @@ package com.scoutplay.ScoutPlay.api.dto;
 import java.time.LocalDate;
 import java.util.Optional;
 import java.util.UUID;
-import java.util.ArrayList;
 
 import lombok.Getter;
 import lombok.NoArgsConstructor;

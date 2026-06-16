@@ -1,5 +1,6 @@
 package com.scoutplay.ScoutPlay.repositories;
 
+import com.scoutplay.ScoutPlay.enums.TipoContaEnum;
 import com.scoutplay.ScoutPlay.models.Usuario;
 
 import java.util.Optional;
@@ -14,16 +15,20 @@ public interface UsuarioRepository extends JpaRepository<Usuario, UUID> {
     boolean existsByCpf(String cpf);
     boolean existsByEmail(String email);
     Optional<Usuario> findByCpf(String cpf);
+    @Query("SELECT u FROM Usuario u LEFT JOIN FETCH u.poderesConta WHERE u.email = :email")
     Usuario findByEmail(String email);
-    Usuario findByUsernameIgnoreCase(String username);
+    @Query("SELECT u FROM Usuario u LEFT JOIN FETCH u.contasQueSegue WHERE LOWER(u.username) = LOWER(:username)")
+    Usuario findByUsernameIgnoreCase(@Param("username") String username);
+    @Query("SELECT u FROM Usuario u LEFT JOIN FETCH u.poderesConta LEFT JOIN FETCH u.detalhePerfil WHERE LOWER(u.username) = LOWER(:username)")
+    Usuario findByUsernameWithPoderesIgnoreCase(@Param("username") String username);
     Optional<Usuario> findByAliasId(UUID aliasId);
+
+    @Query("SELECT u FROM Usuario u LEFT JOIN FETCH u.contasQueSegue WHERE u.aliasId = :aliasId")
+    Optional<Usuario> findByAliasIdWithContasQueSegue(@Param("aliasId") UUID aliasId);
     
-    @Query("SELECT u FROM Usuario u LEFT JOIN FETCH u.postsCurtidos WHERE u.aliasId = :id")
-    Optional<Usuario> findByIdWithPostsCurtidos(@Param("id") UUID aliasId);
+    @Query("SELECT u FROM Usuario u LEFT JOIN FETCH u.postsCurtidos WHERE u.aliasId = :aliasId")
+    Optional<Usuario> findByIdWithPostsCurtidos(@Param("aliasId") UUID aliasId);
 
-    @Query("SELECT x.usuario FROM XUsuarioTipoConta x WHERE x.tipoConta.id = :tipoContaId")
-    Page<Usuario> findAllByTipoContaId(int tipoContaId, Pageable pageable);
-
-    @Query("SELECT x.usuario FROM XUsuarioTipoConta x WHERE x.tipoConta.id = :tipoContaId AND x.usuario.ativo = true")
-    Page<Usuario> findAllAtivosByTipoContaId(int tipoContaId, Pageable pageable);
+    @Query("SELECT u FROM Usuario u JOIN u.poderesConta p WHERE p.id = :#{#tipoEnum.id}")
+    Page<Usuario> findByTipoConta(@Param("tipoEnum") TipoContaEnum tipoEnum, Pageable pageable);
 }
