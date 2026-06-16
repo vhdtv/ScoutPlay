@@ -28,6 +28,7 @@ import org.springframework.web.bind.annotation.*;
 import java.util.ArrayList;
 import java.util.Optional;
 import java.util.UUID;
+import java.util.stream.Collectors;
 
 @RestController
 @RequestMapping("/api")
@@ -175,5 +176,20 @@ public class PostController {
         catch(Exception e) {
             return ResponseEntity.ok().body(ApiResponse.success(false));
         }
+    }
+
+    @GetMapping("/post/{postId}/highlight")
+    public ResponseEntity<ApiResponse<ArrayList<PostHighlightDTO>>> obterDestaques(@PathVariable UUID postId, @CookieValue(name = "access_token", required = true) String accessToken) {
+        UUID userAliasId = UUID.fromString(jwtTokenProvider.extractUserId(accessToken));
+        ArrayList<PostHighlightDTO> result = destaqueService.buscarTodosComContextoUsuario(postId, userAliasId)
+            .stream()
+            .map(item -> PostHighlightDTO.builder()
+            .aliasId(item.getAliasId())
+            .nome(item.getNome())
+            .count(item.getQuantidadeMarcada())
+            .marcadoPeloUsuario(item.getMarcadoPeloUsuario())
+            .build())
+        .collect(Collectors.toCollection(ArrayList::new));
+        return ResponseEntity.ok().body(ApiResponse.success(result));
     }
 }
