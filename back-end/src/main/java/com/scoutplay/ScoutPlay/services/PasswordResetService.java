@@ -1,52 +1,42 @@
 package com.scoutplay.ScoutPlay.services;
 
-import com.scoutplay.ScoutPlay.exceptions.ResourceNotFoundException;
 import com.scoutplay.ScoutPlay.models.Usuario;
 import com.scoutplay.ScoutPlay.repositories.UsuarioRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
-import java.time.Instant;
-import java.util.Map;
-import java.util.UUID;
-import java.util.concurrent.ConcurrentHashMap;
+import java.security.SecureRandom;
 
 @Service
 @RequiredArgsConstructor
 public class PasswordResetService {
 
-    private static final long TTL_MS = 15 * 60 * 1000; // 15 minutos
+    private static final String CHARS = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
+    private static final int SENHA_LENGTH = 10;
+    private static final SecureRandom RNG = new SecureRandom();
 
     private final UsuarioRepository usuarioRepository;
     private final PasswordEncoder passwordEncoder;
+    private final EmailService emailService;
 
-    private final Map<String, ResetEntry> tokens = new ConcurrentHashMap<>();
-
-    public String gerarToken(String email) {
+    public void enviarSenhaTemporaria(String email) {
         Usuario usuario = usuarioRepository.findByEmail(email);
         if (usuario == null) {
-            // Retorna sem erro para não vazar quais emails existem
-            return null;
+            // Silencioso — não vaza quais e-mails existem
+            return;
         }
-        String token = UUID.randomUUID().toString();
-        tokens.put(token, new ResetEntry(email, Instant.now().plusMillis(TTL_MS)));
-        return token;
-    }
-
-    public void redefinirSenha(String token, String novaSenha) {
-        ResetEntry entry = tokens.get(token);
-        if (entry == null || Instant.now().isAfter(entry.expiry())) {
-            throw new IllegalArgumentException("Token inválido ou expirado");
-        }
-        Usuario usuario = usuarioRepository.findByEmail(entry.email());
-        if (usuario == null) {
-            throw new ResourceNotFoundException("Usuário não encontrado");
-        }
+        String novaSenha = gerarSenhaAleatoria();
         usuario.setSenha(passwordEncoder.encode(novaSenha));
         usuarioRepository.save(usuario);
-        tokens.remove(token);
+        emailService.enviarNovaSenha(email, novaSenha);
     }
 
-    private record ResetEntry(String email, Instant expiry) {}
+    private String gerarSenhaAleatoria() {
+        StringBuilder sb = new StringBuilder(SENHA_LENGTH);
+        for (int i = 0; i < SENHA_LENGTH; i++) {
+            sb.append(CHARS.charAt(RNG.nextInt(CHARS.length())));
+        }
+        return sb.toString();
+    }
 }

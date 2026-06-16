@@ -4,12 +4,16 @@ import Footer from '#/components/Footer'
 import { LoggedHeader } from '#/components/Header'
 import Input from '#/components/ui/Input'
 import ProfilePicture from '#/components/ui/ProfilePicture'
-import { createFileRoute } from '@tanstack/react-router'
+import { createFileRoute, redirect } from '@tanstack/react-router'
 import { useRef, useState } from 'react'
 
 const api = new API
 
 export const Route = createFileRoute('/settings')({
+  beforeLoad: () => {
+    const api = new API()
+    if (!api.obterDadosUsuarioNoNavegador()) throw redirect({ to: '/login' })
+  },
   component: RouteComponent,
   loader: async () => {
     try {

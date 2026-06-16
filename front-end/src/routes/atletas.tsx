@@ -1,4 +1,4 @@
-import { createFileRoute, Link } from '@tanstack/react-router'
+import { createFileRoute, Link, redirect } from '@tanstack/react-router'
 import { LoggedHeader } from '#/components/Header'
 import Footer from '#/components/Footer'
 import API from '#/api/API'
@@ -8,6 +8,10 @@ import type { AtletaCardDTO } from '#/api/tipos'
 const api = new API
 
 export const Route = createFileRoute('/atletas')({
+  beforeLoad: () => {
+    const api = new API()
+    if (!api.obterDadosUsuarioNoNavegador()) throw redirect({ to: '/login' })
+  },
   component: AtletasPage,
 })
 

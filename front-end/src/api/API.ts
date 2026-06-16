@@ -38,9 +38,10 @@ export default class {
     mandarEmailParaRecuperarSenha = async (email: string): Promise<boolean> => {
         const request = await fetch(`${this.BACKEND_ENDPOINT}/forgot-password`, {
             method: "POST",
-            body: JSON.stringify({email})
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ email }),
         });
-        await request.json();
+        if (!request.ok) throw new Error('Erro ao solicitar recuperação de senha')
         return true;
     }
 

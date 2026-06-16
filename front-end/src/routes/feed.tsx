@@ -2,7 +2,7 @@ import API from '#/api/API'
 import type { MensagemDTO, PostDetailsDTO } from '#/api/tipos'
 import Footer from '#/components/Footer'
 import { LoggedHeader } from '#/components/Header'
-import { createFileRoute, Link } from '@tanstack/react-router'
+import { createFileRoute, Link, redirect } from '@tanstack/react-router'
 import { useEffect, useMemo, useRef, useState, type ChangeEvent, type MouseEvent } from 'react'
 import { PostMediaComponent } from './post/$post_id'
 import ProfilePicture from '#/components/ui/ProfilePicture'
@@ -30,6 +30,10 @@ function tempoRelativo(data: Date | string): string {
 }
 
 export const Route = createFileRoute('/feed')({
+  beforeLoad: () => {
+    const api = new API()
+    if (!api.obterDadosUsuarioNoNavegador()) throw redirect({ to: '/login' })
+  },
   component: RouteComponent,
 })
 
