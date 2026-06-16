@@ -249,6 +249,38 @@ Baixe e instale na ordem abaixo:
 - Instale com as opções padrão
 - Verificar: `git --version`
 
+### Python 3.11+ (necessário para o módulo de IA)
+- Download: https://www.python.org/downloads/
+- Na tela de instalação, marque **"Add Python to PATH"** (importante!)
+- Instale com as opções padrão
+- Verificar: `python --version` deve mostrar `Python 3.11...` ou superior
+
+### Ollama (necessário para o módulo de IA)
+- Download: https://ollama.com/download — escolha **Windows**
+- Execute o instalador normalmente
+- Após instalar, o Ollama roda em segundo plano automaticamente
+- Verificar: abra o Prompt de Comando e rode `ollama --version`
+
+**Após instalar o Ollama, baixe os dois modelos usados pelo ScoutPlay:**
+
+Abra o Prompt de Comando e rode os dois comandos abaixo (um por vez). Cada download pode demorar alguns minutos dependendo da internet:
+
+```bash
+ollama pull phi3:mini
+```
+```bash
+ollama pull embeddinggemma:latest
+```
+
+> `phi3:mini` (~2 GB) é o modelo de linguagem que gera as respostas.  
+> `embeddinggemma` (~500 MB) é o modelo de embeddings usado para busca RAG no PDF de fundamentos do futebol.
+
+Verificar se os modelos foram baixados:
+```bash
+ollama list
+```
+Deve aparecer `phi3:mini` e `embeddinggemma:latest` na lista.
+
 ---
 
 ## 2. Baixar o projeto
@@ -476,14 +508,43 @@ Para cada roteiro abaixo, siga os passos e ao final **tire um print da tela** mo
 
 ### RT-09 — Copiloto IA responde pergunta
 
-> **Pré-requisito:** o módulo de IA precisa estar rodando. Se não estiver configurado, pule este roteiro e anote "Bloqueado — serviço IA não disponível no ambiente".
+> **Pré-requisito:** você precisa ter instalado Python, Ollama e baixado os modelos `phi3:mini` e `embeddinggemma:latest` conforme a seção 1 deste guia.
 
-Se o módulo de IA estiver rodando em `http://localhost:8081`:
+**Passo A — Verifique se o Ollama está rodando**
+
+Abra o Prompt de Comando e rode:
+```bash
+ollama list
+```
+Deve aparecer `phi3:mini` e `embeddinggemma:latest`. Se não aparecer, volte na seção 1 e baixe os modelos.
+
+**Passo B — Instale as dependências Python da IA**
+
+Abra uma **nova janela** do Prompt de Comando e rode:
+```bash
+cd ScoutPlay/back-end/src/main/resources/ia
+pip install -r requirements.txt
+```
+
+**Passo C — Inicie o servidor de IA**
+
+Na mesma janela, rode:
+```bash
+uvicorn api:app --host 0.0.0.0 --port 8081
+```
+
+Aguarde aparecer:
+```
+Application startup complete.
+```
+Mantenha esta janela aberta durante o teste.
+
+**Passo D — Execute o roteiro**
 
 1. Acesse o feed (`http://localhost:5173/feed`)
 2. Localize o painel "O Especialista" no canto inferior direito
 3. Digite a pergunta: `Quais atletas estão cadastrados como centroavante?`
-4. Clique em enviar e aguarde a resposta
+4. Clique em enviar e aguarde a resposta (pode demorar 10–30 segundos na primeira vez)
 5. **Print:** tire o print mostrando a resposta do copiloto no painel
 
 **Salvar como:** `roteiro-09-copiloto-ia.png`
