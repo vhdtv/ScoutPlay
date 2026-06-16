@@ -30,7 +30,7 @@ export default function() {
 
   const linkStyle = `transition flex items-center gap-1 font-semibold text-sm tracking-wide rounded-md outline-0 py-2 px-4 text-mist-500 focus:bg-sky-100 focus:text-sky-700 hover:bg-sky-100 hover:text-sky-700`
   return (
-    <header className='h-14 element flex items-center shrink-0 gap-3 px-5'>
+    <header className='h-14 element flex items-center shrink-0 gap-3 px-5 sticky top-0'>
       <div className='flex items-center gap-2 grow'>
         <Link to="/feed" className="p-2 rounded-full focus:bg-mist-50 grayscale hover:grayscale-0 focus:grayscale-0 transition outline-sky-300"><img src="/assets/icon.svg" className='w-8' /></Link>
         <form action={makeSearch} className='w-full max-w-[25em]'>
