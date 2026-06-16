@@ -181,7 +181,7 @@ function RouteComponent() {
         </div>
       </div>
 
-      <div className='container mx-auto px-4 grid grid-cols-12 gap-4 pb-10'>
+      <div className='container mx-auto px-4 grid grid-cols-12 gap-4 pb-10 min-h-[100vh]'>
 
         {/* Left: stats + info */}
         <div className='col-span-12 lg:col-span-4 flex flex-col gap-4'>
