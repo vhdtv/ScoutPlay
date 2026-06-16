@@ -75,11 +75,9 @@ public class UserController {
         UserProfileSummary userData;
         if(accessToken == null || accessToken.isEmpty() || accessToken.isBlank()) {
             userData = usuarioService.buscarDadosPerfil(username);
-            userData = usuarioService.buscarDadosPerfil(username);
         }
         else {
             UUID aliasId = UUID.fromString(jwtTokenProvider.extractUserId(accessToken));
-            userData = usuarioService.buscarDadosPerfil(username, aliasId);
             userData = usuarioService.buscarDadosPerfil(username, aliasId);
         }
         return ResponseEntity.ok(ApiResponse.success(userData));
