@@ -4,7 +4,7 @@ import type { AtletaCardDTO, AvaliacaoDTO, CommentDTO, ConfigItemDTO, MensagemDT
 export default class {
     get USER_CACHE_KEY() { return "__usuario"; }
     get TIPO_CONTA_KEY() { return "__tipoConta"; }
-    get BACKEND_ENDPOINT() { return `http://localhost:8080/api`; }
+    get BACKEND_ENDPOINT() { return `${import.meta.env.VITE_BACKEND_URL ?? 'http://localhost:8080'}/api`; }
     
     fazerLogin = async (email: string, senha: string): Promise<UserSummaryDTO> => {
         const request = await fetch(`${this.BACKEND_ENDPOINT}/login`, {

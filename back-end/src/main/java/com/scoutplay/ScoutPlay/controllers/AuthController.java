@@ -15,6 +15,7 @@ import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
 import lombok.Data;
 import lombok.RequiredArgsConstructor;
+import org.springframework.beans.factory.annotation.Value;
 
 import org.springframework.http.ResponseCookie;
 import org.springframework.http.ResponseEntity;
@@ -30,12 +31,15 @@ public class AuthController {
     private final PasswordResetService passwordResetService;
     private final UsuarioService usuarioService;
 
+    @Value("${app.cookie.secure:false}")
+    private boolean cookieSecure;
+
     @PostMapping("/login")
     public ResponseEntity<ApiResponse<UserSummaryDTO>> login(@Valid @RequestBody ClientLoginInputDTO request) {
         ClientLoginOutputDTO loginResponse = loginService.autenticarUsuario(request);
         ResponseCookie accessTokenCookie = ResponseCookie.from("access_token", loginResponse.getTokenAcesso())
             .httpOnly(true)
-            .secure(false)
+            .secure(cookieSecure)
             .path("/")
             .maxAge(loginResponse.getExpiraEm())
             .sameSite("Lax")
@@ -49,7 +53,7 @@ public class AuthController {
     public ResponseEntity<ApiResponse<Boolean>> logout() {
         ResponseCookie accessTokenCookie = ResponseCookie.from("access_token", null)
             .httpOnly(true)
-            .secure(false)
+            .secure(cookieSecure)
             .path("/")
             .maxAge(0) // pede ao cliente para remover o cookie de autenticação
             .sameSite("Lax")
@@ -93,7 +97,7 @@ public class AuthController {
         ClientLoginOutputDTO loginResponse = loginService.autenticarUsuario(loginInput);
 
         ResponseCookie accessTokenCookie = ResponseCookie.from("access_token", loginResponse.getTokenAcesso())
-            .httpOnly(true).secure(false).path("/").maxAge(loginResponse.getExpiraEm()).sameSite("Lax").build();
+            .httpOnly(true).secure(cookieSecure).path("/").maxAge(loginResponse.getExpiraEm()).sameSite("Lax").build();
 
         return ResponseEntity.ok()
             .header(HttpHeaders.SET_COOKIE, accessTokenCookie.toString())
