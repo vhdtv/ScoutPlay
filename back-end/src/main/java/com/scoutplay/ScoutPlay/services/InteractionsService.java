@@ -66,6 +66,14 @@ public class InteractionsService {
         ).collect(Collectors.toList());
         return destaquesDoPost;
     }
+
+    @Transactional
+    public Destaque criarDestaque(String texto) {
+        Destaque item = new Destaque();
+        item.setNome(texto);
+        return destaqueRepository.save(item);
+    }
+    
     
     @Transactional
     public DestaquesEmPost darDestaque(UUID postId, UUID usuarioLogadoId, UUID destaqueId) {

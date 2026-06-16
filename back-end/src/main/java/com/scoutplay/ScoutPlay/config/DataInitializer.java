@@ -1,6 +1,7 @@
 package com.scoutplay.ScoutPlay.config;
 import java.time.LocalDate;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 
@@ -9,10 +10,12 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import com.scoutplay.ScoutPlay.services.TipoContaService;
 import com.scoutplay.ScoutPlay.services.TipoDetalhePerfilService;
+import com.scoutplay.ScoutPlay.services.DestaqueService;
 import com.scoutplay.ScoutPlay.services.DetalhePerfilService;
 import com.scoutplay.ScoutPlay.services.PostService;
 import com.scoutplay.ScoutPlay.services.TipoMidiaService;
 import com.scoutplay.ScoutPlay.services.UsuarioService;
+import com.scoutplay.ScoutPlay.models.Destaque;
 import com.scoutplay.ScoutPlay.models.Post;
 import com.scoutplay.ScoutPlay.models.Usuario;
 
@@ -20,7 +23,14 @@ import com.scoutplay.ScoutPlay.models.Usuario;
 @Configuration
 public class DataInitializer {
     @Bean
-    CommandLineRunner initDatabase(UsuarioService usuarioService, TipoContaService tipoContaService, TipoMidiaService tipoMidiaService, TipoDetalhePerfilService tipoDetalhePerfil, DetalhePerfilService detalhePerfilService, PostService postService) {
+    CommandLineRunner initDatabase(
+        UsuarioService usuarioService,
+        TipoContaService tipoContaService,
+        TipoMidiaService tipoMidiaService,
+        TipoDetalhePerfilService tipoDetalhePerfil,
+        DestaqueService destaqueService,
+        DetalhePerfilService detalhePerfilService,
+        PostService postService) {
         return args -> {
             tipoContaService.injetarValores();
             tipoMidiaService.injetarValores();
@@ -60,6 +70,12 @@ public class DataInitializer {
                 Post post1 = new Post("Titulo", "descricao", "3560017-uhd_3840_2160_25fps.mp4", tipoMidiaService.categorizarComoVideo(), atletaRoberto);
                 post1.setAliasId(UUID.fromString("ec51b202-c0f0-43ec-9f39-0cc86d48d6ee"));
                 postService.criar(post1);
+
+                // Criação de Destaques
+                Destaque d_jogouComGarra = new Destaque("Jogou com garra");
+                Destaque d_estrategista = new Destaque("Estrategista");
+                destaqueService.salvarTodos(List.of(d_jogouComGarra, d_estrategista));
+                
             }
             catch (Throwable t) {
                 System.err.println("Erro fatal: " + t.getClass().getName());
