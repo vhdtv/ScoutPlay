@@ -366,10 +366,10 @@ npm run dev
 Deve aparecer:
 
 ```
-  ➜  Local:   http://localhost:5173/
+  ➜  Local:   http://localhost:3000/
 ```
 
-Abra o navegador e acesse `http://localhost:5173`
+Abra o navegador e acesse `http://localhost:3000`
 
 > **Atenção:** mantenha esta janela aberta também durante os testes.
 
@@ -379,7 +379,7 @@ Abra o navegador e acesse `http://localhost:5173`
 
 Antes de executar os roteiros você precisa ter um usuário cadastrado no sistema.
 
-1. Acesse `http://localhost:5173/signup` no navegador
+1. Acesse `http://localhost:3000/signup` no navegador
 2. Preencha o formulário:
    - **Tipo de conta:** Atleta
    - **Nome:** João Teste
@@ -407,7 +407,7 @@ Para cada roteiro abaixo, siga os passos e ao final **tire um print da tela** mo
 
 ### RT-01 — Login com credenciais válidas
 
-1. Acesse `http://localhost:5173/login`
+1. Acesse `http://localhost:3000/login`
 2. Preencha com e-mail e senha do usuário que você criou no passo 6
 3. Clique em **Entrar**
 4. **Print:** tire o print mostrando o feed aberto com o nome/avatar do usuário no canto superior direito
@@ -418,7 +418,7 @@ Para cada roteiro abaixo, siga os passos e ao final **tire um print da tela** mo
 
 ### RT-02 — Cadastro de atleta com dados válidos
 
-1. Acesse `http://localhost:5173/signup`
+1. Acesse `http://localhost:3000/signup`
 2. Selecione tipo **Atleta** e preencha todos os campos com dados diferentes do usuário que você já criou (use um e-mail e CPF novos)
 3. Clique em **Cadastrar**
 4. **Print:** tire o print mostrando o feed aberto após o cadastro bem-sucedido
@@ -429,7 +429,7 @@ Para cada roteiro abaixo, siga os passos e ao final **tire um print da tela** mo
 
 ### RT-03 — Login com senha incorreta
 
-1. Acesse `http://localhost:5173/login`
+1. Acesse `http://localhost:3000/login`
 2. Digite o e-mail de um usuário existente (ex.: `joao.teste@email.com`)
 3. Digite uma senha **errada** (ex.: `SenhaErrada999`)
 4. Clique em **Entrar**
@@ -441,7 +441,7 @@ Para cada roteiro abaixo, siga os passos e ao final **tire um print da tela** mo
 
 ### RT-04 — Cadastro com CPF já existente
 
-1. Acesse `http://localhost:5173/signup`
+1. Acesse `http://localhost:3000/signup`
 2. Preencha com um CPF que **já está cadastrado** (use o CPF do usuário criado no passo 6: `111.222.333-44`)
 3. Use um e-mail diferente do já cadastrado
 4. Clique em **Cadastrar**
@@ -453,12 +453,12 @@ Para cada roteiro abaixo, siga os passos e ao final **tire um print da tela** mo
 
 ### RT-05 — Criar e excluir post
 
-1. Faça login e acesse o feed (`http://localhost:5173/feed`)
+1. Faça login e acesse o feed (`http://localhost:3000/feed`)
 2. Clique no botão **Criar Post**
 3. Selecione uma imagem (JPG ou PNG qualquer, máximo 10 MB)
 4. Preencha um título (ex.: "Treino de terça") e clique em **Postar**
 5. **Print:** tire o print mostrando o post recém-criado no topo do feed
-6. Acesse seu perfil (`http://localhost:5173/user/seuusername`)
+6. Acesse seu perfil (`http://localhost:3000/user/seuusername`)
 7. Clique no ícone de exclusão do post
 8. **Print:** tire outro print mostrando o perfil após a exclusão (post sumiu)
 
@@ -469,7 +469,7 @@ Para cada roteiro abaixo, siga os passos e ao final **tire um print da tela** mo
 
 ### RT-06 — Dar like e unlike em post
 
-1. Acesse o feed (`http://localhost:5173/feed`)
+1. Acesse o feed (`http://localhost:3000/feed`)
 2. Anote o número de likes de algum post visível
 3. Clique no botão de **like** nesse post
 4. **Print:** tire o print mostrando o contador incrementado e o botão ativo (azul/preenchido)
@@ -541,7 +541,7 @@ Mantenha esta janela aberta durante o teste.
 
 **Passo D — Execute o roteiro**
 
-1. Acesse o feed (`http://localhost:5173/feed`)
+1. Acesse o feed (`http://localhost:3000/feed`)
 2. Localize o painel "O Especialista" no canto inferior direito
 3. Digite a pergunta: `Quais atletas estão cadastrados como centroavante?`
 4. Clique em enviar e aguarde a resposta (pode demorar 10–30 segundos na primeira vez)
@@ -553,7 +553,7 @@ Mantenha esta janela aberta durante o teste.
 
 ### RT-10 — Upload de avatar pelo usuário
 
-1. Acesse `http://localhost:5173/settings` (esteja logado)
+1. Acesse `http://localhost:3000/settings` (esteja logado)
 2. Localize o campo de upload de foto de perfil
 3. Clique e selecione um arquivo PNG ou JPG (qualquer foto, máximo 10 MB)
 4. Confirme/salve
