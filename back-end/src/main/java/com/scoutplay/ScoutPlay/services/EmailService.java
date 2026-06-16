@@ -2,6 +2,7 @@ package com.scoutplay.ScoutPlay.services;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.mail.SimpleMailMessage;
 import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.stereotype.Service;
@@ -13,11 +14,15 @@ public class EmailService {
 
     private final JavaMailSender mailSender;
 
+    @Value("${spring.mail.username}")
+    private String remetente;
+
     public void enviarNovaSenha(String destinatario, String novaSenha) {
         try {
             SimpleMailMessage msg = new SimpleMailMessage();
+            msg.setFrom(remetente);
             msg.setTo(destinatario);
-            msg.setSubject("ScoutPlay — Nova senha temporária");
+            msg.setSubject("ScoutPlay - Nova senha temporaria");
             msg.setText(
                 "Olá!\n\n" +
                 "Recebemos uma solicitação de recuperação de senha para a sua conta no ScoutPlay.\n\n" +
