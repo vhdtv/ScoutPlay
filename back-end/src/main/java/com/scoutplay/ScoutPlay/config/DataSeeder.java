@@ -7,6 +7,8 @@ import com.scoutplay.ScoutPlay.models.Usuario;
 import com.scoutplay.ScoutPlay.repositories.ComentarioRepository;
 import com.scoutplay.ScoutPlay.repositories.PostRepository;
 import com.scoutplay.ScoutPlay.repositories.UsuarioRepository;
+import com.scoutplay.ScoutPlay.services.TipoContaService;
+import com.scoutplay.ScoutPlay.services.TipoDetalhePerfilService;
 import com.scoutplay.ScoutPlay.services.TipoMidiaService;
 import com.scoutplay.ScoutPlay.services.UsuarioService;
 
@@ -40,9 +42,11 @@ public class DataSeeder implements ApplicationRunner {
 
     private final UsuarioRepository usuarioRepository;
     private final UsuarioService usuarioService;
+    private final TipoContaService tipoContaService;
     private final PostRepository postRepository;
     private final ComentarioRepository comentarioRepository;
     private final TipoMidiaService tipoMidiaService;
+    private final TipoDetalhePerfilService tipoDetalhePerfil;
 
     private static final String MEDIA_DIR  = "uploads/media/";
     private static final String AVATAR_DIR = "uploads/avatars/";
@@ -81,6 +85,9 @@ public class DataSeeder implements ApplicationRunner {
 
     @Override
     public void run(ApplicationArguments args) throws Exception {
+        tipoContaService.injetarValores();
+        tipoMidiaService.injetarValores();
+        tipoDetalhePerfil.injetarValores();
         if (usuarioRepository.findByUsernameIgnoreCase("lucas_striker") != null) {
             log.info("DataSeeder: dados já existem, pulando.");
             return;

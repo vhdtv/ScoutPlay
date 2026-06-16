@@ -12,9 +12,9 @@ export function RouteComponent() {
       <div className='grow-1 min-h-0 hidden md:flex flex-col border-e-2 border-gray-200 p-6 pt-10 gap-4 overflow-hidden'>
         <section className='logo shrink-0'>
           <div className='flex'>
-            <img src="/assets/logo.svg" className='h-16 m-2' />
+            <img src="/assets/icon.svg" className='h-20 m-2' />
             <div className='grow-1 items-center content-center'>
-              <img src="/assets/text-logo.png" className='h-10'/>
+              <h1 className='text-5xl/9 font-semibold text-slate-800 scoutplay-font'>ScoutPlay</h1>
               <h2 className='font-medium'>O meio-de-campo entre atletas e olheiros</h2>
             </div>
           </div>

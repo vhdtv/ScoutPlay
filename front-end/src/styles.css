@@ -5,6 +5,10 @@
 
 @custom-variant dark (&:is(.dark *));
 
+.scoutplay-font {
+  font-family: "Yanone Kaffeesatz";
+}
+
 body {
   @apply m-0;
   -webkit-font-smoothing: antialiased;

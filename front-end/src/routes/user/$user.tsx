@@ -111,7 +111,7 @@ function RouteComponent() {
       <LoggedHeader />
 
       {/* Banner */}
-      <div className='h-36 bg-gradient-to-br from-sky-500 via-indigo-600 to-slate-800' />
+      <div className='h-36 bg-gradient-to-br from-mist-500 via-mist-600 to-mist-800' />
 
       {/* Profile header */}
       <div className='container mx-auto px-4'>
@@ -119,10 +119,10 @@ function RouteComponent() {
           <div className='w-24 h-24 rounded-full border-4 border-white shadow-lg overflow-hidden bg-slate-200 shrink-0'>
             <ProfilePicture user={user} className='w-full h-full' />
           </div>
-          <div className='flex flex-col gap-1 flex-1'>
-            <div className='flex flex-wrap items-center gap-2'>
-              <h1 className='text-2xl font-bold text-slate-900'>{user.nome} {user.sobrenome}</h1>
-              {user.idade != null && <span className='text-slate-500'>· {user.idade} anos</span>}
+          <div className='flex flex-col gap-0 flex-1'>
+            <div className='flex flex-wrap items-center gap-2 pb-4'>
+              <h1 className='text-2xl font-bold text-slate-200'>{user.nome} {user.sobrenome}</h1>
+              {user.idade != null && <span className='text-slate-300 text-md/2'>· {user.idade} anos</span>}
             </div>
             <div className='flex flex-wrap gap-1.5'>
               {(user.tipoConta as any[])?.map((t: string) => (
@@ -181,7 +181,7 @@ function RouteComponent() {
         </div>
       </div>
 
-      <div className='container mx-auto px-4 grid grid-cols-12 gap-4 pb-10'>
+      <div className='container mx-auto px-4 grid grid-cols-12 gap-4 pb-10 min-h-[100vh]'>
 
         {/* Left: stats + info */}
         <div className='col-span-12 lg:col-span-4 flex flex-col gap-4'>

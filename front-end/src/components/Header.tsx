@@ -34,7 +34,7 @@ export function LoggedHeader() {
   return (
     <header className='flex items-center h-14 bg-white border-b border-slate-200 shadow-sm px-4 sticky top-0 z-40'>
       <Link to='/feed' className='mr-auto'>
-        <img src='/logo-scoutplay.png' alt='Logo Scoutplay' className='h-7' />
+        <img src="/assets/icon.svg" alt='Logo Scoutplay' className='h-10 grayscale transition hover:grayscale-0' />
       </Link>
       <nav className='flex items-center gap-1'>
         <Link to='/feed' className='flex items-center gap-1.5 px-3 py-2 text-sm font-medium text-slate-600 hover:text-sky-700 hover:bg-sky-50 rounded-lg transition'>

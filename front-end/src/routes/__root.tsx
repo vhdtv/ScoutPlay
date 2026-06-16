@@ -36,11 +36,11 @@ export const Route = createRootRouteWithContext<MyRouterContext>()({
       {
         rel: 'icon',
         type: 'image/png',
-        href: '/logo-scoutplay.png',
+        href: 'assets/logo_icon_small.png',
       },
       {
         rel: 'apple-touch-icon',
-        href: '/logo-scoutplay.png',
+        href: 'assets/logo_icon_small.png',
       },
     ],
   }),
