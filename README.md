@@ -1,611 +1,220 @@
-# Scout Play Application
+# ScoutPlay
 
-Bem-vindo ao **Scout Play Application** 🎯 - uma plataforma inovadora que conecta jovens talentos de futebol a olheiros e clubes profissionais. Esta aplicação utiliza **Spring Boot 3**, **PostgreSQL** e oferece uma API RESTful completa para gerenciar perfis de atletas, olheiros e autenticação de usuários.
-O Scoutplay (Scope) resolve a desorganização na captação e análise de atletas ⚽📊. Centralizamos players CRZ, cadastro de atletas e upload de vídeos em um só lugar, facilitando a busca por oportunidades e visibilidade em mercados e clubes.
-Com login dedicado para players, o Scope permite encontrar talentos de forma rápida, estruturada e estratégica 🚀, transformando dados e vídeos em oportunidades reais.
+Plataforma acadêmica de descoberta e acompanhamento de jovens atletas de futebol. O ScoutPlay reúne perfis, publicações, vídeos e ferramentas de avaliação para aproximar atletas e olheiros em um único ambiente.
 
+> Este README descreve a entrega **ScoutPlay 2.0**. A branch `historico` preserva essa entrega e organiza, sem misturar código obsoleto, as decisões úteis das branches anteriores.
 
-## Integrantes
+## Estado do projeto
 
-| | Nome | RA | Papel na Sprint |
-| --- | --- | --- | --- |
-| <img src="https://avatars.githubusercontent.com/u/101878978?v=4" style="display: inline-block; width: 64px"> | Victor Henrique Dias | 4231920004 | Scrum Master · Back-end · Integração IA |
-| <img src="https://avatars.githubusercontent.com/u/130322697?v=4" style="display: inline-block; width: 64px"> | Paulo Vitor Amorim de Oliveira | 42322453 | Back-end · Segurança JWT · DevOps |
-| <img src="https://avatars.githubusercontent.com/u/129996963?v=4" style="display: inline-block; width: 64px"> | Maria Clara Marques Lino | 4231924407 | Front-end · React · Testes de Usabilidade |
-| <img src="https://avatars.githubusercontent.com/u/129918519?v=4" style="display: inline-block; width: 64px"> | Lucas Ferreira Andrade | 4231921505 | Back-end · BDD / Cucumber · Repositórios |
-| <img src="https://avatars.githubusercontent.com/u/134884115?v=4" style="display: inline-block; width: 64px"> | Cesar Augusto Ferreira Martins | 4231921453 | Front-end · Componentes UI · Design |
-| <img src="https://avatars.githubusercontent.com/u/35999467?v=4" style="display: inline-block; width: 64px"> | Caio Alves Fernandes | 4231925609 | Back-end · Controllers · Documentação |
----
+O repositório é um protótipo acadêmico em evolução. A experiência principal está implementada, mas ainda existem pendências de segurança, persistência, desempenho e automação antes de uma publicação na internet. O backlog técnico e funcional está em [`docs/historico/ROADMAP.md`](docs/historico/ROADMAP.md).
 
-## 📋 Sumário
-- [Integrantes](#integrantes)
-- [Visão Geral](#visão-geral)
-- [Pré-requisitos](#pré-requisitos)
-- [Configuração Rápida](#configuração-rápida)
-- [Estrutura do Projeto](#estrutura-do-projeto)
-- [Endpoints Disponíveis](#endpoints-disponíveis)
-- [Testando a Aplicação](#testando-a-aplicação)
-- [Troubleshooting](#troubleshooting)
-- [Contribuição](#contribuição)
+### O que está implementado
 
----
+| Área | Entrega atual |
+| --- | --- |
+| Identidade | Cadastro de atleta ou olheiro, login JWT em cookie HttpOnly, logout e recuperação de acesso |
+| Perfis | Dados pessoais e esportivos, foto, seguidores e consulta de perfil público |
+| Descoberta | Busca de atletas por nome, posição e pé dominante; shortlist de olheiros |
+| Feed | Publicações com mídia, curtidas, comentários e respostas |
+| Avaliação | Nota e comentário de um usuário sobre um atleta |
+| IA | Copiloto que combina dados cadastrados com Anthropic ou serviço local FastAPI/Ollama |
 
-## 👀 Visão Geral
+Funcionalidades planejadas na primeira versão — como convites formais, contato intermediado por responsável, moderação e trilha de auditoria — ainda não fazem parte da entrega. A comparação entre visão original e implementação está em [`docs/historico/PLANEJAMENTO_FUNCIONAL.md`](docs/historico/PLANEJAMENTO_FUNCIONAL.md).
 
-A plataforma Scout Play funciona em três pilares:
+## Arquitetura
 
-- **Atletas**: Jovens jogadores podem criar perfis, fazer upload de fotos e serem descobertos por olheiros
-- **Olheiros**: Profissionais que avaliam e monitoram talentos
-- **Responsáveis**: Gerenciam menores de idade na plataforma
-
-**Stack Tecnológico:**
-- Backend: Java 21 + Spring Boot 3.3.4
-- Banco de Dados: PostgreSQL
-- Segurança: Spring Security + JWT (jjwt 0.11.5)
-- Frontend: HTML5 + CSS3 + JavaScript (Vanilla) + React
-- Build Tool: Maven
-- Documentação: Swagger UI (springdoc-openapi 2.6.0)
-- Testes: JUnit 5 + Mockito + Cucumber 7 (BDD) + JaCoCo
-- IA: Python + Streamlit + Ollama (RAG + Classificação de craques)
-
----
-
-## ✨ Funcionalidades
-
-| # | Funcionalidade | Descrição |
-|---|---|---|
-| 1 | **Cadastro de atleta** | Jovens jogadores criam perfil com dados pessoais, posição, pé dominante e senha |
-| 2 | **Cadastro de olheiro** | Profissionais de scouting se registram com clube e localização |
-| 3 | **Cadastro de responsável** | Responsáveis legais de atletas menores de idade |
-| 4 | **Autenticação (login)** | Login por e-mail/senha com retorno de token JWT; válido para 3 tipos de usuário |
-| 5 | **Busca e filtro de atletas** | Olheiros filtram atletas por nome, posição, peso, altura, pé dominante; resultado paginado |
-| 6 | **Upload de foto de perfil** | Atleta envia foto; sistema valida formato (JPG/PNG/WEBP) e redimensiona para 500×500 |
-| 7 | **Gestão de vídeos** | Atleta associa, atualiza e remove vídeos do perfil |
-| 8 | **Avaliações de atletas** | Olheiro registra avaliação (nota + comentário) sobre atleta |
-| 9 | **Consultar perfil autenticado** | Endpoint `GET /api/me` retorna dados do usuário logado via JWT |
-| 10 | **Atualização e exclusão de perfil** | Usuário edita ou remove o próprio perfil (somente o próprio — verificação de ownership) |
-| 11 | **Copiloto de futebol (IA)** | Chatbot RAG com base em fundamentos técnicos e táticos do futebol, respondendo perguntas contextualizadas |
-| 12 | **Classificação de craques (IA)** | Modelo que classifica potencial de atletas com base em stats de jogadores reais (Brasileirão, SofaScore, Transfermarkt) |
-
-**Regra de negócio não-trivial:** Validação de unicidade de CPF e e-mail por tipo de usuário + validação de formato/tamanho de imagem no upload de foto de perfil + controle de ownership via JWT para PUT/DELETE.
-
----
-
-## 🔧 Pré-requisitos
-
-Certifique-se de ter os seguintes softwares instalados:
-
-| Requisito | Versão | Download |
-|-----------|--------|----------|
-| **Java JDK** | 21+ | [java.com](https://www.oracle.com/java/technologies/downloads/) |
-| **Maven** | 3.8+ | [maven.apache.org](https://maven.apache.org/download.cgi) |
-| **PostgreSQL** | 12+ | [postgresql.org](https://www.postgresql.org/download/) |
-| **Git** | Latest | [git-scm.com](https://git-scm.com/) |
-| **IDE** | Qualquer | IntelliJ IDEA, Eclipse, VS Code |
-
-**Verificar instalação:**
-```bash
-java -version
-mvn -version
-psql --version
+```mermaid
+flowchart TD
+    UI["React 19 + TanStack Start"] --> API["Spring Boot 3 / Java 21"]
+    API --> DB["PostgreSQL"]
+    API --> FS["Uploads no sistema de arquivos"]
+    API --> IA["Anthropic ou FastAPI + Ollama"]
 ```
 
----
+| Camada | Tecnologias e responsabilidade |
+| --- | --- |
+| Front-end | React 19, Vite, TanStack Start/Router e Tailwind CSS; interface em `http://localhost:3000` |
+| API | Java 21, Spring Boot 3.3.4, Spring Web, Security e Data JPA; API em `http://localhost:8080` |
+| Dados | PostgreSQL; entidades relacionais e detalhes de perfil armazenados em JSONB |
+| Arquivos | Avatares em `uploads/avatars` e mídias do feed em `uploads/media` |
+| IA | Anthropic quando `ANTHROPIC_API_KEY` estiver definida; caso contrário, FastAPI/Ollama em `http://localhost:8081` |
 
-## ⚡ Configuração Rápida
+## Estrutura do repositório
 
-### 1️⃣ Clone o Repositório
+```text
+ScoutPlay/
+├── back-end/                 # API Spring Boot, testes e serviço local de IA
+│   └── src/main/resources/ia
+├── front-end/                # aplicação React/TanStack
+├── docs/                     # requisitos, banco, testes, integração e histórico
+└── slides/                   # apresentação da entrega acadêmica
+```
+
+## Executando localmente
+
+### Pré-requisitos
+
+- Git;
+- JDK 21;
+- PostgreSQL 12 ou superior;
+- Node.js 20 ou superior e npm;
+- opcionalmente Python 3.10, FastAPI e Ollama para o modo local da IA.
+
+### 1. Clonar a linha consolidada
+
 ```bash
-git clone https://github.com/vhdtv/ScoutPlay.git
+git clone --branch historico https://github.com/vhdtv/ScoutPlay.git
 cd ScoutPlay
 ```
 
-### 2️⃣ Configurar Banco de Dados PostgreSQL
+Para reproduzir exatamente a branch entregue à faculdade, troque `historico` por `ScoutPlay2.0`.
 
-**Windows (PowerShell):**
-```powershell
-# Inicie o PostgreSQL (já deve estar em execução)
-# Conecte como superusuário
-psql -U postgres
+### 2. Preparar o PostgreSQL
 
-# No prompt do PostgreSQL, execute:
+Crie um banco local sem versionar credenciais no repositório:
+
+```sql
 CREATE DATABASE scoutplaydb;
-CREATE USER scout_user WITH PASSWORD 'senha_segura_123';
-ALTER ROLE scout_user SET client_encoding TO 'utf8';
-ALTER ROLE scout_user SET default_transaction_isolation TO 'read committed';
-ALTER ROLE scout_user SET default_transaction_deferrable TO on;
-ALTER ROLE scout_user SET default_time_zone TO 'UTC';
-GRANT ALL PRIVILEGES ON DATABASE scoutplaydb TO scout_user;
-\q
 ```
 
-**macOS/Linux:**
-```bash
-sudo -u postgres psql
-
-# No prompt do PostgreSQL:
-CREATE DATABASE scoutplaydb;
-CREATE USER scout_user WITH PASSWORD 'senha_segura_123';
-ALTER ROLE scout_user SET client_encoding TO 'utf8';
-GRANT ALL PRIVILEGES ON DATABASE scoutplaydb TO scout_user;
-\q
-```
-
-### 3️⃣ Configurar Credenciais da Aplicação
-
-Abra `src/main/resources/application.properties` e configure:
-
-```properties
-# Banco de Dados
-spring.datasource.url=jdbc:postgresql://localhost:5432/scoutplaydb
-spring.datasource.username=scout_user
-spring.datasource.password=senha_segura_123
-spring.datasource.driver-class-name=org.postgresql.Driver
-
-# JPA/Hibernate
-spring.jpa.hibernate.ddl-auto=update
-spring.jpa.database-platform=org.hibernate.dialect.PostgreSQLDialect
-spring.jpa.show-sql=false
-
-# Aplicação
-spring.application.name=Scout Play Application
-server.port=8080
-```
-
-### 4️⃣ Estrutura de Pastas Necessárias
+Defina as variáveis exigidas pelo back-end. O segredo JWT deve ter pelo menos 32 caracteres.
 
 ```bash
-# No diretório raiz do projeto, crie:
-mkdir -p uploads/fotos_perfil
-
-# Verifique se a pasta foi criada
-ls -la uploads/
+export DB_URL='jdbc:postgresql://localhost:5432/scoutplaydb'
+export DB_USERNAME='postgres'
+export DB_PASSWORD='troque-por-uma-credencial-local'
+export JWT_SECRET='troque-por-um-segredo-local-longo-e-aleatorio'
 ```
 
-### 5️⃣ Build e Execução
+Variáveis opcionais:
 
-**Primeira execução - Build completo:**
-```bash
-# Limpa build anterior, instala dependências e compila
-mvn clean install
-```
+| Variável | Finalidade | Padrão local |
+| --- | --- | --- |
+| `JWT_EXPIRATION` | validade do token em milissegundos | `86400000` |
+| `COOKIE_SECURE` | exige HTTPS para o cookie | `false` |
+| `ANTHROPIC_API_KEY` | habilita o provedor externo de IA | vazio |
+| `IA_URL` | endereço do serviço Python local | `http://localhost:8081` |
 
-**Iniciar a aplicação:**
+O envio de e-mail requer também as propriedades `spring.mail.*` no ambiente local.
 
-**Via Maven:**
-```bash
-mvn spring-boot:run
-```
-
-**Via IDE (IntelliJ IDEA):**
-- Clique com botão direito em `ScoutPlayApplication.java`
-- Selecione "Run 'ScoutPlayApplication.main()'"
-
-**Verificar se está rodando:**
-- Acesse: http://localhost:8080
-- Você deve ver a página de login
-
----
-
-## 📁 Estrutura do Projeto
-
-```
-ScoutPlay/
-├── back-end/                                (API Spring Boot — Java 21)
-│   ├── src/
-│   │   ├── main/
-│   │   │   ├── java/com/scoutplay/ScoutPlay/
-│   │   │   │   ├── ScoutPlayApplication.java    (Classe principal)
-│   │   │   │   ├── controllers/                 (APIs REST — camada ui)
-│   │   │   │   ├── models/                      (Entidades JPA — camada domain)
-│   │   │   │   ├── repositories/                (Acesso a dados — camada infra)
-│   │   │   │   ├── services/                    (Lógica de negócio — camada service)
-│   │   │   │   ├── api/dto/                     (Data Transfer Objects)
-│   │   │   │   ├── api/response/                (ApiResponse padrão)
-│   │   │   │   ├── config/                      (CORS, Security, JWT)
-│   │   │   │   ├── exceptions/                  (ConflictException, ResourceNotFoundException)
-│   │   │   │   └── security/                    (JWT Filter, Provider, SecurityUtils)
-│   │   │   └── resources/
-│   │   │       ├── application.properties
-│   │   │       └── ia/                          (Módulo Python — FastAPI + RAG)
-│   │   │           ├── api.py                   (FastAPI — endpoint /prompt)
-│   │   │           ├── arquivos/                (Base de conhecimento PDF)
-│   │   │           └── notebook/                (Notebooks + modelo pkl)
-│   │   └── test/
-│   │       ├── java/com/scoutplay/ScoutPlay/
-│   │       │   ├── services/                    (Testes unitários — JUnit 5 + Mockito)
-│   │       │   └── bdd/                         (Cucumber runner + step definitions)
-│   │       └── resources/
-│   │           └── features/                    (Arquivos .feature Gherkin — PT)
-│   ├── uploads/
-│   │   ├── media/                               (Arquivos de posts)
-│   │   └── avatars/                             (Fotos de perfil)
-│   └── pom.xml
-│
-├── front-end/                               (SPA React 19 + Vite — Node 20)
-│   ├── src/
-│   │   ├── api/                             (API.ts, tipos.ts)
-│   │   ├── components/                      (Header, ProfilePostList, ui/)
-│   │   ├── routes/                          (feed, login, signup, user/$user, post/$post_id, settings)
-│   │   └── styles.css
-│   └── package.json
-│
-├── docs/
-│   ├── requisitos/
-│   │   ├── requisitos-funcionais.md
-│   │   └── requisitos-nao-funcionais.md
-│   └── testes/
-│       ├── plano-de-teste.md
-│       ├── roteiros-de-teste.md
-│       ├── usabilidade.md
-│       └── evidencias/                      (prints / logs dos testes)
-│
-├── slides/
-│   └── apresentacao.md                      (Slides da apresentação final)
-│
-└── README.md
-```
-
----
-
-## 🔌 Endpoints Disponíveis
-
-> A documentação interativa completa está disponível em **http://localhost:8080/swagger-ui.html** após iniciar a aplicação.
-
-### 🏃 Atletas (`/api/atletas`)
-
-| Método | Endpoint | Auth | Descrição |
-|--------|----------|------|-----------|
-| `POST` | `/registro` | ❌ | Cadastra atleta e retorna token JWT |
-| `POST` | `/` | ❌ | Cria atleta com foto de perfil (multipart) |
-| `GET` | `/` | ✅ | Lista atletas com filtros e paginação |
-| `GET` | `/{id}` | ✅ | Busca atleta por ID |
-| `PUT` | `/{id}` | ✅ Owner | Atualiza dados do atleta |
-| `DELETE` | `/{id}` | ✅ Owner | Remove atleta |
-| `POST` | `/{id}/foto` | ✅ Owner | Atualiza foto de perfil (multipart) |
-| `GET` | `/fotos/{filename}` | ❌ | Download de foto de perfil |
-
-**Filtros disponíveis em `GET /api/atletas`:** `nome`, `posicao`, `peso`, `altura`, `peDominante`, `anoNascimento` (paginado)
-
-### 👁️ Olheiros (`/api/olheiros`)
-
-| Método | Endpoint | Auth | Descrição |
-|--------|----------|------|-----------|
-| `POST` | `/registro` | ❌ | Cadastra olheiro e retorna token JWT |
-| `POST` | `/` | ❌ | Cria olheiro |
-| `GET` | `/` | ✅ | Lista olheiros (paginado) |
-| `GET` | `/{id}` | ✅ | Busca olheiro por ID |
-| `PUT` | `/{id}` | ✅ Owner | Atualiza dados do olheiro |
-| `DELETE` | `/{id}` | ✅ Owner | Remove olheiro |
-
-### 👪 Responsáveis (`/api/responsaveis`)
-
-| Método | Endpoint | Auth | Descrição |
-|--------|----------|------|-----------|
-| `POST` | `/registro` | ❌ | Cadastra responsável e retorna token JWT |
-| `POST` | `/` | ❌ | Cria responsável |
-| `GET` | `/` | ✅ | Lista responsáveis (paginado) |
-| `GET` | `/{id}` | ✅ | Busca responsável por ID |
-| `DELETE` | `/{id}` | ✅ Owner | Remove responsável |
-
-### 🎬 Vídeos (`/api/atletas/{atletaId}/videos`)
-
-| Método | Endpoint | Auth | Descrição |
-|--------|----------|------|-----------|
-| `GET` | `/api/atletas/{atletaId}/videos` | ✅ | Lista vídeos do atleta (paginado) |
-| `POST` | `/api/atletas/{atletaId}/videos` | ✅ Owner | Adiciona vídeo |
-| `PUT` | `/api/videos/{videoId}` | ✅ Owner | Atualiza vídeo |
-| `DELETE` | `/api/videos/{videoId}` | ✅ Owner | Remove vídeo |
-
-### ⭐ Avaliações (`/api/atletas/{atletaId}/avaliacoes`)
-
-| Método | Endpoint | Auth | Descrição |
-|--------|----------|------|-----------|
-| `GET` | `/api/atletas/{atletaId}/avaliacoes` | ✅ | Lista avaliações do atleta |
-| `POST` | `/api/atletas/{atletaId}/avaliacoes` | ✅ OLHEIRO | Cria avaliação (nota + comentário + videoId opcional) |
-
-### 👤 Usuário Genérico (`/api/usuarios`)
-
-| Método | Endpoint | Auth | Descrição |
-|--------|----------|------|-----------|
-| `PUT` | `/api/usuarios/{id}` | ✅ Owner | Atualiza nome, telefone ou CEP |
-| `DELETE` | `/api/usuarios/{id}` | ✅ Owner | Remove usuário |
-
-### 🔐 Autenticação
-
-| Método | Endpoint | Auth | Descrição |
-|--------|----------|------|-----------|
-| `POST` | `/api/login` | ❌ | Autentica usuário (retorna JWT 24h) |
-| `GET` | `/api/me` | ✅ | Retorna dados do usuário logado |
-
-**Resposta do login:**
-```json
-{
-  "token": "eyJhbGciOiJIUzI1NiJ9...",
-  "userId": "ATL-xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx",
-  "userType": "ATLETA",
-  "nome": "João Silva",
-  "email": "joao@example.com",
-  "expiresIn": 86400000
-}
-```
-
----
-
-## 🧪 Testando a Aplicação
-
-### ▶️ Rodar todos os testes automatizados
+### 3. Iniciar a API
 
 ```bash
-# Entrar na pasta do back-end
 cd back-end
-
-# Rodar testes unitários (JUnit 5 + Mockito) + BDD (Cucumber)
-./mvnw test
-
-# Windows — usar wrapper local:
-.\mvnw.cmd test
-
-# Rodar apenas um arquivo de teste específico
-./mvnw test -Dtest=UsuarioServiceTest
-
-# Gerar relatório de cobertura JaCoCo (gerado automaticamente com ./mvnw test)
-# Abrir no navegador: back-end/target/site/jacoco/index.html
-
-# Relatório Cucumber (BDD)
-# Abrir no navegador: back-end/target/cucumber-reports/report.html
+sh ./mvnw spring-boot:run
 ```
 
-**Classes testadas:**
+A API fica disponível em `http://localhost:8080`. O Swagger UI, quando habilitado, fica em `http://localhost:8080/swagger-ui/index.html`.
 
-| Classe | Tipo | Testes |
-|---|---|---|
-| `UsuarioService` | Unitário (JUnit 5 + Mockito) | 11 cenários: cadastro, CPF/e-mail duplicado, senha nula/branco, codificação de senha, busca por ID, perfil, adição/remoção de info |
-| Autenticação | BDD (Cucumber) | 5 cenários Gherkin (`autenticacao.feature`) |
-| Cadastro de atleta | BDD (Cucumber) | 4 cenários Gherkin (`cadastro_atleta.feature`) |
-| Posts | BDD (Cucumber) | 4 cenários Gherkin (`posts.feature`) |
-| Perfil | BDD (Cucumber) | 4 cenários Gherkin (`perfil.feature`) |
+### 4. Iniciar o front-end
 
-**Total: 11 testes unitários + 17 cenários BDD automatizados**
-
-### ▶️ Rodar o frontend
+Em outro terminal:
 
 ```bash
 cd front-end
-npm install          # primeira vez
-npm run dev          # inicia em http://localhost:5173
-
-# Windows com Node sem PATH:
-"C:\Program Files\nodejs\npm.cmd" run dev
+npm install
+npm run dev
 ```
 
-### ▶️ Rodar o módulo de IA
+Abra `http://localhost:3000`.
+
+### 5. IA local opcional
+
+Sem `ANTHROPIC_API_KEY`, inicie o serviço local antes de usar o copiloto:
 
 ```bash
 cd back-end/src/main/resources/ia
-pip install -r requirements.txt   # primeira vez
-uvicorn api:app --host 0.0.0.0 --port 8081
+python -m pip install fastapi uvicorn ollama numpy
+ollama pull phi3:mini
+ollama pull embeddinggemma:latest
+python -m uvicorn api:app --host 0.0.0.0 --port 8081
 ```
 
-### Opção 2: Usando Postman
+Consulte [`docs/ia-integracao.md`](docs/ia-integracao.md) para detalhes e limitações do módulo.
 
-1. Baixe [Postman](https://www.postman.com/)
-2. Importe as requisições da API
-3. Configure a URL base: `http://localhost:8080/api`
-4. Teste os endpoints
+## API principal
 
-### Opção 2: Usando cURL (Terminal)
+Todas as respostas da aplicação usam o envelope `ApiResponse`.
+
+| Método e rota | Finalidade | Autenticação esperada |
+| --- | --- | --- |
+| `POST /api/signup` | criar conta de atleta ou olheiro | pública |
+| `POST /api/login` | autenticar e gravar cookie JWT | pública |
+| `POST /api/logout` | encerrar sessão | pública |
+| `POST /api/forgot-password` | iniciar recuperação de acesso | pública |
+| `GET /api/user?user=...` | consultar perfil | opcional |
+| `PATCH /api/user/info` | atualizar perfil próprio | cookie JWT |
+| `POST /api/user/avatar` | atualizar avatar | cookie JWT |
+| `GET /api/atletas` | buscar atletas | pública |
+| `GET /api/shortlist` | listar seleção do usuário | cookie JWT |
+| `POST /api/user/{username}/avaliar` | avaliar atleta | cookie JWT |
+| `GET /api/post/` | listar feed paginado | pública |
+| `POST /api/post/` | criar publicação | cookie JWT esperado pelo serviço |
+| `GET /api/media/{filename}` | servir mídia do feed | pública |
+| `GET /api/avatar/{filename}` | servir avatar | pública |
+| `POST /api/ia/prompt` | consultar o copiloto | matriz de acesso em revisão |
+
+Uma coleção Postman está disponível em [`docs/ScoutPlay.postman_collection.json`](docs/ScoutPlay.postman_collection.json).
+
+## Testes e qualidade
+
+### Back-end
 
 ```bash
-# Listar atletas
-curl http://localhost:8080/api/atletas
-
-# Criar atleta
-curl -X POST http://localhost:8080/api/atletas \
-  -H "Content-Type: application/json" \
-  -d '{"nome":"Teste","email":"teste@test.com","idade":20}'
-
-# Buscar atleta específico
-curl http://localhost:8080/api/atletas/1
+cd back-end
+sh ./mvnw test
 ```
 
-### Opção 3: Acessar pelo Frontend
+O projeto contém testes unitários de serviço e cenários BDD/Cucumber. Para validar a aplicação completa, execute-os com JDK 21 e acesso às dependências Maven.
 
-- Navegue para: http://localhost:8080
-- Acesse as páginas HTML disponíveis no diretório `static/`
-
-### Opção 4: Validar Banco de Dados
+### Front-end
 
 ```bash
-# Conectar ao PostgreSQL
-psql -U scout_user -d scoutplaydb
-
-# Listar tabelas
-\dt
-
-# Consultar atletas
-SELECT * FROM atleta;
-
-# Sair
-\q
+cd front-end
+npm run build
+npm run lint
+npm test
 ```
 
----
+Na auditoria da branch `ScoutPlay2.0`, o build de produção foi concluído. O lint encontrou pendências e ainda não existem testes front-end detectáveis pelo Vitest; esses itens permanecem no roadmap.
 
-## ⚠️ Troubleshooting
+## Documentação
 
-### ❌ Erro: "Connection to localhost:5432 refused"
+- [Requisitos funcionais](docs/requisitos/requisitos-funcionais.md)
+- [Requisitos não funcionais](docs/requisitos/requisitos-nao-funcionais.md)
+- [Modelagem do banco](docs/modelagem-banco.md)
+- [Integração da IA](docs/ia-integracao.md)
+- [Plano e roteiros de teste](docs/testes/plano-de-teste.md)
+- [Cronograma acadêmico](docs/cronograma-projeto.md)
+- [Índice histórico das branches](docs/historico/README.md)
+- [Roadmap consolidado](docs/historico/ROADMAP.md)
 
-**Solução:**
-```bash
-# Verificar se PostgreSQL está rodando (Windows)
-Get-Service postgresql-x64-*
+## Histórico das branches
 
-# Iniciar PostgreSQL (se não estiver rodando)
-# Windows: Services > PostgreSQL Database Server > Iniciar
-# macOS: brew services start postgresql
-# Linux: sudo systemctl start postgresql
-```
+| Branch | Papel no repositório |
+| --- | --- |
+| `ScoutPlay2.0` | entrega acadêmica de referência e base desta consolidação |
+| `historico` | documentação consolidada, sem alterar o código entregue |
+| `main` | primeira geração do produto e artefatos acadêmicos antigos |
+| `frontpv` | protótipo front-end já absorvido pela entrega 2.0 |
+| `Maria-Clara-Br` e `video` | experimentos antigos de interface/mídia |
+| `feat/db-remodel` | experimento posterior de IA; exige revisão antes de integração |
 
-### ❌ Erro: "Permission denied" na pasta uploads
+O inventário com decisões de preservação está em [`docs/historico/README.md`](docs/historico/README.md).
 
-**Solução:**
-```bash
-# Dar permissão de leitura/escrita
-chmod -R 755 uploads/
+## Equipe acadêmica
 
-# Ou no Windows PowerShell:
-icacls uploads /grant:r Everyone:(OI)(CI)F /t
-```
+| Integrante | Contribuição registrada na entrega |
+| --- | --- |
+| Victor Henrique Dias | Scrum Master, back-end e integração de IA |
+| Paulo Vitor Amorim de Oliveira | back-end, JWT e DevOps |
+| Maria Clara Marques Lino | front-end React e testes de usabilidade |
+| Lucas Ferreira Andrade | back-end, BDD/Cucumber e repositórios |
+| Cesar Augusto Ferreira Martins | front-end, componentes e design |
+| Caio Alves Fernandes | controllers e documentação |
 
-### ❌ Erro: "Failed to bind to port 8080"
+Dados acadêmicos pessoais foram removidos deste README; o histórico do Git já preserva a autoria técnica.
 
-**Solução:**
-```bash
-# Matar processo na porta 8080 (Windows PowerShell)
-Get-Process -Id (Get-NetTCPConnection -LocalPort 8080).OwningProcess | Stop-Process -Force
+## Licença
 
-# macOS/Linux
-lsof -ti:8080 | xargs kill -9
-
-# Ou configure outra porta em application.properties:
-# server.port=8081
-```
-
-### ❌ Erro: Maven não encontrado
-
-**Solução:**
-```bash
-# Instalar Maven via package manager
-# Windows (Chocolatey): choco install maven
-# macOS (Homebrew): brew install maven
-# Linux (apt): sudo apt install maven
-
-# Verificar instalação
-mvn -version
-```
-
----
-
-## 📊 Variáveis de Ambiente
-
-### Desenvolvimento (opcionais)
-
-**Windows PowerShell:**
-```powershell
-[Environment]::SetEnvironmentVariable("JWT_SECRET", "seu_secret_aqui", "User")
-[Environment]::SetEnvironmentVariable("JWT_EXPIRATION", "86400000", "User")
-```
-
-**macOS/Linux:**
-```bash
-export JWT_SECRET=seu_secret_aqui
-export JWT_EXPIRATION=86400000
-```
-
-### Produção (obrigatórias — `application-prod.properties`)
-
-| Variável | Descrição | Exemplo |
-|----------|-----------|--------|
-| `DB_URL` | URL JDBC do banco | `jdbc:postgresql://host:5432/scoutplaydb` |
-| `DB_USERNAME` | Usuário do banco | `scout_user` |
-| `DB_PASSWORD` | Senha do banco | — |
-| `JWT_SECRET` | Chave HMAC-SHA256 para JWT (**obrigatória**) | — |
-| `JWT_EXPIRATION` | Expiração do token em ms | `86400000` (24h) |
-| `CORS_ORIGINS` | Origens permitidas | `https://scoutplay.com` |
-
-> **Atenção:** Em produção, `JWT_SECRET` não possui valor padrão — a aplicação não sobe sem ela. Use variáveis de ambiente ou secrets do seu provedor de nuvem.
-
----
-
-## 🖥️ Páginas Frontend
-
-O frontend estático está disponível em `src/main/resources/static/` e pode ser acessado em `http://localhost:8080`:
-
-| Página | URL | Descrição |
-|--------|-----|-----------|
-| `index.html` | `/` | Home da plataforma |
-| `login.html` | `/login.html` | Login |
-| `esqueceuSenha.html` | `/esqueceuSenha.html` | Recuperação de senha |
-| `formularioAtletaMaiorDeIdade.html` | `/formularioAtletaMaiorDeIdade.html` | Cadastro de atleta (18+) |
-| `formularioAtletaMenorDeIdade.html` | `/formularioAtletaMenorDeIdade.html` | Cadastro de atleta menor |
-| `formularioOlheiro.html` | `/formularioOlheiro.html` | Cadastro de olheiro |
-| `feedAtleta.html` | `/feedAtleta.html` | Feed do atleta |
-| `feedOlheiro.html` | `/feedOlheiro.html` | Feed do olheiro (busca e filtros) |
-| `editarPerfilAtleta.html` | `/editarPerfilAtleta.html` | Edição de perfil do atleta |
-| `editarPerfilOlheiro.html` | `/editarPerfilOlheiro.html` | Edição de perfil do olheiro |
-
----
-
-## 🤖 Módulo de Inteligência Artificial
-
-O ScoutPlay conta com dois recursos de IA, localizados em `src/main/resources/ia/`:
-
-### Copiloto de Futebol (RAG)
-
-Chatbot baseado em Retrieval-Augmented Generation que responde perguntas sobre fundamentos técnicos e táticos do futebol com base em material especializado.
-
-**Tecnologias:** Python, Streamlit, Ollama (`embeddinggemma`, `phi3:mini`)
-
-**Para executar:**
-```bash
-# Instale as dependências Python
-pip install streamlit ollama numpy
-
-# Certifique-se de ter o Ollama rodando localmente
-ollama serve
-
-# Inicie a aplicação
-streamlit run src/main/resources/ia/app.py
-```
-
-> **Atenção:** Antes de rodar, atualize o caminho `BASE_RAG` em `app.py` para o caminho local do arquivo `notebook/base_rag.pkl`.
-
-### Classificação de Craques
-
-Modelo de ML que classifica o potencial de atletas com base em estatísticas reais de jogadores do Brasileirão, SofaScore e Transfermarkt.
-
-**Dados utilizados:**
-- `brasileirao/database.csv` — estatísticas do Brasileirão
-- `safa e transfermarkt/partidas_sofascore.csv` — dados de partidas
-- `safa e transfermarkt/players_tm.csv` — perfis Transfermarkt
-- `safa e transfermarkt/market_value.csv` — valores de mercado
-
-**Exploração:** Ver notebooks em `ia/notebook/analise_bases.ipynb` e `ia/notebook/nb.ipynb`.
-
----
-
-## �🤝 Contribuição
-
-Contribuições são bem-vindas! Siga os passos:
-
-1. **Fork** o repositório
-2. **Crie uma branch** para sua feature (`git checkout -b feature/MinhaFeature`)
-3. **Commit** suas mudanças (`git commit -m 'Adiciona MinhaFeature'`)
-4. **Push** para a branch (`git push origin feature/MinhaFeature`)
-5. **Abra um Pull Request**
-
-**Guidelines:**
-- Mantenha o código limpo e bem documentado
-- Adicione testes para novas funcionalidades
-- Siga o padrão de código existente
-
----
-
-## 📝 Licença
-
-Este projeto está licenciado sob os termos da [MIT License](LICENSE).
-
----
-
-## 📞 Suporte
-
-Encontrou um problema? 
-- Abra uma **Issue** no repositório
-- Verifique a seção [Troubleshooting](#troubleshooting)
-- Consulte a documentação do [Spring Boot](https://spring.io/projects/spring-boot)
-
----
-
-**Última atualização:** Abril de 2026  
-**Versão:** 1.2.0
+O repositório não contém, nesta entrega, um arquivo de licença. Antes de reutilizar ou distribuir o código fora do contexto acadêmico, os autores devem escolher e adicionar uma licença explícita.
