@@ -46,6 +46,8 @@ public class PostController {
     public ResponseEntity<ApiResponse<List<PostDetailsDTO>>> listar(
             @RequestParam(defaultValue = "0") int page,
             @RequestParam(defaultValue = "10") int size) {
+        if (page < 0) throw new IllegalArgumentException("Página deve ser maior ou igual a zero");
+        if (size < 1 || size > 50) throw new IllegalArgumentException("Tamanho da página deve estar entre 1 e 50");
         List<PostDetailsDTO> posts = postService.listar(page, size);
         return ResponseEntity.ok(ApiResponse.success(posts));
     }
@@ -59,7 +61,7 @@ public class PostController {
     
     @Transactional
     @PostMapping("/{postId}/comment")
-    public ResponseEntity<ApiResponse<CommentDataOutputDTO>> comentar(@PathVariable UUID postId, @RequestBody CommentDataInputDTO request, @CookieValue(name = "access_token", required = true) String accessToken) {
+    public ResponseEntity<ApiResponse<CommentDataOutputDTO>> comentar(@PathVariable UUID postId, @Valid @RequestBody CommentDataInputDTO request, @CookieValue(name = "access_token", required = true) String accessToken) {
         UUID aliasIdDoAutor = UUID.fromString(jwtTokenProvider.extractUserId(accessToken));
         Usuario autor = usuarioService.buscarPor(aliasIdDoAutor);
         Post post = postService.buscarPor(postId)
@@ -121,6 +123,9 @@ public class PostController {
             @CookieValue(name = "access_token", required = true) String accessToken) {
         UUID userId = UUID.fromString(jwtTokenProvider.extractUserId(accessToken));
         Usuario usuario = usuarioService.buscarPor(userId);
+        Post post = postService.buscarPor(postId)
+            .orElseThrow(() -> new ResourceNotFoundException("Post não encontrado"));
+        comentarioService.buscarNoPost(commentId, post);
         comentarioService.curtir(commentId, usuario);
         return ResponseEntity.ok(ApiResponse.success(true));
     }
@@ -132,6 +137,9 @@ public class PostController {
             @CookieValue(name = "access_token", required = true) String accessToken) {
         UUID userId = UUID.fromString(jwtTokenProvider.extractUserId(accessToken));
         Usuario usuario = usuarioService.buscarPor(userId);
+        Post post = postService.buscarPor(postId)
+            .orElseThrow(() -> new ResourceNotFoundException("Post não encontrado"));
+        comentarioService.buscarNoPost(commentId, post);
         comentarioService.descurtir(commentId, usuario);
         return ResponseEntity.ok(ApiResponse.success(true));
     }
@@ -141,12 +149,13 @@ public class PostController {
     public ResponseEntity<ApiResponse<CommentDataOutputDTO>> responderComentario(
             @PathVariable UUID postId,
             @PathVariable UUID commentId,
-            @RequestBody CommentDataInputDTO request,
+            @Valid @RequestBody CommentDataInputDTO request,
             @CookieValue(name = "access_token", required = true) String accessToken) {
         UUID userId = UUID.fromString(jwtTokenProvider.extractUserId(accessToken));
         Usuario autor = usuarioService.buscarPor(userId);
-        Post post = postService.buscarPor(postId).orElseThrow();
-        Comentario parent = comentarioService.buscarPorId(commentId);
+        Post post = postService.buscarPor(postId)
+            .orElseThrow(() -> new ResourceNotFoundException("Post não encontrado"));
+        Comentario parent = comentarioService.buscarNoPost(commentId, post);
         Comentario resposta = comentarioService.criar(new Comentario(request.getTexto(), post, autor, parent));
         return ResponseEntity.ok(ApiResponse.success(toDTO(resposta, postId, autor)));
     }
@@ -207,7 +216,7 @@ public class PostController {
                 .deuLike(deuLike)
                 .build()))
             .titulo(post.get().getTitulo())
-            .descricao(Optional.of(post.get().getDescricao()))
+            .descricao(Optional.ofNullable(post.get().getDescricao()))
             .media(PostMediaData.builder()
                 .src(post.get().getCaminhoArquivo())
                 .mimeType(post.get().obterMimeType())

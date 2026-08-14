@@ -10,11 +10,14 @@ import jakarta.persistence.JoinTable;
 import jakarta.persistence.ManyToMany;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
+import jakarta.persistence.Index;
 import lombok.Getter;
 import lombok.Setter;
 
 @Entity
-@Table(name="t_comentario")
+@Table(name="t_comentario", indexes = {
+    @Index(name = "idx_comentario_post_parent", columnList = "fk_post, fk_parent_comentario")
+})
 @Getter
 @Setter
 public class Comentario extends TabelaBase {

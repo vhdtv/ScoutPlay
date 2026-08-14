@@ -9,6 +9,7 @@ import com.scoutplay.ScoutPlay.services.AuthService;
 import com.scoutplay.ScoutPlay.services.PasswordResetService;
 import com.scoutplay.ScoutPlay.services.UsuarioService;
 import java.util.HashMap;
+import java.util.Map;
 
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.Email;
@@ -27,6 +28,8 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.http.HttpHeaders;
 import java.time.LocalDate;
 import java.time.Duration;
+import java.util.UUID;
+import org.springframework.security.core.Authentication;
 
 @RestController
 @RequestMapping("/api")
@@ -40,6 +43,9 @@ public class AuthController {
     @Value("${app.cookie.secure:false}")
     private boolean cookieSecure;
 
+    @Value("${app.cookie.same-site:Lax}")
+    private String cookieSameSite;
+
     @PostMapping("/login")
     public ResponseEntity<ApiResponse<UserSummaryDTO>> login(@Valid @RequestBody ClientLoginInputDTO request) {
         ClientLoginOutputDTO loginResponse = loginService.autenticarUsuario(request);
@@ -48,7 +54,7 @@ public class AuthController {
             .secure(cookieSecure)
             .path("/")
             .maxAge(Duration.ofMillis(loginResponse.getExpiraEm()))
-            .sameSite("Lax")
+            .sameSite(cookieSameSite)
             .build();
         return ResponseEntity.ok()
             .header(HttpHeaders.SET_COOKIE, accessTokenCookie.toString())
@@ -62,7 +68,7 @@ public class AuthController {
             .secure(cookieSecure)
             .path("/")
             .maxAge(0) // pede ao cliente para remover o cookie de autenticação
-            .sameSite("Lax")
+            .sameSite(cookieSameSite)
             .build();
         return ResponseEntity.ok()
             .header(HttpHeaders.SET_COOKIE, accessTokenCookie.toString())
@@ -70,8 +76,15 @@ public class AuthController {
     }
 
     @GetMapping("/session")
-    public ResponseEntity<ApiResponse<Boolean>> session() {
-        return ResponseEntity.ok(ApiResponse.success(true));
+    public ResponseEntity<ApiResponse<Map<String, Object>>> session(Authentication authentication) {
+        Usuario usuario = usuarioService.buscarPor(UUID.fromString(authentication.getName()));
+        Map<String, Object> session = Map.of(
+            "username", usuario.getUsername(),
+            "roles", authentication.getAuthorities().stream()
+                .map(authority -> authority.getAuthority().replaceFirst("^ROLE_", ""))
+                .toList()
+        );
+        return ResponseEntity.ok(ApiResponse.success(session));
     }
 
     @PostMapping("/signup")
@@ -114,7 +127,7 @@ public class AuthController {
 
         ResponseCookie accessTokenCookie = ResponseCookie.from("access_token", loginResponse.getTokenAcesso())
             .httpOnly(true).secure(cookieSecure).path("/")
-            .maxAge(Duration.ofMillis(loginResponse.getExpiraEm())).sameSite("Lax").build();
+            .maxAge(Duration.ofMillis(loginResponse.getExpiraEm())).sameSite(cookieSameSite).build();
 
         return ResponseEntity.ok()
             .header(HttpHeaders.SET_COOKIE, accessTokenCookie.toString())

@@ -10,6 +10,7 @@ import com.scoutplay.ScoutPlay.models.Post;
 import com.scoutplay.ScoutPlay.models.Usuario;
 import com.scoutplay.ScoutPlay.repositories.PostRepository;
 import com.scoutplay.ScoutPlay.repositories.UsuarioRepository;
+import com.scoutplay.ScoutPlay.exceptions.ResourceNotFoundException;
 
 import jakarta.transaction.Transactional;
 
@@ -21,14 +22,14 @@ public class InteractionsService {
 
     @Transactional
     public void darLike(UUID postId, Usuario usuario) {
-        Post post = postRepository.findByAliasIdAndAtivoTrue(postId).orElseThrow(() -> new RuntimeException("Post não encontrado"));
+        Post post = postRepository.findByAliasIdAndAtivoTrue(postId).orElseThrow(() -> new ResourceNotFoundException("Post não encontrado"));
         usuario.curtirPost(post);
         usuarioRepository.save(usuario);
     }
 
     @Transactional
     public void darDislike(UUID postId, Usuario usuario) {
-        Post post = postRepository.findByAliasIdAndAtivoTrue(postId).orElseThrow(() -> new RuntimeException("Post não encontrado"));
+        Post post = postRepository.findByAliasIdAndAtivoTrue(postId).orElseThrow(() -> new ResourceNotFoundException("Post não encontrado"));
         usuario.descurtirPost(post);
         usuarioRepository.save(usuario);
     }

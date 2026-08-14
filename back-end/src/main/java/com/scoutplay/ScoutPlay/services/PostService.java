@@ -24,6 +24,9 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
+import org.springframework.security.access.AccessDeniedException;
+import org.springframework.transaction.support.TransactionSynchronization;
+import org.springframework.transaction.support.TransactionSynchronizationManager;
 
 import java.io.IOException;
 import java.util.HashSet;
@@ -50,11 +53,13 @@ public class PostService {
         String userId = SecurityUtils.currentUserId();
         Usuario autor = usuarioRepository.findByAliasId(UUID.fromString(userId)).orElseThrow(() -> new ResourceNotFoundException("Usuário não encontrado"));
 
+        String arquivoSalvo = null;
         try {
             Post novoPost = new Post();
             novoPost.setTitulo(dto.getTitulo());
             novoPost.setDescricao(dto.getDescricao());
-            novoPost.setCaminhoArquivo(FileService.saveMedia(dto.getArquivo(), "uploads/media/"));
+            arquivoSalvo = FileService.saveMedia(dto.getArquivo(), "uploads/media/");
+            novoPost.setCaminhoArquivo(arquivoSalvo);
             novoPost.setAutor(autor);
             Set<String> imageTypes = Set.of("jpg", "webp", "png");
             if(imageTypes.contains(novoPost.obterExtensaoDaMidia())) novoPost.setTipoMidia(this.tipoMidiaService.categorizarComoImagem());
@@ -64,7 +69,7 @@ public class PostService {
             return PostDataOutputDTO.builder()
                 .url(post.getAliasId())
                 .titulo(post.getTitulo())
-                .descricao(Optional.of(post.getDescricao()))
+                .descricao(Optional.ofNullable(post.getDescricao()))
                 .src(post.getCaminhoArquivo())
                 .poster(null)
                 .criadoEm(post.getCriadoEm())
@@ -81,7 +86,11 @@ public class PostService {
                 .build();
         }
         catch(IOException error) {
+            FileService.deleteIfExists(arquivoSalvo, "uploads/media/");
             throw new IllegalStateException("Não foi possível salvar a mídia", error);
+        } catch (RuntimeException error) {
+            FileService.deleteIfExists(arquivoSalvo, "uploads/media/");
+            throw error;
         }
     }
 
@@ -91,7 +100,7 @@ public class PostService {
         return PostDataOutputDTO.builder()
             .url(post.getAliasId())
             .titulo(post.getTitulo())
-            .descricao(Optional.of(post.getDescricao()))
+            .descricao(Optional.ofNullable(post.getDescricao()))
             .src(post.getCaminhoArquivo())
             .poster(null)
             .criadoEm(post.getCriadoEm())
@@ -110,6 +119,9 @@ public class PostService {
 
     @Transactional
     public List<PostDetailsDTO> listar(int page, int size) {
+        if (page < 0 || size < 1 || size > 50) {
+            throw new IllegalArgumentException("Paginação inválida");
+        }
         Set<String> seguindoUsernames = new HashSet<>();
         try {
             String userId = SecurityUtils.currentUserId();
@@ -192,9 +204,16 @@ public class PostService {
         Post post = postRepository.findByAliasIdAndAtivoTrue(postId)
             .orElseThrow(() -> new ResourceNotFoundException("Post não encontrado"));
         if (!post.getAutor().getAliasId().equals(autorId)) {
-            throw new RuntimeException("Sem permissão para deletar este post");
+            throw new AccessDeniedException("Sem permissão para deletar este post");
         }
         post.setAtivo(false);
+        String arquivo = post.getCaminhoArquivo();
+        TransactionSynchronizationManager.registerSynchronization(new TransactionSynchronization() {
+            @Override
+            public void afterCommit() {
+                FileService.deleteIfExists(arquivo, "uploads/media/");
+            }
+        });
     }
 
     @Transactional

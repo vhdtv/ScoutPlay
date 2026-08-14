@@ -3,6 +3,8 @@ package com.scoutplay.ScoutPlay.config;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.scoutplay.ScoutPlay.api.response.ApiResponse;
 import com.scoutplay.ScoutPlay.security.JwtAuthenticationFilter;
+import com.scoutplay.ScoutPlay.security.OriginValidationFilter;
+import com.scoutplay.ScoutPlay.security.RateLimitFilter;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -30,6 +32,8 @@ public class SecurityConfig {
 
     private final JwtAuthenticationFilter jwtAuthenticationFilter;
     private final ObjectMapper objectMapper;
+    private final OriginValidationFilter originValidationFilter;
+    private final RateLimitFilter rateLimitFilter;
 
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
@@ -65,7 +69,9 @@ public class SecurityConfig {
                     objectMapper.writeValue(response.getWriter(), ApiResponse.error("FORBIDDEN", "Acesso negado"));
                 })
             )
-            .addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class);
+            .addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class)
+            .addFilterBefore(rateLimitFilter, JwtAuthenticationFilter.class)
+            .addFilterBefore(originValidationFilter, RateLimitFilter.class);
 
         return http.build();
     }
