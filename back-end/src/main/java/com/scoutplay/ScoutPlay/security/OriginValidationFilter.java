@@ -1,5 +1,7 @@
 package com.scoutplay.ScoutPlay.security;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.scoutplay.ScoutPlay.api.response.ApiResponse;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
@@ -18,10 +20,14 @@ import java.util.stream.Collectors;
 public class OriginValidationFilter extends OncePerRequestFilter {
     private static final Set<String> SAFE_METHODS = Set.of("GET", "HEAD", "OPTIONS", "TRACE");
     private final Set<String> allowedOrigins;
+    private final ObjectMapper objectMapper;
 
-    public OriginValidationFilter(@Value("${spring.web.cors.allowed-origins}") String origins) {
+    public OriginValidationFilter(
+            @Value("${spring.web.cors.allowed-origins}") String origins,
+            ObjectMapper objectMapper) {
         this.allowedOrigins = Arrays.stream(origins.split(","))
             .map(String::trim).filter(value -> !value.isBlank()).collect(Collectors.toUnmodifiableSet());
+        this.objectMapper = objectMapper;
     }
 
     @Override
@@ -32,7 +38,8 @@ public class OriginValidationFilter extends OncePerRequestFilter {
             response.setStatus(HttpServletResponse.SC_FORBIDDEN);
             response.setCharacterEncoding(StandardCharsets.UTF_8.name());
             response.setContentType("application/json");
-            response.getWriter().write("{\"success\":false,\"errorCode\":\"INVALID_ORIGIN\",\"message\":\"Origem não permitida\"}");
+            objectMapper.writeValue(response.getWriter(),
+                ApiResponse.error("INVALID_ORIGIN", "Origem não permitida"));
             return;
         }
         chain.doFilter(request, response);

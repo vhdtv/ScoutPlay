@@ -1,5 +1,7 @@
 package com.scoutplay.ScoutPlay.security;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.scoutplay.ScoutPlay.api.response.ApiResponse;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
@@ -20,6 +22,11 @@ public class RateLimitFilter extends OncePerRequestFilter {
         "/api/login", "/api/signup", "/api/forgot-password", "/api/reset-password", "/api/ia/prompt"
     );
     private final Map<String, Window> windows = new ConcurrentHashMap<>();
+    private final ObjectMapper objectMapper;
+
+    public RateLimitFilter(ObjectMapper objectMapper) {
+        this.objectMapper = objectMapper;
+    }
 
     @Override
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain chain)
@@ -35,7 +42,8 @@ public class RateLimitFilter extends OncePerRequestFilter {
                 response.setHeader("Retry-After", "60");
                 response.setCharacterEncoding(StandardCharsets.UTF_8.name());
                 response.setContentType("application/json");
-                response.getWriter().write("{\"success\":false,\"errorCode\":\"RATE_LIMITED\",\"message\":\"Muitas tentativas. Tente novamente em instantes.\"}");
+                objectMapper.writeValue(response.getWriter(), ApiResponse.error(
+                    "RATE_LIMITED", "Muitas tentativas. Tente novamente em instantes."));
                 return;
             }
             if (windows.size() > 10_000) windows.entrySet().removeIf(entry -> entry.getValue().minute < minute - 2);
