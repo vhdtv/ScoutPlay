@@ -5,11 +5,12 @@ import jakarta.persistence.Entity;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
+import jakarta.persistence.Index;
 import lombok.Getter;
 import lombok.Setter;
 
 @Entity
-@Table(name = "t_avaliacao")
+@Table(name = "t_avaliacao", indexes = @Index(name = "idx_avaliacao_atleta", columnList = "fk_atleta"))
 @Getter
 @Setter
 public class Avaliacao extends TabelaBase {

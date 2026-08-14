@@ -8,9 +8,6 @@ import type {
 	PostDataInputDTO,
 	PostDataOutputDTO,
 	PostDetailsDTO,
-	PostHighlightDTO,
-	SearchParamsDTO,
-	SearchResultsOutputDTO,
 	UserProfileDetailDTO,
 	UserProfileDTO,
 	UserSummaryDTO,
@@ -65,7 +62,14 @@ export default class {
 				method: "GET",
 				credentials: "include",
 			});
-			if (!request.ok) this.deletarDadosUsuarioNoNavegador();
+			if (request.ok) {
+				const { data } = await request.json();
+				if (data?.username)
+					localStorage.setItem(this.USER_CACHE_KEY, data.username);
+				if (Array.isArray(data?.roles)) {
+					localStorage.setItem(this.TIPO_CONTA_KEY, JSON.stringify(data.roles));
+				}
+			} else this.deletarDadosUsuarioNoNavegador();
 			return request.ok;
 		} catch {
 			return false;
@@ -137,10 +141,6 @@ export default class {
 			souSeguidor: data.souSeguidor ?? false,
 		};
 	};
-	atualizarPerfil = async (_data: any) => {
-		throw new Error("Not implemented");
-	};
-
 	atualizarInfoPerfil = async (info: {
 		nome?: string;
 		sobrenome?: string;
@@ -226,12 +226,6 @@ export default class {
 		}
 		return true;
 	};
-	desvincularComoResponsavelAConta = async (
-		_nomeUsuario: string,
-	): Promise<boolean> => {
-		throw new Error("Not implemented");
-	};
-
 	criarPost = async ({
 		titulo,
 		arquivo,
@@ -289,12 +283,6 @@ export default class {
 			return false;
 		}
 	};
-	atualizarPost = async (
-		_id: PostDataOutputDTO["url"],
-		_data: PostDataOutputDTO,
-	): Promise<PostDataOutputDTO> => {
-		throw new Error("Not implemented");
-	};
 	darLikeEmPost = async (postId: string): Promise<boolean> => {
 		const request = await fetch(
 			`${this.BACKEND_ENDPOINT}/post/${postId}/like`,
@@ -322,12 +310,6 @@ export default class {
 		);
 		if (request.status !== 200) return false;
 		return true;
-	};
-	darDestaque = async (
-		_postId: UUID,
-		_data: string | number,
-	): Promise<PostHighlightDTO> => {
-		throw new Error("Not implemented");
 	};
 	obterComentarios = async (postId: UUID): Promise<CommentDTO[]> => {
 		const request = await fetch(
@@ -440,19 +422,6 @@ export default class {
 			},
 		);
 		return request.ok;
-	};
-	mandarConvite = async (
-		_nomeUsuario: string,
-		_texto: string,
-	): Promise<boolean> => {
-		throw new Error("Not implemented");
-	};
-
-	buscar = async (
-		_texto: string,
-		_filtros: SearchParamsDTO,
-	): Promise<SearchResultsOutputDTO> => {
-		throw new Error("Not implemented");
 	};
 	chatIA = async (prompt: string): Promise<MensagemDTO> => {
 		const request = await fetch(`${this.BACKEND_ENDPOINT}/ia/prompt`, {

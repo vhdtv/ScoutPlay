@@ -50,4 +50,23 @@ describe("API de autenticação", () => {
 		expect(api.obterDadosUsuarioNoNavegador()).toBeNull();
 		expect(api.obterTipoContaUsuario()).toEqual([]);
 	});
+
+	it("atualiza identidade e papéis usando a sessão do servidor", async () => {
+		vi.stubGlobal(
+			"fetch",
+			vi
+				.fn()
+				.mockResolvedValue(
+					new Response(
+						JSON.stringify({ data: { username: "bia", roles: ["OLHEIRO"] } }),
+						{ status: 200, headers: { "Content-Type": "application/json" } },
+					),
+				),
+		);
+
+		const api = new API();
+		expect(await api.validarSessao()).toBe(true);
+		expect(api.obterDadosUsuarioNoNavegador()).toBe("bia");
+		expect(api.obterTipoContaUsuario()).toEqual(["OLHEIRO"]);
+	});
 });

@@ -59,18 +59,35 @@ class ScoutPlayFunctionalTest {
     }
 
     @Test
+    void requisicoesMutaveisDeOrigemNaoPermitidaDevemSerBloqueadas() throws Exception {
+        mvc.perform(post("/api/login")
+                .header("Origin", "https://site-malicioso.example")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(json("email", "ninguem@example.com", "senha", "Senha123!")))
+            .andExpect(status().isForbidden())
+            .andExpect(jsonPath("$.errorCode").value("INVALID_ORIGIN"));
+    }
+
+    @Test
+    void paginacaoInvalidaDeveRetornarErroDeCliente() throws Exception {
+        mvc.perform(get("/api/post/").param("page", "-1").param("size", "1000"))
+            .andExpect(status().isBadRequest())
+            .andExpect(jsonPath("$.errorCode").value("BAD_REQUEST"));
+    }
+
+    @Test
     void cadastroLoginSessaoEPerfilDevemFuncionar() throws Exception {
         String suffix = UUID.randomUUID().toString().substring(0, 8);
         String email = "atleta." + suffix + "@scoutplay.test";
         MvcResult cadastro = cadastrar(email, "ATLETA", "2000-01-10", "123" + digits(suffix));
         Cookie cookieAcesso = cadastro.getResponse().getCookie("access_token");
+        String username = objectMapper.readTree(cadastro.getResponse().getContentAsString())
+            .path("data").path("username").asText();
 
         mvc.perform(get("/api/session").cookie(cookieAcesso))
             .andExpect(status().isOk())
-            .andExpect(jsonPath("$.data").value(true));
-
-        String username = objectMapper.readTree(cadastro.getResponse().getContentAsString())
-            .path("data").path("username").asText();
+            .andExpect(jsonPath("$.data.username").value(username))
+            .andExpect(jsonPath("$.data.roles[0]").value("ATLETA"));
 
         mvc.perform(get("/api/user").param("user", username).cookie(cookieAcesso))
             .andExpect(status().isOk())

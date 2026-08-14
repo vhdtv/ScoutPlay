@@ -9,6 +9,7 @@ import jakarta.persistence.FetchType;
 import jakarta.persistence.ManyToMany;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
+import jakarta.persistence.Index;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.ToString;
@@ -16,7 +17,10 @@ import lombok.ToString;
 @Entity
 @Getter
 @Setter
-@Table(name="t_post")
+@Table(name="t_post", indexes = {
+    @Index(name = "idx_post_ativo_criado", columnList = "ativo, criado_em"),
+    @Index(name = "idx_post_autor_ativo", columnList = "autor_id, ativo")
+})
 public class Post extends TabelaBase {
     private String titulo;
     private String descricao;

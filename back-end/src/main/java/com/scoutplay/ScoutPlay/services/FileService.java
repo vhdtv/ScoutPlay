@@ -29,6 +29,17 @@ public final class FileService {
         return save(file, saveDirectory, MEDIA_EXTENSIONS, MAX_MEDIA_BYTES);
     }
 
+    public static void deleteIfExists(String filename, String saveDirectory) {
+        if (filename == null || !filename.matches("^[a-zA-Z0-9_-]+\\.(?i:jpg|jpeg|png|webp|mp4|mov)$")) return;
+        try {
+            Path root = Paths.get(saveDirectory).toAbsolutePath().normalize();
+            Path target = root.resolve(filename).normalize();
+            if (target.startsWith(root)) Files.deleteIfExists(target);
+        } catch (IOException ignored) {
+            // A limpeza pode ser repetida por um job de manutenção.
+        }
+    }
+
     private static String save(MultipartFile file, String saveDirectory, Set<String> allowedExtensions, long maxBytes)
             throws IOException {
         if (file == null || file.isEmpty()) {
