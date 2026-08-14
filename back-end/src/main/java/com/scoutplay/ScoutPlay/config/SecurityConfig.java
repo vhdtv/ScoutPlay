@@ -69,9 +69,9 @@ public class SecurityConfig {
                     objectMapper.writeValue(response.getWriter(), ApiResponse.error("FORBIDDEN", "Acesso negado"));
                 })
             )
-            .addFilterBefore(originValidationFilter, JwtAuthenticationFilter.class)
-            .addFilterAfter(rateLimitFilter, OriginValidationFilter.class)
-            .addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class);
+            .addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class)
+            .addFilterBefore(rateLimitFilter, JwtAuthenticationFilter.class)
+            .addFilterBefore(originValidationFilter, RateLimitFilter.class);
 
         return http.build();
     }
