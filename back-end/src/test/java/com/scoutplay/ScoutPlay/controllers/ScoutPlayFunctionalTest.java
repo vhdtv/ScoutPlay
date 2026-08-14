@@ -26,6 +26,7 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.multipart;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.cookie;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
@@ -65,7 +66,7 @@ class ScoutPlayFunctionalTest {
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(json("email", "ninguem@example.com", "senha", "Senha123!")))
             .andExpect(status().isForbidden())
-            .andExpect(jsonPath("$.errorCode").value("INVALID_ORIGIN"));
+            .andExpect(content().string("Invalid CORS request"));
     }
 
     @Test
