@@ -10,7 +10,7 @@ import org.springframework.data.jpa.repository.Query;
 import java.util.Optional;
 import java.util.UUID;
 
-public interface PostRepository extends JpaRepository<Post, UUID> {
+public interface PostRepository extends JpaRepository<Post, Integer> {
     Page<Post> findByAtivoTrue(Pageable pageable);
     Page<Post> findByAutorAndAtivoTrue(Usuario autor, Pageable pageable);
     Optional<Post> findByAliasIdAndAtivoTrue(UUID aliasId);

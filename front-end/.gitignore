@@ -10,7 +10,6 @@ dist-ssr
 .wrangler
 .output
 .vinxi
-package-lock.json
 .content-collections
 .cta.json
 __unconfig*

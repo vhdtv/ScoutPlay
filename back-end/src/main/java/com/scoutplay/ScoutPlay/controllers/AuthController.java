@@ -13,8 +13,12 @@ import java.util.HashMap;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.Past;
+import jakarta.validation.constraints.Pattern;
+import jakarta.validation.constraints.Size;
 import lombok.Data;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 
 import org.springframework.http.ResponseCookie;
@@ -22,10 +26,12 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.http.HttpHeaders;
 import java.time.LocalDate;
+import java.time.Duration;
 
 @RestController
 @RequestMapping("/api")
 @RequiredArgsConstructor
+@Slf4j
 public class AuthController {
     private final AuthService loginService;
     private final PasswordResetService passwordResetService;
@@ -41,7 +47,7 @@ public class AuthController {
             .httpOnly(true)
             .secure(cookieSecure)
             .path("/")
-            .maxAge(loginResponse.getExpiraEm())
+            .maxAge(Duration.ofMillis(loginResponse.getExpiraEm()))
             .sameSite("Lax")
             .build();
         return ResponseEntity.ok()
@@ -63,20 +69,30 @@ public class AuthController {
             .body(ApiResponse.success(true));
     }
 
+    @GetMapping("/session")
+    public ResponseEntity<ApiResponse<Boolean>> session() {
+        return ResponseEntity.ok(ApiResponse.success(true));
+    }
+
     @PostMapping("/signup")
-    public ResponseEntity<ApiResponse<UserSummaryDTO>> signup(@RequestBody SignupRequest request) {
-        LocalDate dataNascimento = null;
-        if (request.getDataNascimento() != null && !request.getDataNascimento().isEmpty()) {
-            dataNascimento = LocalDate.parse(request.getDataNascimento());
-        }
+    public ResponseEntity<ApiResponse<UserSummaryDTO>> signup(@Valid @RequestBody SignupRequest request) {
+        LocalDate dataNascimento = request.getDataNascimento();
         String sobrenome = request.getSobrenome() != null ? request.getSobrenome() : "";
-        Usuario usuario = new Usuario(request.getNome(), sobrenome, request.getEmail(), request.getSenha(), dataNascimento);
+        Usuario usuario = new Usuario(
+            request.getNome().trim(),
+            sobrenome.trim(),
+            request.getEmail().trim().toLowerCase(java.util.Locale.ROOT),
+            request.getSenha(),
+            dataNascimento
+        );
         if (request.getCpf() != null && !request.getCpf().isBlank()) usuario.setCpf(request.getCpf());
         if (request.getTelefone() != null && !request.getTelefone().isBlank()) usuario.setTelefone(request.getTelefone());
 
         Usuario savedUser;
         if ("OLHEIRO".equalsIgnoreCase(request.getTipoConta())) {
             savedUser = usuarioService.cadastrarOlheiro(usuario);
+        } else if ("RESPONSAVEL".equalsIgnoreCase(request.getTipoConta())) {
+            savedUser = usuarioService.cadastrarResponsavel(usuario);
         } else {
             savedUser = usuarioService.cadastrarAtleta(usuario);
         }
@@ -97,7 +113,8 @@ public class AuthController {
         ClientLoginOutputDTO loginResponse = loginService.autenticarUsuario(loginInput);
 
         ResponseCookie accessTokenCookie = ResponseCookie.from("access_token", loginResponse.getTokenAcesso())
-            .httpOnly(true).secure(cookieSecure).path("/").maxAge(loginResponse.getExpiraEm()).sameSite("Lax").build();
+            .httpOnly(true).secure(cookieSecure).path("/")
+            .maxAge(Duration.ofMillis(loginResponse.getExpiraEm())).sameSite("Lax").build();
 
         return ResponseEntity.ok()
             .header(HttpHeaders.SET_COOKIE, accessTokenCookie.toString())
@@ -107,21 +124,42 @@ public class AuthController {
     @PostMapping("/forgot-password")
     public ResponseEntity<ApiResponse<Void>> forgotPassword(
             @Valid @RequestBody ForgotPasswordRequest request) {
-        passwordResetService.enviarSenhaTemporaria(request.getEmail());
+        try {
+            passwordResetService.solicitarRecuperacao(request.getEmail());
+        } catch (RuntimeException ex) {
+            log.warn("Não foi possível iniciar recuperação de senha", ex);
+        }
         return ResponseEntity.ok(ApiResponse.success(null,
-                "Se o e-mail estiver cadastrado, uma nova senha foi enviada."));
+                "Se o e-mail estiver cadastrado, enviaremos as instruções de recuperação."));
+    }
+
+    @PostMapping("/reset-password")
+    public ResponseEntity<ApiResponse<Void>> resetPassword(
+            @Valid @RequestBody ResetPasswordRequest request) {
+        passwordResetService.redefinirSenha(request.getToken(), request.getNovaSenha());
+        return ResponseEntity.ok(ApiResponse.success(null, "Senha redefinida com sucesso."));
     }
 
     @Data
     static class SignupRequest {
+        @NotBlank @Size(max = 80)
         private String nome;
+        @Size(max = 100)
         private String sobrenome;
+        @NotBlank @Email @Size(max = 254)
         private String email;
+        @NotBlank @Size(min = 8, max = 72)
         private String senha;
-        private String dataNascimento;
+        @Past
+        private LocalDate dataNascimento;
+        @NotBlank
+        @Pattern(regexp = "(?i)ATLETA|OLHEIRO|RESPONSAVEL", message = "Tipo de conta inválido")
         private String tipoConta;
+        @Pattern(regexp = "^$|\\d{11}$", message = "CPF deve conter 11 dígitos")
         private String cpf;
+        @Size(max = 20)
         private String telefone;
+        @Pattern(regexp = "^$|\\d{8}$", message = "CEP deve conter 8 dígitos")
         private String cep;
         private Double peso;
         private Double altura;
@@ -134,6 +172,15 @@ public class AuthController {
     static class ForgotPasswordRequest {
         @NotBlank @Email
         private String email;
+    }
+
+    @Data
+    static class ResetPasswordRequest {
+        @NotBlank
+        private String token;
+
+        @NotBlank @Size(min = 8, max = 72)
+        private String novaSenha;
     }
 
 }

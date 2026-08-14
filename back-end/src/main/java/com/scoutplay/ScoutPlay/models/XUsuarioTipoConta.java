@@ -5,16 +5,19 @@ import jakarta.persistence.Entity;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
+import jakarta.persistence.UniqueConstraint;
+import jakarta.persistence.FetchType;
 import lombok.Getter;
 
 @Entity
-@Table(name="xref_usuario_tipoconta")
+@Table(name="xref_usuario_tipoconta", uniqueConstraints =
+    @UniqueConstraint(name = "uk_usuario_tipo_conta", columnNames = {"fk_usuario", "fk_tipo_conta"}))
 public class XUsuarioTipoConta extends TabelaBase {
-    @ManyToOne(cascade = CascadeType.MERGE)
+    @ManyToOne(fetch = FetchType.LAZY, cascade = CascadeType.MERGE)
     @JoinColumn(name = "fk_usuario")
     @Getter
     private Usuario usuario;
-    @ManyToOne(cascade = CascadeType.MERGE)
+    @ManyToOne(fetch = FetchType.LAZY, cascade = CascadeType.MERGE)
     @JoinColumn(name = "fk_tipo_conta")
     @Getter
     private TipoConta tipoConta;

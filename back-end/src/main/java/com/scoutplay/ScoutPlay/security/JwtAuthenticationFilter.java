@@ -16,7 +16,7 @@ import org.springframework.stereotype.Component;
 import org.springframework.web.filter.OncePerRequestFilter;
 
 import java.io.IOException;
-import java.util.List;
+import java.util.Collection;
 
 /**
  * Filtro para validar JWT token nas requisições
@@ -32,24 +32,8 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
     private final JwtTokenProvider jwtTokenProvider;
 
-    /**
-     * Endpoints que não precisam de autenticação JWT
-     */
-    private static final String[] PUBLIC_API_ENDPOINTS = {
-        "/api/login",
-        "/api/signup",
-        "/api/forgot-password",
-        "/api/user",
-    };
-
     @Override
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain) throws ServletException, IOException {
-        String requestUri = request.getRequestURI();
-        if (isPublicEndpoint(requestUri)) {
-            filterChain.doFilter(request, response);
-            return;
-        }
-
         try {
             String token = extractTokenFromRequest(request);
             if (token == null || token.isBlank()) {
@@ -59,14 +43,16 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
             if (jwtTokenProvider.validateToken(token)) {
                 String userId = jwtTokenProvider.extractUserId(token);
-                String userType = jwtTokenProvider.extractUserType(token);
+                Collection<String> userTypes = jwtTokenProvider.extractUserTypes(token);
 
                 request.setAttribute("aliasUsuario", userId);
-                request.setAttribute("tipoConta", userType);
+                request.setAttribute("tipoConta", userTypes);
                 UsernamePasswordAuthenticationToken authentication = new UsernamePasswordAuthenticationToken(
                     userId,
                     null,
-                    List.of(new SimpleGrantedAuthority(userType))
+                    userTypes.stream()
+                        .map(type -> new SimpleGrantedAuthority("ROLE_" + type))
+                        .toList()
                 );
                 SecurityContextHolder.getContext().setAuthentication(authentication);
 
@@ -107,21 +93,4 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
         return null;
     }
 
-    /**
-     * Verifica se o endpoint é público (não precisa de JWT)
-     */
-    private boolean isPublicEndpoint(String requestUri) {
-        if (!requestUri.startsWith("/api/")) {
-            return true;
-        }
-        if (requestUri.startsWith("/api/atletas/fotos/")) {
-            return true;
-        }
-        for (String publicEndpoint : PUBLIC_API_ENDPOINTS) {
-            if (requestUri.startsWith(publicEndpoint)) {
-                return true;
-            }
-        }
-        return false;
-    }
 }

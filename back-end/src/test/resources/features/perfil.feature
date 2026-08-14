@@ -6,17 +6,17 @@ Funcionalidade: Perfil de usuário
   Para manter minhas informações atualizadas na plataforma
 
   Cenário: Buscar dados do próprio perfil
-    Dado que o atleta "fabio@atleta.com" com senha "12345" está autenticado
+    Dado que o atleta "fabio@atleta.com" com senha "senha123" está autenticado
     Quando busco os dados do perfil do username "fabin_123"
     Então os dados do perfil devem ser retornados com sucesso
 
   Cenário: Adicionar detalhe ao perfil
-    Dado que o atleta "fabio@atleta.com" com senha "12345" está autenticado
+    Dado que o atleta "fabio@atleta.com" com senha "senha123" está autenticado
     Quando adiciono o detalhe de perfil com chave "POSICAO" e valor "Atacante"
     Então o detalhe de perfil deve ser salvo com sucesso
 
   Cenário: Remover detalhe do perfil
-    Dado que o atleta "fabio@atleta.com" com senha "12345" está autenticado
+    Dado que o atleta "fabio@atleta.com" com senha "senha123" está autenticado
     E que o detalhe de perfil com chave "POSICAO" e valor "Atacante" existe
     Quando removo o detalhe de perfil com chave "POSICAO"
     Então o detalhe de perfil deve ser removido com sucesso

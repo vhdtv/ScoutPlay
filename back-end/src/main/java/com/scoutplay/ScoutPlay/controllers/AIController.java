@@ -35,6 +35,10 @@ public class AIController {
             return ResponseEntity.badRequest()
                     .body(ApiResponse.error("INVALID_REQUEST", "Campo 'pergunta' é obrigatório"));
         }
+        if (pergunta.length() > 500) {
+            return ResponseEntity.badRequest()
+                    .body(ApiResponse.error("INVALID_REQUEST", "A pergunta deve ter no máximo 500 caracteres"));
+        }
 
         String resposta = aiService.perguntar(pergunta);
         return ResponseEntity.ok(ApiResponse.success(Map.of("resposta", resposta)));

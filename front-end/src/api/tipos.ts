@@ -1,140 +1,143 @@
-import type { UUID } from "crypto";
+import type { UUID } from "node:crypto";
 
 export type UserSummaryDTO = {
-    username: string,
-    nome: string,
-    iniciais: string,
-    fotoPerfil: string | null,
-    sobrenome: string | null,
-    posicao?: string,
-    tipoConta?: string[],
-}
+	username: string;
+	nome: string;
+	iniciais: string;
+	fotoPerfil: string | null;
+	sobrenome: string | null;
+	posicao?: string;
+	tipoConta?: string[];
+};
 
 export type UserProfileDTO = UserSummaryDTO & {
-    idade: number,
-    tipoConta: TipoContaDTO[]
-    detalhesPerfil: UserProfileDetailDTO
-    posts: PostDTO[],
-    souEu?: boolean,
-    configuracoes?: ConfigItemDTO,
-    seguidores?: number,
-    seguindo?: number,
-    souSeguidor?: boolean,
-}
+	idade: number;
+	tipoConta: TipoContaDTO[];
+	detalhesPerfil: UserProfileDetailDTO;
+	posts: PostDTO[];
+	souEu?: boolean;
+	configuracoes?: ConfigItemDTO;
+	seguidores?: number;
+	seguindo?: number;
+	souSeguidor?: boolean;
+};
 
-export type TipoContaDTO = "ATLETA" | "RESPONSAVEL"
+export type TipoContaDTO = "ATLETA" | "RESPONSAVEL";
 
 export type UserProfileDetailDTO = {
-    RESPONSAVEL?: UserSummaryDTO[],
-    PE_DOMINANTE?: string,
-    CIDADE?: string,
-    POSICOES?: string[],
-    CLUBES?: PassagemUsuarioEmClubeDTO[],
-    [v: string]: any
-}
+	RESPONSAVEL?: UserSummaryDTO[];
+	PE_DOMINANTE?: string;
+	CIDADE?: string;
+	POSICOES?: string[];
+	CLUBES?: PassagemUsuarioEmClubeDTO[];
+	[v: string]: any;
+};
 
 export type PassagemUsuarioEmClubeDTO = {
-    url: string,
-    nome: string,
-    data: {
-        inicio: Date,
-        fim?: Date
-    }
-}
+	url: string;
+	nome: string;
+	data: {
+		inicio: Date;
+		fim?: Date;
+	};
+};
 
 export type PostDataInputDTO = {
-    titulo: string,
-    descricao?: string,
-    arquivo: File,
-}
+	titulo: string;
+	descricao?: string;
+	arquivo: File;
+};
 
 export type PostDataOutputDTO = {
-    url: string,
-    titulo: string,
-    descricao?: string,
-    src: string,
-    poster: string,
-    criadoEm: Date,
-    tipoMidia: "VIDEO" | "IMAGE",
-    autor: UserSummaryDTO,
-}
+	url: string;
+	titulo: string;
+	descricao?: string;
+	src: string;
+	poster: string;
+	criadoEm: Date;
+	tipoMidia: "VIDEO" | "IMAGE";
+	autor: UserSummaryDTO;
+};
 
 export type PostHighlightDTO = {
-    texto: string,
-    contador: number
-}
+	texto: string;
+	contador: number;
+};
 
-export type PostDetailsDTO = PostDTO & {autor: UserSummaryDTO, metadados: {segueConta: boolean}}
+export type PostDetailsDTO = PostDTO & {
+	autor: UserSummaryDTO;
+	metadados: { segueConta: boolean };
+};
 
 export type SearchParamsDTO = {
-    peDominante?: "DIREITO" | "ESQUERDO",
-    cidade?: string,
-    posicoes?: UUID[],
-    potencialDeCraques: boolean,
-}
+	peDominante?: "DIREITO" | "ESQUERDO";
+	cidade?: string;
+	posicoes?: UUID[];
+	potencialDeCraques: boolean;
+};
 
 export type SearchResultsOutputDTO = {
-    dados: SearchedItem[]
-}
+	dados: SearchedItem[];
+};
 
-export type SearchedItem = 
-      { tipo: "PERFIL", dado: UserSummaryDTO } 
-    | { tipo: "POST", dado: PostDataOutputDTO }
+export type SearchedItem =
+	| { tipo: "PERFIL"; dado: UserSummaryDTO }
+	| { tipo: "POST"; dado: PostDataOutputDTO };
 
 export type PostDTO = {
-    url: UUID,
-    titulo: string,
-    descricao: string | null,
-    interacoes: {
-        /* Fala se o perfil que está logado já deu like no post */
-        deuLike: boolean,
-        quantidadeLike: number,
-        destaques?: PostHighlightDTO[] 
-    },
-    criadoEm: Date,
-    media: {
-        poster?: string,
-        mimeType: HTMLSourceElement['type'],
-        src: string,
-    }
-}
+	url: UUID;
+	titulo: string;
+	descricao: string | null;
+	interacoes: {
+		/* Fala se o perfil que está logado já deu like no post */
+		deuLike: boolean;
+		quantidadeLike: number;
+		destaques?: PostHighlightDTO[];
+	};
+	criadoEm: Date;
+	media: {
+		poster?: string;
+		mimeType: HTMLSourceElement["type"];
+		src: string;
+	};
+};
 
 export type ConfigItemDTO = {
-    OLHEIROS_PODEM_CONECTAR_PELO_WHATSAPP?: boolean,
-    OCULTAR_INFORMACOES_PESSOAIS_PUBLICAMENTE?: boolean
-}
+	OLHEIROS_PODEM_CONECTAR_PELO_WHATSAPP?: boolean;
+	OCULTAR_INFORMACOES_PESSOAIS_PUBLICAMENTE?: boolean;
+};
 
 export type CommentDTO = {
-    id: string,
-    por: UserSummaryDTO,
-    texto: string,
-    quantidadeLike: number,
-    euCurti: boolean,
-    respostas: CommentDTO[],
-}
+	id: string;
+	por: UserSummaryDTO;
+	texto: string;
+	quantidadeLike: number;
+	euCurti: boolean;
+	respostas: CommentDTO[];
+};
 
 export type MensagemDTO = {
-    autor: "IA" | "USUARIO",
-    texto: string,
-}
+	autor: "IA" | "USUARIO";
+	texto: string;
+};
 
 export type AtletaCardDTO = {
-    username: string,
-    nome: string,
-    sobrenome: string | null,
-    iniciais: string,
-    fotoPerfil: string | null,
-    idade: number | null,
-    posicao: string | null,
-    peDominante: string | null,
-    clubesAnteriores: string | null,
-    seguidores: number,
-}
+	username: string;
+	nome: string;
+	sobrenome: string | null;
+	iniciais: string;
+	fotoPerfil: string | null;
+	idade: number | null;
+	posicao: string | null;
+	peDominante: string | null;
+	clubesAnteriores: string | null;
+	seguidores: number;
+};
 
 export type AvaliacaoDTO = {
-    id: string,
-    nota: number,
-    comentario: string | null,
-    olheiro: UserSummaryDTO,
-    criadoEm: string,
-}
+	id: string;
+	nota: number;
+	comentario: string | null;
+	olheiro: UserSummaryDTO;
+	criadoEm: string;
+};

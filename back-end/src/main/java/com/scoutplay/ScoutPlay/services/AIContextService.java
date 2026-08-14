@@ -9,6 +9,8 @@ import com.scoutplay.ScoutPlay.repositories.DetalhePerfilRepository;
 import com.scoutplay.ScoutPlay.repositories.UsuarioRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -24,10 +26,13 @@ public class AIContextService {
     private final DetalhePerfilRepository detalhePerfilRepository;
     private final AvaliacaoRepository avaliacaoRepository;
 
+    @Value("${app.ia.max-athletes:100}")
+    private int maxAthletes;
+
     @Transactional(readOnly = true)
     public String montarContexto() {
         List<Usuario> atletas = usuarioRepository
-                .findAllAtivosByTipoContaId(TipoConta.ATLETA, Pageable.unpaged())
+                .findAllAtivosByTipoContaId(TipoConta.ATLETA, PageRequest.of(0, Math.max(1, Math.min(maxAthletes, 200))))
                 .getContent();
 
         if (atletas.isEmpty()) {
@@ -37,8 +42,8 @@ public class AIContextService {
         StringBuilder sb = new StringBuilder();
 
         for (Usuario atleta : atletas) {
-            sb.append("Atleta: ").append(atleta.getNome());
-            if (atleta.getSobrenome() != null) sb.append(" ").append(atleta.getSobrenome());
+            sb.append("Atleta: ").append(safe(atleta.getNome()));
+            if (atleta.getSobrenome() != null) sb.append(" ").append(safe(atleta.getSobrenome()));
             if (atleta.obterIdade() != null) sb.append(", ").append(atleta.obterIdade()).append(" anos");
             sb.append("\n");
 
@@ -67,10 +72,18 @@ public class AIContextService {
     }
 
     private void append(StringBuilder sb, String label, Object value) {
-        if (value != null) sb.append(label).append(": ").append(value).append("\n");
+        if (value != null) sb.append(label).append(": ").append(safe(value)).append("\n");
     }
 
     private void append(StringBuilder sb, String label, Object value, String unidade) {
-        if (value != null) sb.append(label).append(": ").append(value).append(unidade).append("\n");
+        if (value != null) sb.append(label).append(": ").append(safe(value)).append(unidade).append("\n");
+    }
+
+    private String safe(Object value) {
+        String normalized = String.valueOf(value)
+            .replaceAll("[\\r\\n\\t]+", " ")
+            .replaceAll("[<>]", "")
+            .trim();
+        return normalized.length() > 120 ? normalized.substring(0, 120) : normalized;
     }
 }

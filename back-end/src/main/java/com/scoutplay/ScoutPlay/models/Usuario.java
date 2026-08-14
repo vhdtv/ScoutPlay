@@ -1,6 +1,7 @@
 package com.scoutplay.ScoutPlay.models;
 
 import jakarta.persistence.CascadeType;
+import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.FetchType;
 import jakarta.persistence.JoinColumn;
@@ -8,6 +9,7 @@ import jakarta.persistence.JoinTable;
 import jakarta.persistence.ManyToMany;
 import jakarta.persistence.OneToMany;
 import jakarta.persistence.Table;
+import jakarta.persistence.UniqueConstraint;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.AccessLevel;
@@ -15,24 +17,29 @@ import lombok.AccessLevel;
 import java.time.LocalDate;
 import java.time.Period;
 import java.util.ArrayList;
-import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
-import java.util.Map;
-import java.util.UUID;
+import java.util.Set;
 
 import com.fasterxml.jackson.annotation.JsonManagedReference;
 
 @Entity
-@Table(name="t_usuario")
+@Table(name="t_usuario", uniqueConstraints = {
+    @UniqueConstraint(name = "uk_usuario_email", columnNames = "email"),
+    @UniqueConstraint(name = "uk_usuario_username", columnNames = "username"),
+    @UniqueConstraint(name = "uk_usuario_cpf", columnNames = "cpf")
+})
 @Getter
 @Setter    
 public class Usuario extends TabelaBase {
     @Setter(AccessLevel.NONE)
     private String cpf;
     private LocalDate dataNascimento;
+    @Column(nullable = false, length = 254)
     private String email;
     private String nome;
     private String sobrenome;
+    @Column(nullable = false, length = 80)
     private String username;
     private String senha;
     private String telefone;
@@ -47,7 +54,7 @@ public class Usuario extends TabelaBase {
       joinColumns = @JoinColumn(name = "fk_usuario"),
       inverseJoinColumns = @JoinColumn(name = "fk_post")
     )
-    private Map<UUID, Post> postsCurtidos = new HashMap<UUID, Post>();
+    private Set<Post> postsCurtidos = new HashSet<>();
 
     protected Usuario() {}
     public Usuario(String _nome, String _email, String _senha, LocalDate _dataNascimento) {
@@ -78,7 +85,6 @@ public class Usuario extends TabelaBase {
     }
     
     public void setCpf(String _cpf) {
-        System.out.println("123123123");
         if(this.cpf != null) return;
         this.cpf = _cpf;
     }
@@ -89,24 +95,24 @@ public class Usuario extends TabelaBase {
     }
     
     public String getNomeCompleto() {
-        return this.getNome() + " " + this.getSobrenome();
+        return (this.getNome() + " " + (this.getSobrenome() == null ? "" : this.getSobrenome())).trim();
     }
     
     public String getIniciais() {
-        return this.nome.charAt(0) + "" + this.sobrenome.charAt(0);
+        String primeira = nome == null || nome.isBlank() ? "?" : nome.substring(0, 1);
+        String segunda = sobrenome == null || sobrenome.isBlank() ? "" : sobrenome.substring(0, 1);
+        return (primeira + segunda).toUpperCase();
     }
 
     public void curtirPost(Post post) {
-        Boolean jaDeuLike = this.postsCurtidos.get(post.getAliasId()) != null;
-        if (jaDeuLike) return;
-        this.postsCurtidos.put(post.getAliasId(), post);
+        if (this.postsCurtidos.contains(post)) return;
+        this.postsCurtidos.add(post);
         post.getUsuariosQueCurtiram().add(this);
     }
 
     public void descurtirPost(Post post) {
-        Boolean naoDeuLike = this.postsCurtidos.get(post.getAliasId()) == null;
-        if (naoDeuLike) return;
-        this.postsCurtidos.remove(post.getAliasId());
+        if (!this.postsCurtidos.contains(post)) return;
+        this.postsCurtidos.remove(post);
         post.getUsuariosQueCurtiram().remove(this);
     }
 

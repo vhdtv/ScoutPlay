@@ -6,6 +6,7 @@ import java.util.stream.Collectors;
 
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.CookieValue;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -113,10 +114,12 @@ public class UserController {
         Usuario usuario = usuarioService.buscarPor(aliasId);
         try {
             java.nio.file.Files.createDirectories(java.nio.file.Paths.get("uploads/avatars"));
-            String filename = FileService.saveFileInFolder(arquivo, "uploads/avatars/");
+            String filename = FileService.saveAvatar(arquivo, "uploads/avatars/");
             usuario.setFotoPerfil(filename);
             usuarioService.salvar(usuario);
-        } catch (Exception e) {
+        } catch (IllegalArgumentException e) {
+            throw e;
+        } catch (java.io.IOException e) {
             return ResponseEntity.internalServerError().body(ApiResponse.error("500", "Erro ao salvar avatar"));
         }
         return ResponseEntity.ok(ApiResponse.success(UserSummaryDTO.builder()
@@ -148,6 +151,7 @@ public class UserController {
     // ── Avaliações ────────────────────────────────────────────────────────────
 
     @PostMapping("/user/{username}/avaliar")
+    @PreAuthorize("hasRole('OLHEIRO')")
     public ResponseEntity<ApiResponse<AvaliacaoOutputDTO>> avaliarAtleta(
             @PathVariable String username,
             @Valid @RequestBody AvaliacaoInputDTO body,
@@ -187,6 +191,7 @@ public class UserController {
     // ── Shortlist ─────────────────────────────────────────────────────────────
 
     @PostMapping("/user/{username}/shortlist")
+    @PreAuthorize("hasRole('OLHEIRO')")
     public ResponseEntity<ApiResponse<Void>> adicionarShortlist(
             @PathVariable String username,
             @CookieValue(name = "access_token", required = true) String accessToken) {
@@ -196,6 +201,7 @@ public class UserController {
     }
 
     @DeleteMapping("/user/{username}/shortlist")
+    @PreAuthorize("hasRole('OLHEIRO')")
     public ResponseEntity<ApiResponse<Void>> removerShortlist(
             @PathVariable String username,
             @CookieValue(name = "access_token", required = true) String accessToken) {
@@ -205,10 +211,25 @@ public class UserController {
     }
 
     @GetMapping("/shortlist")
+    @PreAuthorize("hasRole('OLHEIRO')")
     public ResponseEntity<ApiResponse<List<AtletaCardDTO>>> obterShortlist(
             @CookieValue(name = "access_token", required = true) String accessToken) {
         UUID olheiroId = UUID.fromString(jwtTokenProvider.extractUserId(accessToken));
         return ResponseEntity.ok(ApiResponse.success(usuarioService.obterShortlist(olheiroId)));
+    }
+
+    @PostMapping("/user/{username}/responsavel")
+    @PreAuthorize("hasRole('RESPONSAVEL')")
+    public ResponseEntity<ApiResponse<DetalhePerfilOutputDTO>> vincularResponsavel(
+            @PathVariable String username,
+            @CookieValue(name = "access_token", required = true) String accessToken) {
+        UUID responsavelId = UUID.fromString(jwtTokenProvider.extractUserId(accessToken));
+        DetalhePerfil detalhe = usuarioService.vincularResponsavel(responsavelId, username);
+        return ResponseEntity.ok(ApiResponse.success(DetalhePerfilOutputDTO.builder()
+            .data(detalhe.getData())
+            .id(detalhe.getAliasId())
+            .userId(detalhe.getUsuario().getAliasId())
+            .build()));
     }
 
     // ── Busca de atletas ──────────────────────────────────────────────────────

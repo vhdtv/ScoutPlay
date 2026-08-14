@@ -12,6 +12,8 @@ import org.springframework.stereotype.Component;
 import javax.crypto.SecretKey;
 import java.nio.charset.StandardCharsets;
 import java.util.Date;
+import java.util.Collection;
+import java.util.List;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -31,10 +33,10 @@ public class JwtTokenProvider {
      * @param userType Tipo de usuário (ATLETA, OLHEIRO, RESPONSAVEL)
      * @return Token JWT assinado
      */
-    public String generateToken(String aliasUsuario, String tipoConta) {
+    public String generateToken(String aliasUsuario, Collection<String> tiposConta) {
         Map<String, Object> claims = new HashMap<>();
         claims.put("aliasUsuario", aliasUsuario);
-        claims.put("tipoConta", tipoConta);
+        claims.put("tiposConta", tiposConta);
 
         return Jwts.builder()
             .setClaims(claims)
@@ -55,8 +57,14 @@ public class JwtTokenProvider {
     /**
      * Extrai o userType do token
      */
-    public String extractUserType(String token) {
-        return (String) getClaimsFromToken(token).get("tipoConta");
+    public List<String> extractUserTypes(String token) {
+        Claims claims = getClaimsFromToken(token);
+        Object values = claims.get("tiposConta");
+        if (values instanceof Collection<?> collection) {
+            return collection.stream().map(String::valueOf).toList();
+        }
+        Object legacyValue = claims.get("tipoConta");
+        return legacyValue == null ? List.of("USUARIO") : List.of(String.valueOf(legacyValue));
     }
 
     /**

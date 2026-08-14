@@ -4,6 +4,7 @@ import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
+import jakarta.persistence.FetchType;
 import jakarta.persistence.Table;
 import lombok.AccessLevel;
 import lombok.Getter;
@@ -22,8 +23,8 @@ import com.fasterxml.jackson.annotation.JsonBackReference;
 @Setter
 public class DetalhePerfil extends TabelaBase {
     @Setter(AccessLevel.NONE)
-    @ManyToOne
-    @JoinColumn(name = "fk_usuario")
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "fk_usuario", nullable = false, unique = true)
     @JsonBackReference
     private Usuario usuario;
     @JdbcTypeCode(SqlTypes.JSON)

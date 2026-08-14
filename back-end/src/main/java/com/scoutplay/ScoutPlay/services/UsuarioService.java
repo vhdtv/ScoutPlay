@@ -20,6 +20,7 @@ import com.scoutplay.ScoutPlay.api.dto.AtletaCardDTO;
 import com.scoutplay.ScoutPlay.api.dto.UserProfileFieldsDTO;
 import com.scoutplay.ScoutPlay.api.dto.UserProfileSummary;
 import com.scoutplay.ScoutPlay.exceptions.ConflictException;
+import com.scoutplay.ScoutPlay.exceptions.ResourceNotFoundException;
 import com.scoutplay.ScoutPlay.models.DetalhePerfil;
 import com.scoutplay.ScoutPlay.models.Post;
 import com.scoutplay.ScoutPlay.models.TipoConta;
@@ -70,7 +71,7 @@ public class UsuarioService {
     
     @Transactional
     public Usuario cadastrarAtleta(Usuario usuario) {
-        if(usuario.getSenha() == null || usuario.getSenha().isBlank()) throw new IllegalArgumentException("Senha é obrigatória");
+        validarCredenciaisBasicas(usuario);
         if(usuario.getCpf() != null && usuarioRepository.existsByCpf(usuario.getCpf())) throw new ConflictException("Um atleta com este CPF já existe.");
         if(usuarioRepository.existsByEmail(usuario.getEmail())) throw new ConflictException("Este e-mail já está em uso. Por favor, utilize outro.");
         if(usuario.getUsername() == null || usuario.getUsername().isBlank()) usuario.setUsername(gerarUsername(usuario.getNome()));
@@ -78,12 +79,15 @@ public class UsuarioService {
         usuario = usuarioRepository.saveAndFlush(usuario);
         tipoContaService.categorizarContaComoAtleta(usuario);
         Integer idade = usuario.obterIdade();
-        if (idade != null && idade >= 18) this.vincularResponsavel(usuario, usuario);
+        if (idade != null && idade < 18) {
+            detalhePerfilService.adicionarInformacao("RESPONSAVEL_PENDENTE", true, usuario);
+        }
         return usuario;
     }
     
     @Transactional
     public Usuario cadastrarResponsavel(Usuario usuario) {
+        validarCredenciaisBasicas(usuario);
         if(usuarioRepository.existsByCpf(usuario.getCpf())) throw new ConflictException("Um cadastro com este CPF já existe.");
         if(usuarioRepository.existsByEmail(usuario.getEmail())) throw new ConflictException("Este e-mail já está em uso. Por favor, utilize outro.");
         usuario.setUsername(gerarUsername(usuario.getNome()));
@@ -95,10 +99,37 @@ public class UsuarioService {
     
     @Transactional
     public DetalhePerfil vincularResponsavel(Usuario atleta, Usuario responsavel) {
+        if (!tipoContaService.verificarTipoConta(atleta, TipoConta.ATLETA)) {
+            throw new ConflictException("A conta informada não é de atleta");
+        }
+        if (!tipoContaService.verificarTipoConta(responsavel, TipoConta.RESPONSAVEL)) {
+            throw new ConflictException("A conta autenticada não é de responsável");
+        }
+        Integer idade = atleta.obterIdade();
+        if (idade == null || idade >= 18) {
+            throw new ConflictException("Vínculo de responsável é permitido somente para atleta menor de idade");
+        }
+        DetalhePerfil detalhe = detalhePerfilRepository.getByUsuario(atleta);
+        if (detalhe != null && detalhe.getData() != null) {
+            Object existente = detalhe.getData().get("RESPONSAVEL");
+            if (existente != null && !existente.toString().equals(responsavel.getAliasId().toString())) {
+                throw new ConflictException("O atleta já possui responsável vinculado");
+            }
+        }
         Map<String, Object> info = new HashMap<>();
-        Object data = responsavel.getAliasId();
-        info.put("RESPONSAVEL", data);
-        return detalhePerfilService.adicionarInformacao("RESPONSAVEL", responsavel.getAliasId(), atleta);
+        info.put("RESPONSAVEL", responsavel.getAliasId().toString());
+        info.put("RESPONSAVEL_PENDENTE", false);
+        return detalhePerfilService.adicionarInformacao(info, atleta);
+    }
+
+    @Transactional
+    public DetalhePerfil vincularResponsavel(UUID responsavelId, String atletaUsername) {
+        Usuario responsavel = buscarPor(responsavelId);
+        Usuario atleta = usuarioRepository.findByUsernameIgnoreCase(atletaUsername);
+        if (responsavel == null || atleta == null) {
+            throw new ResourceNotFoundException("Usuário não encontrado");
+        }
+        return vincularResponsavel(atleta, responsavel);
     }
     
     @Transactional
@@ -106,12 +137,16 @@ public class UsuarioService {
         if(!tipoContaService.verificarTipoConta(atleta, TipoConta.ATLETA)) throw new ConflictException("A conta informada não é do tipo válido (Tipo A)");
         Map<String, Object> detalhePerfilDoAtleta = detalhePerfilRepository.getByUsuario(atleta).getData();
         // valida se esse responsavel realmente é o RESPONSAVEL de atleta
-        if(detalhePerfilDoAtleta.get("RESPONSAVEL").equals(responsavel.getAliasId().toString()) == false) throw new ConflictException("Usuario não autorizado a realizar esta ação");
+        if (!Objects.equals(String.valueOf(detalhePerfilDoAtleta.get("RESPONSAVEL")), responsavel.getAliasId().toString())) {
+            throw new ConflictException("Usuário não autorizado a realizar esta ação");
+        }
         detalhePerfilDoAtleta.remove("RESPONSAVEL");
+        detalhePerfilDoAtleta.put("RESPONSAVEL_PENDENTE", true);
     }
     
     @Transactional
     public Usuario cadastrarOlheiro(Usuario usuario) {
+        validarCredenciaisBasicas(usuario);
         if(usuario.getCpf() != null && usuarioRepository.existsByCpf(usuario.getCpf())) throw new ConflictException("Um cadastro com este CPF já existe.");
         if(usuarioRepository.existsByEmail(usuario.getEmail())) throw new ConflictException("Este e-mail já está em uso. Por favor, utilize outro.");
         usuario.setUsername(gerarUsername(usuario.getNome()));
@@ -119,6 +154,22 @@ public class UsuarioService {
         usuario = usuarioRepository.saveAndFlush(usuario);
         tipoContaService.categorizarContaComoOlheiro(usuario);
         return usuario;
+    }
+
+    private void validarCredenciaisBasicas(Usuario usuario) {
+        if (usuario.getNome() == null || usuario.getNome().isBlank()) {
+            throw new IllegalArgumentException("Nome é obrigatório");
+        }
+        if (usuario.getEmail() == null || usuario.getEmail().isBlank()) {
+            throw new IllegalArgumentException("E-mail é obrigatório");
+        }
+        if (usuario.getSenha() == null || usuario.getSenha().isBlank()) {
+            throw new IllegalArgumentException("Senha é obrigatória");
+        }
+        if (usuario.getSenha().length() < 8) {
+            throw new IllegalArgumentException("Senha deve ter pelo menos 8 caracteres");
+        }
+        usuario.setEmail(usuario.getEmail().trim().toLowerCase(java.util.Locale.ROOT));
     }
     
     @Transactional
@@ -144,7 +195,7 @@ public class UsuarioService {
 
     private UserProfileSummary buscarDadosPerfilInterno(String username, Usuario solicitante) {
         Usuario usuario = usuarioRepository.findByUsernameIgnoreCase(username);
-        if (usuario == null) throw new Error("Usuario não encontrado");
+        if (usuario == null) throw new ResourceNotFoundException("Usuário não encontrado");
 
         Set<XUsuarioTipoConta> poderes = xUsuarioTipoContaRepository.getByUsuario(usuario);
         String[] tipoConta = poderes.stream().map(this::resolverTipoInstance).distinct().toArray(String[]::new);
@@ -152,7 +203,12 @@ public class UsuarioService {
         Map<String, Object> detalhesPerfil = null;
         try {
             DetalhePerfil dp = detalhePerfilRepository.getByUsuario(usuario);
-            if (dp != null) detalhesPerfil = dp.getData();
+            if (dp != null && dp.getData() != null) {
+                detalhesPerfil = new HashMap<>(dp.getData());
+                boolean possuiResponsavel = detalhesPerfil.get("RESPONSAVEL") != null;
+                detalhesPerfil.remove("RESPONSAVEL");
+                detalhesPerfil.put("possuiResponsavel", possuiResponsavel);
+            }
         } catch (Exception ignored) {}
 
         List<UserProfileSummary.PostResume> posts = postRepository
@@ -225,6 +281,10 @@ public class UsuarioService {
             usuario.setSobrenome(novaInformacao.getSobrenome().get());
         if (novaInformacao.getUsername() != null && novaInformacao.getUsername().isPresent()) {
             String novoUsername = novaInformacao.getUsername().get().trim().toLowerCase().replaceAll("\\s+", "_");
+            Usuario existente = usuarioRepository.findByUsernameIgnoreCase(novoUsername);
+            if (existente != null && !existente.getAliasId().equals(usuario.getAliasId())) {
+                throw new ConflictException("Este nome de usuário já está em uso.");
+            }
             if (!novoUsername.isEmpty()) usuario.setUsername(novoUsername);
         }
         Set<XUsuarioTipoConta> poderesQueContaPossui = this.xUsuarioTipoContaRepository.getByUsuario(usuario);

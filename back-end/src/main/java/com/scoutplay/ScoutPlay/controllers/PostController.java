@@ -12,6 +12,7 @@ import com.scoutplay.ScoutPlay.api.response.ApiResponse;
 import com.scoutplay.ScoutPlay.models.Comentario;
 import com.scoutplay.ScoutPlay.models.Post;
 import com.scoutplay.ScoutPlay.models.Usuario;
+import com.scoutplay.ScoutPlay.exceptions.ResourceNotFoundException;
 import com.scoutplay.ScoutPlay.security.JwtTokenProvider;
 import com.scoutplay.ScoutPlay.services.ComentarioService;
 import com.scoutplay.ScoutPlay.services.InteractionsService;
@@ -19,6 +20,7 @@ import com.scoutplay.ScoutPlay.services.PostService;
 import com.scoutplay.ScoutPlay.services.UsuarioService;
 
 import jakarta.transaction.Transactional;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -49,7 +51,7 @@ public class PostController {
     }
 
     @PostMapping("/")
-    public ResponseEntity<ApiResponse<PostDataOutputDTO>> criar(@ModelAttribute PostDataInputDTO dto) {
+    public ResponseEntity<ApiResponse<PostDataOutputDTO>> criar(@Valid @ModelAttribute PostDataInputDTO dto) {
         PostDataOutputDTO criado = this.postService.criar(dto);
         if(criado == null) return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(ApiResponse.error("400", "Erro ao criar post"));
         return ResponseEntity.status(HttpStatus.OK).body(ApiResponse.success(criado, "Post criado com sucesso"));
@@ -60,7 +62,8 @@ public class PostController {
     public ResponseEntity<ApiResponse<CommentDataOutputDTO>> comentar(@PathVariable UUID postId, @RequestBody CommentDataInputDTO request, @CookieValue(name = "access_token", required = true) String accessToken) {
         UUID aliasIdDoAutor = UUID.fromString(jwtTokenProvider.extractUserId(accessToken));
         Usuario autor = usuarioService.buscarPor(aliasIdDoAutor);
-        Post post = postService.buscarPor(postId).get();
+        Post post = postService.buscarPor(postId)
+            .orElseThrow(() -> new ResourceNotFoundException("Post não encontrado"));
         Comentario comentario = new Comentario(request.getTexto(), post, autor);
         comentario = comentarioService.criar(comentario);
         return ResponseEntity.status(HttpStatus.OK).body(ApiResponse.success(CommentDataOutputDTO.builder()
@@ -98,7 +101,7 @@ public class PostController {
             @PathVariable UUID postId,
             @CookieValue(name = "access_token", required = false) String accessToken) {
         Optional<Post> item = postService.buscarPor(postId);
-        if(item.isEmpty()) throw new Error("Post não encontrado");
+        if(item.isEmpty()) throw new ResourceNotFoundException("Post não encontrado");
         Post post = item.get();
         Usuario logado = null;
         if (accessToken != null) {

@@ -8,7 +8,7 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import java.util.ArrayList;
 import java.util.UUID;
 
-public interface ComentarioRepository extends JpaRepository<Comentario, UUID> {
+public interface ComentarioRepository extends JpaRepository<Comentario, Integer> {
 
     ArrayList<Comentario> findAllByPost(Post post);
     ArrayList<Comentario> findAllByPostAndParentComentarioIsNull(Post post);

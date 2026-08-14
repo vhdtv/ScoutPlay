@@ -19,6 +19,8 @@ import org.springframework.boot.ApplicationArguments;
 import org.springframework.boot.ApplicationRunner;
 import org.springframework.core.annotation.Order;
 import org.springframework.stereotype.Component;
+import org.springframework.context.annotation.Profile;
+import org.springframework.beans.factory.annotation.Value;
 
 import java.io.FileOutputStream;
 import java.io.InputStream;
@@ -35,10 +37,14 @@ import java.util.List;
 import java.util.Map;
 
 @Component
+@Profile("demo")
 @Order(2)
 @Slf4j
 @RequiredArgsConstructor
 public class DataSeeder implements ApplicationRunner {
+
+    @Value("${app.seed.password:}")
+    private String seedPassword;
 
     private final UsuarioRepository usuarioRepository;
     private final UsuarioService usuarioService;
@@ -85,6 +91,9 @@ public class DataSeeder implements ApplicationRunner {
 
     @Override
     public void run(ApplicationArguments args) throws Exception {
+        if (seedPassword == null || seedPassword.length() < 12) {
+            throw new IllegalStateException("No perfil demo, defina SEED_PASSWORD com pelo menos 12 caracteres");
+        }
         tipoContaService.injetarValores();
         tipoMidiaService.injetarValores();
         tipoDetalhePerfil.injetarValores();
@@ -284,14 +293,14 @@ public class DataSeeder implements ApplicationRunner {
 
     @Transactional
     private Usuario criarAtleta(String nome, String sobrenome, String email, String cpf, LocalDate nasc, String tel) {
-        Usuario u = new Usuario(nome, sobrenome, email, cpf, "Senha@123", nasc);
+        Usuario u = new Usuario(nome, sobrenome, email, cpf, seedPassword, nasc);
         u.setTelefone(tel);
         return usuarioService.cadastrarAtleta(u);
     }
 
     @Transactional
     private Usuario criarOlheiro(String nome, String sobrenome, String email, String cpf, LocalDate nasc, String tel) {
-        Usuario u = new Usuario(nome, sobrenome, email, cpf, "Senha@123", nasc);
+        Usuario u = new Usuario(nome, sobrenome, email, cpf, seedPassword, nasc);
         u.setTelefone(tel);
         return usuarioService.cadastrarOlheiro(u);
     }

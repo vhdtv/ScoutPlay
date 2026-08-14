@@ -54,7 +54,7 @@ public class PostService {
             Post novoPost = new Post();
             novoPost.setTitulo(dto.getTitulo());
             novoPost.setDescricao(dto.getDescricao());
-            novoPost.setCaminhoArquivo(FileService.saveFileInFolder(dto.getArquivo(), "uploads/media/"));
+            novoPost.setCaminhoArquivo(FileService.saveMedia(dto.getArquivo(), "uploads/media/"));
             novoPost.setAutor(autor);
             Set<String> imageTypes = Set.of("jpg", "webp", "png");
             if(imageTypes.contains(novoPost.obterExtensaoDaMidia())) novoPost.setTipoMidia(this.tipoMidiaService.categorizarComoImagem());
@@ -81,7 +81,7 @@ public class PostService {
                 .build();
         }
         catch(IOException error) {
-            return null;
+            throw new IllegalStateException("Não foi possível salvar a mídia", error);
         }
     }
 
