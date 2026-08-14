@@ -83,8 +83,6 @@ class UsuarioServiceTest {
         when(usuarioRepository.existsByEmail(anyString())).thenReturn(false);
         when(passwordEncoder.encode(anyString())).thenReturn("senhaEncoded");
         when(usuarioRepository.saveAndFlush(any(Usuario.class))).thenReturn(atletaMock);
-        when(detalhePerfilService.adicionarInformacao(anyString(), any(), any(Usuario.class)))
-                .thenReturn(new DetalhePerfil());
 
         Usuario resultado = usuarioService.cadastrarAtleta(atletaMock);
 
@@ -150,8 +148,6 @@ class UsuarioServiceTest {
         when(usuarioRepository.existsByEmail(anyString())).thenReturn(false);
         when(passwordEncoder.encode("senha123")).thenReturn("$2a$hash");
         when(usuarioRepository.saveAndFlush(any(Usuario.class))).thenReturn(atletaMock);
-        when(detalhePerfilService.adicionarInformacao(anyString(), any(), any(Usuario.class)))
-                .thenReturn(new DetalhePerfil());
 
         usuarioService.cadastrarAtleta(atletaMock);
 
